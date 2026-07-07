@@ -442,7 +442,7 @@ openGuideCategory = function(cat){
 try{
   PLACES.general = {title:'Moments', emoji:'✨', cat:'MOMENTS', sub:'Every place has a story', desc:'每一個地方都可以留底 rating、something to say 同相片。', categoryLabel:'✨ Moments', price:'Memory', hours:'Anytime', maps:'#', address:'Saigon Companion'};
   MOODS.splice(0, MOODS.length, ['🤩','Wow'], ['😋','Delicious'], ['😵','Exhausted'], ['🔥','正到爆'], ['🤯','估你唔到'], ['😶','Speechless'], ['🥲','仆街了'], ['🤬','Damn']);
-  TRIP_DATA.city = {title:'🇻🇳 City', body:`<p>Ho Chi Minh City（Saigon）係越南最大城市同經濟中心；第一郡最方便，景點、餐廳、商場、spa 同酒店都集中。</p><div class='fact-grid city-facts'><div class='fact'><strong>Currency</strong>Vietnamese Dong · VND</div><div class='fact'><strong>Time zone</strong>UTC +7</div><div class='fact'><strong>Transport</strong>Grab 最方便</div><div class='fact'><strong>Late Oct</strong>Hot · humid · showers possible</div></div><h3>Useful to Know</h3><ul><li>短程交通以 Grab 為主，4 人通常叫 6-seater 會舒服啲。</li><li>現金留俾小店、tips、街邊食物同 Spa。</li><li>下午戶外行程要留冷氣位；中午至下午最熱。</li><li>過馬路保持穩定步速，唔好突然停低。</li></ul>`};
+  TRIP_DATA.city = {title:'🇻🇳 City', body:`<p>Ho Chi Minh City（Saigon）係越南最大城市同經濟中心。對今次行程嚟講，重點係第一郡夠方便：酒店、餐廳、商場、景點同 Grab 動線都集中。</p><div class='fact-grid city-facts'><div class='fact'><strong>Currency</strong>Vietnamese Dong · VND</div><div class='fact'><strong>Time zone</strong>UTC +7</div><div class='fact'><strong>Transport</strong>Grab 最方便</div><div class='fact'><strong>Late Oct</strong>Hot · humid · showers possible</div></div><h3>Useful to Know</h3><ul><li>短程交通以 Grab 為主，4 人通常叫 6-seater 會舒服啲。</li><li>現金留俾小店、tips、街邊食物同 Spa。</li><li>下午戶外行程要留冷氣位；中午至下午最熱。</li><li>過馬路保持穩定步速，唔好突然停低。</li></ul>`};
   TRIP_DATA.stay = {title:'🏨 Stay', body:`<p><strong>Fusion Original Saigon Centre</strong><br>下樓連住 Saigon Centre / Takashimaya，熱、雨、夜晚返酒店都方便。</p><div class='hotel-card'><p class='kicker'>Hotel Address</p><p><strong>Fusion Original Saigon Centre</strong><br>65 Lê Lợi, Bến Nghé, District 1, Ho Chi Minh City, Vietnam</p><div class='guide-next-row'><button class='pill' onclick="copyText('Fusion Original Saigon Centre, 65 Lê Lợi, Bến Nghé, District 1, Ho Chi Minh City, Vietnam')">📋 Copy Address</button><a class='pill' href='https://maps.google.com/?q=Fusion+Original+Saigon+Centre' target='_blank'>🗺 Open Maps</a></div></div><div class='fact-grid'><div class='fact'><strong>Room</strong>2 Bedroom Suite</div><div class='fact'><strong>Bathrooms</strong>2 bathrooms</div><div class='fact'><strong>Check-in</strong>Confirm with hotel</div><div class='fact'><strong>Check-out</strong>Before airport spa</div><div class='fact'><strong>Best for</strong>Midday reset</div><div class='fact'><strong>Nearby</strong>Maison Marou · Takashimaya</div></div>`};
 }catch(e){}
 function copyText(text){
@@ -1115,4 +1115,41 @@ document.addEventListener('DOMContentLoaded',()=>{
     return result;
   };
   document.addEventListener('DOMContentLoaded',()=>{ ensurePaidByUI(); resetPaidByToCurrentUser(); });
+})();
+
+/* CCMV loading animation v4 — shown once per browser session */
+(function(){
+  function isHomePage(){
+    const last=(location.pathname.split('/').pop() || '').toLowerCase();
+    return last==='' || last==='index.html';
+  }
+  function shouldShowSplash(){
+    try{return isHomePage() && !sessionStorage.getItem('ccmvSplashSeenV4');}
+    catch(e){return isHomePage();}
+  }
+  function showSplash(){
+    if(!shouldShowSplash()) return;
+    try{sessionStorage.setItem('ccmvSplashSeenV4','1');}catch(e){}
+    const splash=document.createElement('div');
+    splash.className='ccmv-splash';
+    splash.setAttribute('aria-label','Loading Vietnam 2026 Companion');
+    splash.innerHTML=`
+      <div class="ccmv-splash-paper" aria-hidden="true"></div>
+      <div class="ccmv-splash-glow" aria-hidden="true"></div>
+      <section class="ccmv-splash-content" role="status" aria-live="polite">
+        <img class="ccmv-splash-logo" src="logo-monogram-transparent.png" alt="CCMV Since 2013 logo">
+        <h1 class="ccmv-splash-line">Plan together ·<br>Travel together</h1>
+        <div class="ccmv-splash-destination">VIETNAM 2026</div>
+      </section>
+      <div class="ccmv-splash-fadeout" aria-hidden="true"></div>`;
+    document.body.appendChild(splash);
+    const close=function(){
+      splash.classList.add('hide');
+      setTimeout(function(){ if(splash && splash.parentNode) splash.parentNode.removeChild(splash); },850);
+    };
+    setTimeout(close,8000);
+    splash.addEventListener('click',close,{once:true});
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',showSplash,{once:true});
+  else showSplash();
 })();
