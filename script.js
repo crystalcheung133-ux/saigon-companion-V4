@@ -1116,3 +1116,40 @@ document.addEventListener('DOMContentLoaded',()=>{
   };
   document.addEventListener('DOMContentLoaded',()=>{ ensurePaidByUI(); resetPaidByToCurrentUser(); });
 })();
+
+/* CCMV loading animation v4 — shown once per browser session */
+(function(){
+  function isHomePage(){
+    const last=(location.pathname.split('/').pop() || '').toLowerCase();
+    return last==='' || last==='index.html';
+  }
+  function shouldShowSplash(){
+    try{return isHomePage() && !sessionStorage.getItem('ccmvSplashSeenV4');}
+    catch(e){return isHomePage();}
+  }
+  function showSplash(){
+    if(!shouldShowSplash()) return;
+    try{sessionStorage.setItem('ccmvSplashSeenV4','1');}catch(e){}
+    const splash=document.createElement('div');
+    splash.className='ccmv-splash';
+    splash.setAttribute('aria-label','Loading Vietnam 2026 Companion');
+    splash.innerHTML=`
+      <div class="ccmv-splash-paper" aria-hidden="true"></div>
+      <div class="ccmv-splash-glow" aria-hidden="true"></div>
+      <section class="ccmv-splash-content" role="status" aria-live="polite">
+        <img class="ccmv-splash-logo" src="logo-monogram-transparent.png" alt="CCMV Since 2013 logo">
+        <h1 class="ccmv-splash-line">Plan together ·<br>Travel together</h1>
+        <div class="ccmv-splash-destination">VIETNAM 2026</div>
+      </section>
+      <div class="ccmv-splash-fadeout" aria-hidden="true"></div>`;
+    document.body.appendChild(splash);
+    const close=function(){
+      splash.classList.add('hide');
+      setTimeout(function(){ if(splash && splash.parentNode) splash.parentNode.removeChild(splash); },850);
+    };
+    setTimeout(close,8000);
+    splash.addEventListener('click',close,{once:true});
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',showSplash,{once:true});
+  else showSplash();
+})();

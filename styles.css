@@ -2234,3 +2234,119 @@ html body.expenses-page .page-action-row .primary-action{
   #tripModalContent .trip-onepage .exchange-grid strong,
   #tripModalContent .trip-onepage .exchange-grid span{font-size:11px!important;}
 }
+
+/* Compact Trip city info */
+.compact-city-facts{margin-top:14px;margin-bottom:12px}
+.compact-list{margin:10px 0 0;padding-left:20px}
+.compact-list li{margin:6px 0}
+
+/* CCMV loading animation v4 — branding only, merged with compact Trip page */
+.ccmv-splash{
+  position:fixed;
+  inset:0;
+  z-index:99999;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:max(28px, env(safe-area-inset-top)) 22px max(34px, env(safe-area-inset-bottom));
+  background:radial-gradient(circle at 50% 38%, rgba(255,255,248,.92) 0%, rgba(250,242,229,.95) 36%, rgba(238,224,202,.98) 100%);
+  color:#9b7a48;
+  overflow:hidden;
+  opacity:1;
+  visibility:visible;
+  transition:opacity .8s ease, visibility .8s ease;
+}
+.ccmv-splash.hide{opacity:0;visibility:hidden;pointer-events:none;}
+.ccmv-splash-paper{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(155,122,72,.11) 0 1px, transparent 2px),
+    radial-gradient(circle at 74% 28%, rgba(155,122,72,.10) 0 1px, transparent 2px),
+    radial-gradient(circle at 42% 66%, rgba(155,122,72,.10) 0 1px, transparent 2px),
+    radial-gradient(circle at 82% 76%, rgba(155,122,72,.08) 0 1px, transparent 2px);
+  background-size:120px 150px,170px 160px,140px 130px,190px 180px;
+  opacity:.65;
+}
+.ccmv-splash-glow{
+  position:absolute;
+  width:80vw;
+  max-width:560px;
+  aspect-ratio:1;
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(255,255,247,.78), rgba(255,255,247,.18) 48%, transparent 72%);
+  filter:blur(4px);
+  animation:ccmvGlow 8s ease-in-out both;
+  transform:translateY(-9vh);
+}
+.ccmv-splash-content{
+  position:relative;
+  width:min(94vw,640px);
+  text-align:center;
+  transform:translateY(-9vh);
+}
+.ccmv-splash-logo{
+  width:min(88vw,500px);
+  display:block;
+  margin:0 auto 30px;
+  opacity:0;
+  filter:drop-shadow(0 18px 34px rgba(96,70,36,.14));
+  animation:ccmvLogoIn 8s cubic-bezier(.22,.8,.22,1) both;
+}
+.ccmv-splash-line{
+  margin:0 auto;
+  font-family:Georgia,'Times New Roman',serif;
+  font-size:clamp(32px,8vw,54px);
+  line-height:1.12;
+  letter-spacing:.015em;
+  color:#9b7a48;
+  font-weight:600;
+  text-shadow:0 10px 26px rgba(122,89,45,.10);
+  opacity:0;
+  animation:ccmvTextIn 8s ease both;
+}
+.ccmv-splash-destination{
+  margin-top:28px;
+  font-family:Avenir,Montserrat,system-ui,-apple-system,sans-serif;
+  font-size:clamp(17px,4.6vw,28px);
+  letter-spacing:.42em;
+  color:rgba(128,98,58,.86);
+  opacity:0;
+  animation:ccmvDestIn 8s ease both;
+}
+.ccmv-splash-fadeout{
+  position:absolute;inset:0;
+  background:#f7efe3;
+  pointer-events:none;
+  opacity:0;
+  animation:ccmvOut 8s ease both;
+}
+@keyframes ccmvLogoIn{
+  0%{opacity:0;transform:translateY(24px) scale(.965)}
+  18%{opacity:1;transform:translateY(0) scale(1)}
+  72%{opacity:1;transform:translateY(-5px) scale(1.01)}
+  100%{opacity:.98;transform:translateY(-8px) scale(1.01)}
+}
+@keyframes ccmvTextIn{
+  0%,28%{opacity:0;transform:translateY(14px)}
+  46%,100%{opacity:1;transform:translateY(0)}
+}
+@keyframes ccmvDestIn{
+  0%,52%{opacity:0;transform:translateY(10px)}
+  68%,100%{opacity:1;transform:translateY(0)}
+}
+@keyframes ccmvGlow{
+  0%{opacity:.2;transform:translateY(-9vh) scale(.9)}
+  35%,100%{opacity:1;transform:translateY(-9vh) scale(1)}
+}
+@keyframes ccmvOut{0%,88%{opacity:0}100%{opacity:.92}}
+@media(max-height:720px){
+  .ccmv-splash-content{transform:translateY(-6vh)}
+  .ccmv-splash-glow{transform:translateY(-6vh)}
+  .ccmv-splash-logo{width:min(82vw,440px);margin-bottom:24px}
+  .ccmv-splash-destination{margin-top:22px}
+}
+@media(prefers-reduced-motion:reduce){
+  .ccmv-splash,.ccmv-splash *{animation:none!important;transition:none!important}
+  .ccmv-splash-logo,.ccmv-splash-content,.ccmv-splash-glow{opacity:1!important;transform:none!important}
+}
