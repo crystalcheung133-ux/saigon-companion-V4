@@ -63,7 +63,7 @@ function accommodationMapURL(address){
   return 'https://maps.google.com/?q='+encodeURIComponent(address||'');
 }
 function accommodationReferenceLabel(booking){
-  return booking.id==='queenstown-booking'?'Airbnb reference':(booking.id==='lakefront-booking'?'Luxury Escapes reference':'Booking reference');
+  return 'Booking reference';
 }
 function getAccommodationBookings(){
   return (typeof PRODUCTION_BOOKINGS.byId==='undefined'?[]:Object.values(PRODUCTION_BOOKINGS.byId))

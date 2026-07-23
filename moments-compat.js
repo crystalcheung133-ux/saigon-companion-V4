@@ -18,8 +18,8 @@ function renderUnexpected(){const box=$('unexpectedTimeline');if(!box)return;let
 
 
 const MOODS=[
-  ["🤩","Wow"],["😋","Delicious"],["😵","Exhausted"],["🔥","Amazing"],
-  ["🤯","Unexpected"],["😶","Speechless"],["🥲","Oh no"],["🤬","Damn"]
+  ["🤩","超喜歡"],["😋","好好味"],["😵","攰到暈"],["🔥","超正"],
+  ["🤯","意想不到"],["😶","無言"],["🥲","慘了"],["🤬","激氣"]
 ];
 let currentMood=[];
 
@@ -86,14 +86,14 @@ document.addEventListener('DOMContentLoaded',()=>{
    Stage 4C-6 removed the expense open/save/edit wrappers from this block;
    Expense current-user defaults are handled by the Stage 4F-Q module. */
 (function(){
-  const DEFAULT_FRIEND = 'lee';
+  const DEFAULT_FRIEND = 'crystal';
   function currentUser(){
     try { return (typeof getFriend === 'function' ? getFriend() : STORAGE.local.get(STORAGE_CONFIG.keys.friend)) || DEFAULT_FRIEND; }
     catch(e){ return DEFAULT_FRIEND; }
   }
   function friendLabel(k){
-    try { return (typeof FRIENDS !== 'undefined' && FRIENDS[k]) ? FRIENDS[k] : (FRIENDS?.[DEFAULT_FRIEND] || 'MEL · Lee'); }
-    catch(e){ return 'MEL · Lee'; }
+    try { return (typeof FRIENDS !== 'undefined' && FRIENDS[k]) ? FRIENDS[k] : (FRIENDS?.[DEFAULT_FRIEND] || '👓 · Crystal'); }
+    catch(e){ return '👓 · Crystal'; }
   }
   function simplifyMomentsAuthor(){
     const row=document.querySelector('#momentsModal p:has(#momentsFriend)');

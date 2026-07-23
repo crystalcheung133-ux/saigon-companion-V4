@@ -61,24 +61,11 @@ function closePlaceDetail(){
 }
 
 
-function applyGuideHashView(){
- const directory=document.getElementById('shopping-directory');
- const main=directory?.closest('main');
- if(!directory||!main)return;
- const directoryOnly=NAVIGATION.hasHash('shoppingDirectory');
- Array.from(main.children).forEach(el=>{el.hidden=directoryOnly&&el!==directory;});
- document.body.classList.toggle('shopping-directory-view',directoryOnly);
- if(directoryOnly)requestAnimationFrame(()=>window.scrollTo({top:0,left:0,behavior:'auto'}));
-}
+function applyGuideHashView(){}
 function openShoppingDirectoryView(){
  closeGuideModal();closeMiniMenus();
- const onGuide=NAVIGATION.isPage('guide');
- if(!onGuide){NAVIGATION.goPage('guide',{hash:'shoppingDirectory'});return;}
- if(NAVIGATION.hasHash('shoppingDirectory'))applyGuideHashView();
- else NAVIGATION.setHash('shoppingDirectory');
+ window.location.href='shopping.html';
 }
-window.addEventListener('hashchange',applyGuideHashView);
-document.addEventListener('DOMContentLoaded',applyGuideHashView);
 
 const CAFE_KEYS=new Set(['running-bean','maison-marou','bakes','dreamers','cafe-apartments']);
 function mappedGuideItems(keys){
@@ -104,7 +91,7 @@ function openGuideCategory(cat){
  saveGuideNavigationContext(cat);
  const list=guideCategoryItems(cat).slice().sort((a,b)=>String(a.title||'').localeCompare(String(b.title||'')));
  if(cat==='SHOP'){
-  const directoryRow=`<button onclick="openShoppingDirectoryView()"><span><span class="guide-list-title">🛍 Shopping Directory</span><span class="guide-list-sub">Optional shops · Near · Best with Day</span></span><span>↓</span></button>`;
+  const directoryRow=`<button onclick="openShoppingDirectoryView()"><span><span class="guide-list-title">🛍 Shopping Directory</span><span class="guide-list-sub">3 curated routes · Main stops + If Time Allows</span></span><span>›</span></button>`;
   const rows=directoryRow+list.map(i=>`<button onclick="openGuideModal('${i.key}')"><span><span class="guide-list-title">${i.emoji} ${i.title}</span><span class="guide-list-sub">${i.sub||''}</span></span><span class="guide-list-meta">${guideStatusHTML(PRODUCTION_GUIDE.places[i.key]||{})}<span class="guide-list-chevron">›</span></span></button>`).join('');
   $('guideModalContent').innerHTML=`<p class="kicker">Guide</p><h2>SHOP</h2><div class="category-pop-list">${rows}</div>`;
   closeMiniMenus();$('guideModal').classList.add('show');return;
@@ -246,3 +233,36 @@ function renderPlaceGroupPage(keys){
 }
 
 
+
+
+function shoppingCardHTML(key,route){
+ const g=PRODUCTION_GUIDE.places[key]; if(!g)return '';
+ const optional=(route.optional||[]).includes(key);
+ const day=route.day.replace('DAY ','Day ');
+ const near=g.address?g.address.split(',').slice(0,2).join(', '):route.subtitle;
+ const known=g.directoryKnownFor||String((g.signature||[])[0]||'').replace(/^Known For\s*[·:]\s*/i,'');
+ return `<article class="shopping-store-card ${optional?'is-optional':'is-primary'}">
+   <div class="shopping-store-top"><div><h3>${g.title}</h3><span class="shopping-priority">${optional?'IF TIME ALLOWS':'MAIN ROUTE'}</span></div><a class="shopping-map-link" href="${g.maps||'#'}" target="_blank" rel="noopener">Navigate</a></div>
+   <p class="shopping-store-desc">${g.desc||''}</p>
+   <dl class="shopping-store-meta">
+    <div><dt>Known for</dt><dd>${known}</dd></div>
+    <div><dt>Near</dt><dd>${near}</dd></div>
+    <div><dt>Best with</dt><dd>${day} · ${route.title}</dd></div>
+   </dl>
+ </article>`;
+}
+function renderShoppingDirectoryPage(){
+ const mount=document.getElementById('shoppingDirectoryMain');
+ if(!mount||typeof SHOPPING_DIRECTORY==='undefined')return;
+ const routes=SHOPPING_DIRECTORY.routes.map(route=>{
+   const primary=route.primary.map(key=>shoppingCardHTML(key,route)).join('');
+   const optional=route.optional.map(key=>shoppingCardHTML(key,route)).join('');
+   return `<section class="shopping-route-section">
+    <header class="shopping-route-header"><p class="kicker">${route.day}</p><h2>${route.title}</h2><p class="shopping-route-subtitle">${route.subtitle}</p><p>${route.note}</p><div class="shopping-sequence"><span>Walk order</span><strong>${route.sequence}</strong></div></header>
+    <div class="shopping-store-grid">${primary}</div>
+    ${optional?`<details class="shopping-optional"><summary>If Time Allows <span>${route.optional.length} shops</span></summary><div class="shopping-store-grid">${optional}</div></details>`:''}
+   </section>`;
+ }).join('');
+ mount.innerHTML=`<div class="page-hero shopping-directory-hero"><p class="kicker">SHOPPING DIRECTORY</p><h1>Shop by route,<br>not by checklist.</h1><p class="lead">${SHOPPING_DIRECTORY.intro}</p></div>${routes}`;
+ document.title=`Shopping Directory · ${TRIP_CONFIG.tripName}`;
+}
