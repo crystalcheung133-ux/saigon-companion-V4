@@ -1962,7 +1962,7 @@ body.expenses-page .primary-action,body.expenses-page .btn{background:linear-gra
 body.expenses-page .pill,body.expenses-page .mini-btn{border-color:rgba(94,130,91,.26)!important;color:#365943!important;background:#f8fcf6!important;}
 
 
-/* RC23.7 — Saigon Shopping Directory: route-first editorial layout. */
+/* VN RC1 — Saigon Shopping Directory: route-first editorial layout. */
 .shopping-directory-page{max-width:920px!important;padding-bottom:128px!important}
 .shopping-directory-hero{background:linear-gradient(145deg,#fffaf3,#f5e5df)!important}
 .shopping-directory-hero h1{font-size:clamp(48px,10vw,76px)!important;line-height:.92!important}
@@ -1990,3 +1990,239 @@ body.expenses-page .pill,body.expenses-page .mini-btn{border-color:rgba(94,130,9
 .shopping-optional summary{cursor:pointer;padding:17px 19px;font-weight:900;color:#684638;display:flex;justify-content:space-between;list-style:none}
 .shopping-optional summary::-webkit-details-marker{display:none}.shopping-optional[open]{padding-bottom:16px}.shopping-optional .shopping-store-grid{padding:0 16px}
 @media(max-width:680px){.shopping-store-grid{grid-template-columns:1fr}.shopping-route-header{padding:20px}.shopping-store-card{padding:18px}.shopping-directory-hero h1{font-size:50px!important}}
+
+
+/* VN RC1 — frozen Companion visual restoration */
+#ccmvSplash{--spl-cream:#f7efe3;position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;min-height:100dvh;overflow:hidden;font-family:Georgia,'Times New Roman',serif;padding:max(28px,env(safe-area-inset-top)) 22px max(34px,env(safe-area-inset-bottom));transition:opacity .44s ease,visibility .44s ease;color:var(--ccmv-taupe);background:linear-gradient(180deg,#fbf6ef 0%,#f4e8da 58%,#ecd9ca 100%)}
+#ccmvSplash *{box-sizing:border-box}
+#ccmvSplash.ccmv-splash-hide{opacity:0;visibility:hidden;pointer-events:none}
+body.ccmv-splash-active{overflow:hidden}
+#ccmvSplash .splash-paper{position:absolute;inset:0;background:radial-gradient(circle at 20% 18%,rgba(139,111,82,.08) 0 1px,transparent 2px),radial-gradient(circle at 82% 68%,rgba(139,111,82,.055) 0 1px,transparent 2px);background-size:210px 220px,260px 250px;opacity:.10;display:block}
+#ccmvSplash .splash-glow{position:absolute;width:72vw;max-width:430px;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(255,255,250,.76),rgba(255,255,250,.22) 48%,transparent 72%);filter:blur(4px);animation:ccmvGlow 5.2s ease-in-out both;transform:translateY(-6vh);opacity:.58;display:block}
+#ccmvSplash .splash-content{position:relative;width:min(92vw,560px);text-align:center;transform:none;padding:0 24px;display:block}
+#ccmvSplash .splash-logo{width:min(52vw,240px);display:block;margin:0 auto 30px;height:auto;max-height:none;object-fit:contain;aspect-ratio:1/1;border-radius:34px;padding:22px;background:linear-gradient(180deg,rgba(253,248,241,.98),rgba(246,235,220,.94));border:1px solid rgba(204,181,153,.32);box-shadow:0 22px 46px rgba(84,61,39,.14),0 6px 16px rgba(84,61,39,.07),inset 0 1px 0 rgba(255,255,255,.55);filter:saturate(.98) contrast(1.02);position:relative;left:0;opacity:0;animation:ccmvLogo421 5.2s cubic-bezier(.22,.8,.22,1) both;box-sizing:border-box}
+#ccmvSplash .splash-line{margin:0 auto;font-size:clamp(22px,5.6vw,32px);line-height:1.18;letter-spacing:.005em;font-family:'Baskerville','Iowan Old Style','Palatino Linotype','Book Antiqua',Georgia,serif;font-style:normal;font-weight:600;text-align:center;color:#a77b43;text-shadow:none;opacity:0;animation:ccmvSlogan421 5.2s cubic-bezier(.22,.8,.22,1) both}
+#ccmvSplash .splash-destination{margin-top:28px;font-family:Avenir,Montserrat,system-ui,-apple-system,sans-serif;font-size:clamp(14px,3.6vw,20px);letter-spacing:.38em;line-height:1;text-transform:uppercase;font-weight:800;text-align:center;color:#9b7443;opacity:0;animation:ccmvVietnam421 5.2s cubic-bezier(.22,.8,.22,1) both}
+#ccmvSplash .splash-fadeout{position:absolute;inset:0;background:var(--spl-cream);pointer-events:none;opacity:0;animation:ccmvOut 5.2s ease both}
+@keyframes ccmvGlow{0%{opacity:.18;transform:translateY(-6vh) scale(.92)}28%,100%{opacity:1;transform:translateY(-6vh) scale(1)}}
+@keyframes ccmvOut{0%,92%{opacity:0}100%{opacity:.92}}
+@keyframes ccmvLogo421{0%{opacity:0;transform:translateY(14px) scale(.97)}20%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:1;transform:translateY(-2px) scale(1)}}
+@keyframes ccmvSlogan421{0%,28%{opacity:0;transform:translateY(9px)}52%,100%{opacity:1;transform:translateY(0)}}
+@keyframes ccmvVietnam421{0%,58%{opacity:0;transform:translateY(7px)}78%,100%{opacity:1;transform:translateY(0)}}
+/* Devices short enough that the tall composition needs to shift up (checked
+   first, since a device can match BOTH this and the width query below — the
+   width query below wins ties for shared properties on phones that match
+   both, matching the original file's source order). */
+@media (max-height:720px){#ccmvSplash .splash-content{transform:translateY(-2vh)}
+#ccmvSplash .splash-glow{transform:translateY(-6vh)}
+#ccmvSplash .splash-logo{width:min(72vw,260px);margin-bottom:24px}
+#ccmvSplash .splash-destination{margin-top:22px}}
+@media (max-width:520px){#ccmvSplash .splash-content{padding:0 18px;transform:none}
+#ccmvSplash .splash-logo{width:min(58vw,220px);margin-bottom:24px;border-radius:30px}
+#ccmvSplash .splash-line{font-size:clamp(22px,7vw,30px)}
+#ccmvSplash .splash-destination{font-size:13px;letter-spacing:.30em;margin-top:24px}}
+@media (prefers-reduced-motion: reduce){#ccmvSplash .splash-glow,#ccmvSplash .splash-logo,#ccmvSplash .splash-line,#ccmvSplash .splash-destination,#ccmvSplash .splash-fadeout{animation:none;opacity:1}}
+/* ===== CCMV Home One-Viewport Fix (2026-07-09) =====
+   Target: Front page fits in one screen on desktop + mobile.
+   Scope: Home only. Do not affect Trip / Guide / Days / Moments / Expenses. */
+html:has(body.home-bg),
+body.home-bg{height:100dvh!important;min-height:100dvh!important;overflow:hidden!important}
+
+@media (max-width:720px){body.home-bg .site-nav{min-height:68px!important;padding-top:10px!important;padding-bottom:10px!important}
+body.home-bg main.dashboard.home-premium.home-v37{height:calc(100dvh - 68px)!important;max-height:calc(100dvh - 68px)!important;overflow:hidden!important;padding:4px 12px calc(100px + env(safe-area-inset-bottom))!important;justify-content:center!important;align-items:center!important}
+body.home-bg section.home-brand-card.v37-dashboard-home{padding:18px 13px 16px!important;border-radius:30px!important}
+body.home-bg .live-card{min-height:74px!important;padding:8px 9px!important;border-radius:19px!important}
+body.home-bg .live-card strong{font-size:14px!important}
+body.home-bg .live-card small{font-size:11px!important}
+body.home-bg .live-icon{font-size:16px!important}
+body.home-bg .home-day-button{min-height:38px!important;padding:8px 17px!important}}
+@media (max-height:720px){body.home-bg section.home-brand-card.v37-dashboard-home{padding-top:18px!important;padding-bottom:16px!important}
+body.home-bg .live-card{min-height:72px!important;padding:8px!important}
+body.home-bg .home-day-button{min-height:38px!important;padding:8px 16px!important}}
+/* =========================================================
+   Stage 1.1 — CCMV Product Family visual alignment
+   Scope: visual layer only. No data/render/navigation logic changed.
+   Reference: Journey Planner 11.43 calm cream / gold editorial system.
+   ========================================================= */
+html,body{-webkit-text-size-adjust:100%}
+body{margin:0;background:radial-gradient(circle at 50% 12%,rgba(255,255,255,.55),transparent 26rem),linear-gradient(135deg,#f7f0e6,#f3eadb)!important;color:var(--ink)!important;font:16px/1.65 Inter,"Noto Sans TC",system-ui,sans-serif;padding-bottom:92px;background-color:var(--bg)!important;background-image:linear-gradient(rgba(244,237,227,.90), rgba(244,237,227,.90)),
+    url("logo-watermark-monogram.png")!important;background-repeat:repeat!important;background-size:auto, 140px 140px!important;background-position:center center!important;font-size:16px!important;line-height:1.55!important;font-weight:500;-webkit-text-size-adjust:100%;font-family:var(--font-sans)!important}
+
+body.home-bg{padding-bottom:0!important;background:radial-gradient(circle at 50% 10%,rgba(255,255,255,.58),transparent 24rem),linear-gradient(135deg,#f7f0e6,#f3eadb)!important}
+.site-nav .brand,
+.brand{font-family:var(--font-sans)!important;color:var(--ink)!important;font-weight:900!important;letter-spacing:.01em!important}
+.friend-pill,.btn,.pill,.mini-btn,.timeline-actions button,.timeline-actions a,.home-day-button,
+.guide-close,.moments-close,.unexpected-close,.tools-close,.mama-close,.trip-close{border:1px solid var(--line)!important;background:rgba(255,250,243,.72)!important;color:var(--ink)!important;border-radius:999px!important;box-shadow:none!important;font-weight:750!important}
+.btn,.home-day-button{background:var(--gold-deep)!important;border-color:var(--gold-deep)!important;color:#fff!important}
+.dashboard{max-width:820px!important;margin:0 auto;padding:22px 18px 106px!important}
+.home-bg .dashboard{padding-top:18px!important;padding-bottom:98px}
+.home-brand-card.v37-dashboard-home,
+.home-brand-card,
+.page-hero,.module-hero,.prose-block,.trip-card,.timeline-item,.quick-info-card,
+.expense-card,.moments-entry,.expense-total-card,.expense-focus-card,
+.guide-sheet,.moments-sheet,.unexpected-sheet,.tools-sheet,.trip-sheet,
+.mini-menu{background:rgba(255,250,243,.86)!important;border:1px solid var(--surface-border)!important;box-shadow:var(--surface-shadow)!important;background-image:none!important}
+.home-brand-card.v37-dashboard-home,
+.home-brand-card{width:min(92vw,620px)!important;min-height:auto!important;aspect-ratio:auto!important;margin:0 auto!important;padding:clamp(28px,7vw,54px)!important;border-radius:40px!important;text-align:left!important;isolation:isolate!important}
+.home-since,.kicker,.page-hero .kicker,.module-hero .kicker,
+.quick-info-label,.timestamp,.menu-sub{color:var(--gold-deep)!important;letter-spacing:.145em!important;text-transform:uppercase!important;font-weight:740!important}
+.home-since{margin:0 0 18px!important;font-size:13px!important}
+h1,h2,.home-brand-card h1,.page-hero h1,.module-hero h1{font-family:var(--ccmv-fashion-serif)!important;color:var(--ink)!important;font-weight:600!important;letter-spacing:-.032em!important}
+.home-brand-card h1{font-size:clamp(52px,13vw,88px)!important;line-height:.9!important;margin:0 0 16px!important}
+.home-brand-card h1 em{font-style:italic!important;color:var(--ink)!important}
+.home-tagline,.home-trip-line,.lead,.page-hero .lead,.module-hero .lead,p,li,
+.timeline-main p,.guide-list-sub,.quick-info-value{color:var(--muted)!important;font-weight:560!important}
+.home-tagline{font-size:17px!important;letter-spacing:.19em!important;text-transform:uppercase;margin:0 0 18px!important}
+
+
+.home-live-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;width:100%;max-width:540px;margin:18px 0 24px!important}
+.live-card,
+.live-countdown,.live-time,.live-weather,.live-rate{background:rgba(255,255,255,.48)!important;background-image:none!important;border:1px solid var(--line)!important;border-radius:22px!important;padding:16px!important;min-height:108px!important;box-shadow:0 8px 22px rgba(77,55,30,.045)!important;color:var(--ink)!important}
+.live-icon{font-size:17px!important;display:block!important;margin-bottom:8px!important;width:24px!important;height:24px!important;line-height:24px!important;opacity:.58!important;filter:saturate(.65)!important}
+.live-card small{display:block!important;font-size:12px!important;font-weight:850!important;text-transform:uppercase!important;letter-spacing:.14em!important;color:var(--gold-deep)!important;margin-bottom:3px;margin:0 0 5px!important}
+.live-card strong{display:block!important;font-size:clamp(18px,4.8vw,24px)!important;line-height:1.08!important;color:var(--ink)!important;font-weight:800!important}
+.live-card em{display:block!important;font-size:14px!important;font-style:normal!important;color:var(--muted)!important;margin-top:5px!important}
+.home-day-button{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:46px!important;padding:12px 18px!important;text-decoration:none!important}
+/* Remove repeated decorative watermark systems; keep only the single subtle home mark above. */
+.quick-info-card::after,.guide-modal .quick-info-card::after,
+.page-hero::after,.module-hero::after,.trip-sheet::after,
+.timeline-item::after,.prose-block::after,.trip-card::after,
+.moments-entry::after{display:none!important;content:none!important}
+.page-hero,.module-hero{border-radius:34px!important;padding:28px 28px 26px!important;margin:18px 0 24px!important}
+.page-hero h1,.module-hero h1{font-size:clamp(44px,8vw,76px)!important;line-height:.95!important;margin:0 0 12px!important}
+.timeline-item,.day-summary a,.quick-info-card,.prose-block,.trip-card,.expense-card,.moments-entry{border-radius:var(--surface-radius)!important}
+
+
+.mini-menu{position:fixed!important;bottom:82px!important;z-index:150!important;width:min(230px, calc(100vw - 24px))!important;border-radius:24px!important;padding:8px!important;pointer-events:none;transform:translateX(-50%) translateY(8px)!important;transition:.16s ease;left:50%!important;right:auto!important;max-height:min(64svh, 520px)!important;overflow:auto!important}
+.menu-title{font-weight:650!important;color:var(--ink)!important;font-size:15px!important;letter-spacing:-.014em!important}
+.menu-sub{font-size:13px!important;letter-spacing:.075em!important;color:var(--muted)!important;font-weight:700!important}
+@media(max-width:520px){.dashboard{padding-left:14px!important;padding-right:14px!important}
+.home-brand-card.v37-dashboard-home,.home-brand-card{border-radius:34px!important;padding:30px 22px!important}
+.home-live-grid{grid-template-columns:1fr 1fr!important;gap:9px!important}
+.live-card{border-radius:20px!important;padding:13px!important;min-height:100px!important}
+.live-card strong{font-size:17px!important;line-height:1.12!important}}
+/* ===== CCMV Family Visual 11.43b: hero watermark + typography =====
+   Scope: visual alignment only. No data/render/navigation logic changed.
+   (Splash-specific rules are maintained in the consolidated Stage 4F block above.) */
+/* Front hero typography: centred, symmetrical, a little girly/fancy but still premium. */
+.home-brand-card.v37-dashboard-home .home-since,
+.home-brand-card.v37-dashboard-home .home-tagline,
+.home-brand-card
+/* Moments + Expenses page hero cards use one bottom-right brand mark. */
+body.moments-page .page-hero,
+body.moments-page .module-hero{position:relative!important;overflow:hidden!important;isolation:isolate!important}
+body.moments-page .page-hero::after,
+body.moments-page .module-hero::after{content:""!important;display:block!important;position:absolute!important;width:118px!important;height:118px!important;right:14px!important;bottom:12px!important;background:url('logo-watermark-monogram.png') center/contain no-repeat!important;opacity:var(--ccmv-watermark-deep)!important;mix-blend-mode:multiply!important;filter:saturate(1.02) contrast(1.06)!important;pointer-events:none!important;z-index:0!important}
+body.moments-page .page-hero > *,
+body.moments-page .module-hero > *{position:relative!important;z-index:1!important}
+/* Feature cards: only selective premium watermarks, not every card. */
+.home-live-grid .live-card:nth-child(1),
+.home-live-grid .live-card:nth-child(3),
+.quick-info-card:nth-of-type(1),
+.trip-card:nth-of-type(1),
+.moments-entry:nth-of-type(1){position:relative!important;overflow:hidden!important;isolation:isolate!important}
+.home-live-grid .live-card:nth-child(1)::after,
+.home-live-grid .live-card:nth-child(3)::after,
+.quick-info-card:nth-of-type(1)::after,
+.trip-card:nth-of-type(1)::after,
+.moments-entry:nth-of-type(1)::after{content:""!important;display:block!important;position:absolute!important;width:72px!important;height:72px!important;right:10px!important;bottom:8px!important;background:url('logo-watermark-monogram.png') center/contain no-repeat!important;opacity:var(--ccmv-watermark-feature)!important;mix-blend-mode:multiply!important;filter:saturate(.98) contrast(1.03)!important;pointer-events:none!important;z-index:0!important}
+.home-live-grid .live-card > *,
+.quick-info-card > *,
+.trip-card > *,
+.moments-entry > *{position:relative!important;z-index:1!important}
+@media(max-width:520px){
+body.moments-page .page-hero::after,
+  body.moments-page .module-hero::after{width:96px!important;height:96px!important;right:10px!important;bottom:10px!important;opacity:.17!important}}
+body.moments-page .page-hero::after,body.moments-page .module-hero::after,
+.home-live-grid .live-card:nth-child(1)::after,.home-live-grid .live-card:nth-child(3)::after,
+.quick-info-card:nth-of-type(1)::after,.trip-card:nth-of-type(1)::after,
+.moments-entry:nth-of-type(1)::after{background-image:url('ccmv-logo-calibrated.png')!important;background-size:contain!important;background-repeat:no-repeat!important;background-position:center!important;transform:none!important}
+.home-live-grid .live-card:nth-child(1)::after,.home-live-grid .live-card:nth-child(3)::after,
+.quick-info-card:nth-of-type(1)::after,.trip-card:nth-of-type(1)::after,
+.moments-entry:nth-of-type(1)::after{width:64px!important;height:64px!important;right:10px!important;bottom:9px!important;opacity:.12!important}
+/* ===== CCMV Family Visual 11.43d: Planner-like splash, stronger Saigon hero, opaque bottom menus =====
+   Base: Stage 1.5 master. Scope: CSS visual alignment only; no data/render/navigation logic changed. */
+/* Loading: closer to Journey Planner composition; smaller logo image, more breathing room, blush-cream background. */
+/* Front page top nav: clear, complete logo like Planner header; not a tiny app icon. */
+.home-bg .site-nav{background:#f7efe4!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;border-bottom:1px solid rgba(214,194,174,.78)!important;padding:12px 16px!important}
+.home-bg .site-nav .brand{gap:13px!important;font-weight:950!important;color:var(--ccmv-ink-deep)!important;letter-spacing:-.01em!important}
+/* Front hero: restore the uploaded Saigon Companion look — strong editorial serif + italic Companion. */
+.home-brand-card.v37-dashboard-home{min-height:auto!important;aspect-ratio:auto!important;display:flex;flex-direction:column;align-items:center!important;justify-content:center;text-align:center!important;position:relative;overflow:hidden!important;background:linear-gradient(180deg,#e6cfa8 0%,#f2e2c4 45%,#fffcf5 100%)!important;box-shadow:0 18px 60px rgba(54,39,24,.12)!important;border-color:rgba(214,194,174,.72)!important}
+
+/* Bottom menu popups: fully opaque premium surface, so page underneath never shows through. */
+.mini-menu,
+#tripMenu,#guideMenu,#daysMenu{background:#fffaf2!important;background-image:none!important;opacity:0!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;border:1px solid rgba(210,190,169,.92)!important;box-shadow:0 22px 58px rgba(43,37,31,.28)!important;isolation:isolate!important}
+.mini-menu.show,
+#tripMenu.show,#guideMenu.show,#daysMenu.show{opacity:1!important;pointer-events:auto!important}
+.mini-menu::before,
+#tripMenu::before,#guideMenu::before,#daysMenu::before{content:""!important;position:absolute!important;inset:0!important;border-radius:inherit!important;background:#fffaf2!important;z-index:-1!important;opacity:1!important}
+/* ===== 1143h REAL Front hero cleanup =====
+   Keep the top navigation/header logo only. Remove ONLY the logo inside the Front Page hero card
+   and the large bottom-right hero-card watermark that overlapped the four small info cards. */
+body.home-bg section.home-brand-card.v37-dashboard-home::before,
+body.home-bg section.home-brand-card.v37-dashboard-home::after{content:none!important;display:none!important;background:none!important;background-image:none!important;width:0!important;height:0!important;margin:0!important;padding:0!important;border:0!important;box-shadow:none!important;filter:none!important}
+/* Header logo remains visible. */
+/* 1143h: source surface cleanup — cards made opaque; no new visual override block. */
+/* ===== 1143i TRUE OPAQUE SURFACES =====
+   Fix remaining see-through cards on Trip / Guide / Moments / Expenses.
+   This targets the actual card containers AND their pseudo-watermark layers, not only generic card rules. */
+.trip-card,
+.prose-block,
+.page-hero,
+.module-hero,
+.hotel-card,
+.exchange-card,
+.quick-info-card,
+.directory-card,
+.expense-card,
+.expense-total-card,
+.expense-focus-card,
+.expense-history-block,
+.moments-entry,
+.guide-sheet,
+.moments-sheet,
+.unexpected-sheet,
+.tools-sheet,
+.trip-sheet,
+.expense-form,
+#momentsModal .moments-form,
+#expenseModal .expense-form,
+.category-pop-list,
+.fact,
+.fact-grid > div,
+.check-row,
+.ready-box{background-color:#fffaf2!important;background-image:none!important;opacity:1!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;mix-blend-mode:normal!important;isolation:isolate!important}
+/* Moments / Expenses hero surfaces: opaque editorial gradients, not glass and not solid blocks.
+   Dark at top, fading to light cream at bottom. */
+body.moments-page .page-hero,
+body.moments-page .module-hero{
+  background:linear-gradient(180deg,#d9b6bd 0%,#f3d9de 45%,#fff8f6 100%)!important;
+  background-image:linear-gradient(180deg,#d9b6bd 0%,#f3d9de 45%,#fff8f6 100%)!important;
+  opacity:1!important
+}
+body.expenses-page .page-hero,
+body.expenses-page .module-hero{
+  background:linear-gradient(180deg,#a9c6a0 0%,#d3e6cd 45%,#f7fbf5 100%)!important;
+  background-image:linear-gradient(180deg,#a9c6a0 0%,#d3e6cd 45%,#f7fbf5 100%)!important;
+  opacity:1!important
+}
+/* Remove decorative pseudo layers that made opaque cards still look see-through / dirty. */
+.trip-card::before,.trip-card::after,
+.prose-block::before,.prose-block::after,
+.page-hero::before,.page-hero::after,
+.module-hero::before,.module-hero::after,
+.hotel-card::before,.hotel-card::after,
+.exchange-card::before,.exchange-card::after,
+
+
+/* Frozen VN identity over modern feature shell */
+:root{--cream:#f7efe3;--paper:#fffaf3;--ink:#3f2a20;--muted:#8b7468;--line:#decbb8;--accent:#a97855;--rose:#c6908f;--sage:#6f9876}
+body{background:#f7efe3;color:var(--ink)}
+.site-nav,.bottom-nav{background:rgba(255,250,243,.96)}
+.friend-pill .family-identity{gap:.48rem}.friend-pill .family-code{font-size:1.35rem}.friend-pill .family-name{font-weight:800}
+/* Expenses: large emoji + name, no identity badge capsule */
+body.expenses-page .family-identity,body.expenses-page .person-badge,body.expenses-page .expense-person-badge{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;border-radius:0!important}
+body.expenses-page .family-code,body.expenses-page .expense-person-emoji{font-size:2rem!important;line-height:1!important}
+body.expenses-page{--accent:#6f9876;--accent-strong:#527b5c;--accent-soft:#e7f0e8}
+/* No legacy Moment action buttons on Guide or Day cards */
+.quick-info-actions .moment-button,.day-actions .moment-button,.timeline-actions .moment-button{display:none!important}

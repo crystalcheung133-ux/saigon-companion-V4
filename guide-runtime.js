@@ -136,7 +136,7 @@ function quickInfoInnerHTML(g,key){
  const roleBadge=g.itineraryRole?`<span class="itinerary-role-badge">${g.itineraryRole}</span>`:'';
  const reminder=String(g.visitorReminder||'').trim();
  const reminderRow=reminder?`<p class="visitor-reminder"><strong>Reminder:</strong> ${reminder}</p>`:'';
- return `<div class="quick-info-top"><span class="category-tag">${g.categoryLabel||g.cat||'Guide'}</span>${roleBadge}${guideStatusHTML(g)}</div><div class="quick-info-grid">${addressRow}${phoneRow}${hoursRow}${priceRow}${visitDayHTML(key)}</div>${reminderRow}<div class="quick-info-actions">${copyButton}${navButton}${callButton}${websiteButton}<button class="moment-button" aria-label="Add Moment" onclick="openMomentsModal('${key}')">✨ Moment</button></div>`;
+ return `<div class="quick-info-top"><span class="category-tag">${g.categoryLabel||g.cat||'Guide'}</span>${roleBadge}${guideStatusHTML(g)}</div><div class="quick-info-grid">${addressRow}${phoneRow}${hoursRow}${priceRow}${visitDayHTML(key)}</div>${reminderRow}<div class="quick-info-actions">${copyButton}${navButton}${callButton}${websiteButton}</div>`;
 }
 
 function quickInfoHTML(g,key){
