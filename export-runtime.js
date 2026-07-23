@@ -1,7 +1,7 @@
 /* Travel Engine v1.0 — RC5.0 Native Share & Preparation Checklist. */
 (function(){
   'use strict';
-  const ADMIN_USER='lee';
+  const ADMIN_USER='crystal';
   const CHANGED_PLAN_KEY=(window.STORAGE_CONFIG&&STORAGE_CONFIG.keys.changedPlans)||'travel_engine_changed_plans_v1';
   function isExportAdmin(){return typeof getFriend==='function'&&getFriend()===ADMIN_USER&&typeof window.isAdminMode==='function'&&window.isAdminMode();}
   function escapeHtml(value){return String(value==null?'':value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}

@@ -1868,3 +1868,10 @@ body.admin-mode .app-nav .days-trigger small {color:#fff!important;opacity:.96!i
 
 /* RC18 — verified visitor details and clean splash edge. */
 .visitor-reminder{margin:10px 0 0;padding:10px 12px;border-radius:12px;background:rgba(8,127,140,.07);color:var(--muted);font-size:.82rem;line-height:1.42}.visitor-reminder strong{color:var(--nz-primary,#087f8c)}#ccmvSplash .splash-logo{filter:none!important;box-shadow:none!important}#ccmvSplash .splash-line{border:0!important;box-shadow:none!important;text-shadow:none!important;background:transparent!important}#ccmvSplash .splash-line::before,#ccmvSplash .splash-line::after{content:none!important;display:none!important}
+
+/* Saigon v1.0.1 — individual traveller selector */
+.friend-choice-list .family-choice{padding:14px 18px!important;min-height:72px!important;background:var(--theme-surface)!important;border-color:var(--theme-border)!important;color:var(--theme-ink)!important}
+.friend-choice-list .family-choice .family-code{min-width:48px!important;width:48px!important;height:auto!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;font-size:32px!important;letter-spacing:0!important;box-shadow:none!important}
+.friend-choice-list .family-choice .family-name{font-size:18px!important}
+.friend-pill .family-code{min-width:0!important;width:auto!important;height:auto!important;padding:0!important;border:0!important;background:transparent!important;font-size:27px!important;box-shadow:none!important}
+.friend-pill{padding:8px 11px!important}

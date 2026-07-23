@@ -11,7 +11,7 @@
 (function(){
   const MODE_KEY=STORAGE_CONFIG.keys.adminMode;
   const DRAFT_KEY=STORAGE_CONFIG.keys.adminDraft;
-  const ADMIN_USER='lee';
+  const ADMIN_USER='crystal';
   const ADMIN_PIN='260922';
   const SESSION_KEY='travel_engine_admin_unlocked_v1';
   const state={mode:false,dirty:false,draft:null};
@@ -40,7 +40,7 @@
     }
   }
   function openTripStudioPanel(){
-    if(!isAdminUser()){ alert('Trip Studio is available to Lee only.'); return false; }
+    if(!isAdminUser()){ alert('Trip Studio is available to Crystal only.'); return false; }
     if(typeof renderFriendChoices==='function') renderFriendChoices();
     const modal=document.getElementById('mamaModal');
     const studio=document.getElementById('adminModeControl');
@@ -241,7 +241,7 @@
   window.setAdminMode=function(enabled){
     enabled=!!enabled;
     if(enabled && !isAdminUser()){
-      alert('Trip Studio is available to Lee only.');
+      alert('Trip Studio is available to Crystal only.');
       updateUI();
       return false;
     }
