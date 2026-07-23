@@ -2322,3 +2322,49 @@ body.expenses-page .expense-person-emoji{
   line-height:1!important;
   letter-spacing:0!important;
 }
+
+
+/* VN RC1.2 — single-owner bottom popup positioning and tap reliability. */
+#tripMenu,#guideMenu,#daysMenu{
+  position:fixed!important;
+  left:50%!important;
+  right:auto!important;
+  top:auto!important;
+  bottom:calc(88px + env(safe-area-inset-bottom))!important;
+  width:min(320px,calc(100vw - 20px))!important;
+  max-height:calc(100dvh - 124px - env(safe-area-inset-bottom))!important;
+  transform:translate3d(-50%,12px,0)!important;
+  overflow-y:auto!important;
+  z-index:6000!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+  touch-action:manipulation!important;
+}
+#tripMenu.show,#guideMenu.show,#daysMenu.show{
+  transform:translate3d(-50%,0,0)!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+#tripMenu a,#guideMenu button,#daysMenu a{
+  position:relative!important;
+  z-index:2!important;
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+  cursor:pointer!important;
+}
+#daysMenu:empty::after{
+  content:"Loading days…";
+  display:block;
+  padding:18px;
+  text-align:center;
+  color:var(--muted);
+  font-weight:700;
+}
+@media(max-width:520px){
+  #tripMenu,#guideMenu,#daysMenu{
+    bottom:calc(80px + env(safe-area-inset-bottom))!important;
+    max-height:calc(100dvh - 112px - env(safe-area-inset-bottom))!important;
+  }
+}

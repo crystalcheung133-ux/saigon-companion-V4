@@ -91,14 +91,14 @@ function escapeHTML(value){return String(value ?? '').replace(/[&<>"']/g,ch=>({'
 function closeMiniMenus(){document.querySelectorAll('.mini-menu').forEach(m=>m.classList.remove('show'));document.body.classList.remove('admin-overlay-open');}
 function clampMenuPosition(n,min,max){return Math.max(min,Math.min(max,n));}
 function positionMiniMenu(menu,trigger){
-  if(!menu||!trigger)return;
-  const rect=trigger.getBoundingClientRect();
-  const menuWidth=Math.min(230,window.innerWidth-24);
-  const center=rect.left+rect.width/2;
-  const left=clampMenuPosition(center,12+menuWidth/2,window.innerWidth-12-menuWidth/2);
-  menu.style.left=left+'px';
+  if(!menu)return;
+  const compact=window.matchMedia('(max-width: 520px)').matches;
+  const menuWidth=Math.min(compact?320:260,window.innerWidth-20);
+  menu.style.left='50%';
   menu.style.right='auto';
   menu.style.width=menuWidth+'px';
+  menu.style.top='auto';
+  menu.style.bottom=`calc(${compact?84:92}px + env(safe-area-inset-bottom))`;
 }
 function openMiniMenu(id,trigger){
   const m=$(id);
@@ -121,6 +121,15 @@ function reopenTripMenu(){requestAnimationFrame(()=>openMiniMenu('tripMenu',docu
 function reopenGuideMenu(){requestAnimationFrame(()=>openMiniMenu('guideMenu',document.querySelector('.guide-trigger')));}
 window.addEventListener('resize',closeMiniMenus);
 document.addEventListener('click',e=>{if(!e.target.closest('.mini-menu')&&!e.target.closest('.trip-modal')&&!e.target.closest('.trip-trigger')&&!e.target.closest('.guide-trigger')&&!e.target.closest('.days-trigger')) closeMiniMenus();});
+
+// RC1.2 — delegated navigation makes popup rows reliable in iOS/PWA even when inline handlers are stale-cached.
+document.addEventListener('click',event=>{
+  const tripRow=event.target.closest('#tripMenu [data-trip-card]');
+  if(tripRow){event.preventDefault();event.stopPropagation();openTripCard(tripRow.dataset.tripCard);return;}
+  const guideRow=event.target.closest('#guideMenu [data-guide-category]');
+  if(guideRow){event.preventDefault();event.stopPropagation();openGuideCategory(guideRow.dataset.guideCategory);return;}
+},true);
+
 document.addEventListener('DOMContentLoaded',()=>{
   if(location.hash==='#open-guide'){
     history.replaceState(null,'',location.pathname+location.search);
