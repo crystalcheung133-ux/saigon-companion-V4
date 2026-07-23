@@ -7,7 +7,7 @@
   const money = Object.freeze({
     homeCurrency: 'AUD',
     exchangeProvider: 'frankfurter',
-    apiBase: 'https://api.frankfurter.dev/v1/latest',
+    apiBase: 'https://api.frankfurter.dev/v2/rate',
     cacheHours: 12,
     storageVersion: 1,
     supportedCurrencies: Object.freeze(['AUD', 'NZD', 'JPY', 'VND'])

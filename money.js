@@ -25,7 +25,7 @@
 
   function apiUrl(){
     const config=root.MONEY_CONFIG||{};
-    return `${config.apiBase}?base=${encodeURIComponent(tripCurrency().code)}&symbols=${encodeURIComponent(homeCurrency())}`;
+    return `${config.apiBase}/${encodeURIComponent(tripCurrency().code)}/${encodeURIComponent(homeCurrency())}`;
   }
 
   function normalizeAmount(value){
@@ -137,7 +137,7 @@
     const response=await request(apiUrl(),{cache:'no-store'});
     if(!response||!response.ok) throw new Error('rate request failed');
     const data=await response.json();
-    const rate=data&&data.rates&&Number(data.rates[homeCurrency()]);
+    const rate=Number(data&&data.rate)||(data&&data.rates&&Number(data.rates[homeCurrency()]));
     if(!(rate>0)) throw new Error('invalid rate');
     return normalizeRateRecord({
       base:tripCurrency().code,

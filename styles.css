@@ -1882,3 +1882,51 @@ body.admin-mode .app-nav .days-trigger small {color:#fff!important;opacity:.96!i
 .friend-pill .family-code{font-size:29px!important;line-height:1!important}
 .friend-pill{min-width:0!important;padding:8px 13px!important}
 .friend-choice-list .family-choice .family-name{display:inline!important;visibility:visible!important;opacity:1!important}
+
+/* Saigon RC23.5 — editorial polish */
+:root{
+  --saigon-ivory:#fbf7f2;
+  --saigon-paper:#fffdf9;
+  --saigon-espresso:#493536;
+  --saigon-taupe:#806d6d;
+  --saigon-champagne:#c7a779;
+  --saigon-rose:#a97978;
+  --saigon-sage:#83917f;
+  --saigon-line:rgba(106,79,78,.13);
+}
+body{background:var(--saigon-ivory)!important;color:var(--saigon-espresso)!important;}
+.card,.timeline-main,.prose-block,.guide-card,.trip-card,.expense-card,.moments-entry,.drive-briefing{
+  background:var(--saigon-paper)!important;
+  border-color:var(--saigon-line)!important;
+  box-shadow:0 14px 34px rgba(73,53,54,.065)!important;
+}
+.page-hero,.module-hero,.home-hero{
+  background:linear-gradient(135deg,#f3e5e1 0%,#f7eee7 56%,#fbf3e5 100%)!important;
+  box-shadow:0 18px 42px rgba(73,53,54,.08)!important;
+}
+.page-hero h1,.module-hero h1,.home-hero h1{color:var(--saigon-espresso)!important;}
+.kicker{color:#9a716c!important;letter-spacing:.14em!important;}
+.timeline-main,.guide-card,.trip-card,.prose-block{position:relative;overflow:hidden;}
+.timeline-main::after,.guide-card::after,.trip-card::after,.prose-block::after{
+  content:"";position:absolute;right:12px;bottom:10px;width:72px;height:72px;
+  background:url('ccmv-saigon-logo-v102.png') center/contain no-repeat;
+  opacity:.045;pointer-events:none;filter:sepia(.25) saturate(.7);
+}
+.journey-segment{
+  margin:14px 0 2px;padding:11px 13px;border-top:1px solid rgba(166,106,106,.14);
+  border-bottom:1px solid rgba(166,106,106,.10);display:flex;align-items:center;
+  justify-content:space-between;gap:12px;background:rgba(247,238,231,.54);border-radius:13px;
+}
+.journey-label{font-weight:800;color:#795052;white-space:nowrap;}
+.journey-next{font-size:.82rem;color:var(--saigon-taupe);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.drive-briefing-icon{color:var(--saigon-champagne)!important;}
+.drive-nav-primary{background:linear-gradient(135deg,#9c6b6c,#765052)!important;}
+.friend-pill .family-identity.is-compact{gap:7px!important;}
+.friend-pill .family-code{font-size:1.45rem!important;line-height:1!important;}
+.friend-pill .family-name{display:inline!important;font-size:.9rem!important;font-weight:750!important;color:var(--saigon-espresso)!important;}
+.mini-menu{background:rgba(255,253,249,.98)!important;border-color:var(--saigon-line)!important;box-shadow:0 18px 42px rgba(73,53,54,.14)!important;}
+.mini-menu .menu-title{color:var(--saigon-espresso)!important;}
+@media(max-width:520px){
+  .journey-segment{align-items:flex-start;flex-direction:column;gap:3px;}
+  .journey-next{text-align:left;max-width:100%;}
+}
