@@ -2226,3 +2226,99 @@ body.expenses-page .family-code,body.expenses-page .expense-person-emoji{font-si
 body.expenses-page{--accent:#6f9876;--accent-strong:#527b5c;--accent-soft:#e7f0e8}
 /* No legacy Moment action buttons on Guide or Day cards */
 .quick-info-actions .moment-button,.day-actions .moment-button,.timeline-actions .moment-button{display:none!important}
+
+
+/* VN RC1.1 — UAT corrections: popup reachability, plain expense emoji, original splash composition. */
+#ccmvSplash .splash-content{
+  width:min(92vw,560px)!important;
+  padding:0 24px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  opacity:1!important;
+  transform:none!important;
+  animation:none!important;
+}
+#ccmvSplash .splash-tile{
+  width:min(58vw,240px);
+  aspect-ratio:1/1;
+  margin:0 auto 30px;
+  padding:0;
+  overflow:hidden;
+  border:1px solid rgba(204,181,153,.32);
+  border-radius:34px;
+  background:#f3ddd9;
+  box-shadow:0 22px 46px rgba(84,61,39,.14),0 6px 16px rgba(84,61,39,.07),inset 0 1px 0 rgba(255,255,255,.55);
+  opacity:0;
+  animation:ccmvLogo421 5.2s cubic-bezier(.22,.8,.22,1) both;
+}
+#ccmvSplash .splash-logo{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  opacity:1!important;
+  animation:none!important;
+}
+#ccmvSplash .splash-line{
+  margin:0!important;
+  color:#a77b43!important;
+  font:600 clamp(22px,5.6vw,32px)/1.18 Baskerville,Georgia,serif!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  animation:ccmvSlogan421 5.2s cubic-bezier(.22,.8,.22,1) both!important;
+}
+#ccmvSplash .splash-destination{
+  margin-top:28px!important;
+  color:#9b7443!important;
+  font:800 clamp(14px,3.6vw,20px)/1 Avenir,Montserrat,system-ui,sans-serif!important;
+  letter-spacing:.38em!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  animation:ccmvVietnam421 5.2s cubic-bezier(.22,.8,.22,1) both!important;
+}
+
+/* Menus must sit above the fixed bottom navigation and remain inside the visible viewport. */
+.mini-menu,#tripMenu,#guideMenu,#daysMenu{
+  z-index:1400!important;
+  bottom:calc(86px + env(safe-area-inset-bottom))!important;
+  max-height:calc(100dvh - 132px - env(safe-area-inset-bottom))!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+.mini-menu.show,#tripMenu.show,#guideMenu.show,#daysMenu.show{pointer-events:auto!important;}
+@media(max-width:520px){
+  .mini-menu,#tripMenu,#guideMenu,#daysMenu{
+    width:min(300px,calc(100vw - 20px))!important;
+    bottom:calc(78px + env(safe-area-inset-bottom))!important;
+    max-height:calc(100dvh - 116px - env(safe-area-inset-bottom))!important;
+  }
+}
+
+/* Expenses: use the original plain large emoji treatment, without capsule badges. */
+body.expenses-page .identity-dashboard .family-code,
+body.expenses-page .expense-focus-card .family-code,
+body.expenses-page .expense-person-emoji{
+  display:inline-block!important;
+  min-width:0!important;
+  width:auto!important;
+  height:auto!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  font-size:2rem!important;
+  line-height:1!important;
+  letter-spacing:0!important;
+}
