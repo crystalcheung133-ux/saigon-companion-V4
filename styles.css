@@ -1869,9 +1869,16 @@ body.admin-mode .app-nav .days-trigger small {color:#fff!important;opacity:.96!i
 /* RC18 — verified visitor details and clean splash edge. */
 .visitor-reminder{margin:10px 0 0;padding:10px 12px;border-radius:12px;background:rgba(8,127,140,.07);color:var(--muted);font-size:.82rem;line-height:1.42}.visitor-reminder strong{color:var(--nz-primary,#087f8c)}#ccmvSplash .splash-logo{filter:none!important;box-shadow:none!important}#ccmvSplash .splash-line{border:0!important;box-shadow:none!important;text-shadow:none!important;background:transparent!important}#ccmvSplash .splash-line::before,#ccmvSplash .splash-line::after{content:none!important;display:none!important}
 
-/* Saigon v1.0.1 — individual traveller selector */
+/* Saigon v1.0.2 — individual traveller selector */
 .friend-choice-list .family-choice{padding:14px 18px!important;min-height:72px!important;background:var(--theme-surface)!important;border-color:var(--theme-border)!important;color:var(--theme-ink)!important}
 .friend-choice-list .family-choice .family-code{min-width:48px!important;width:48px!important;height:auto!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;font-size:32px!important;letter-spacing:0!important;box-shadow:none!important}
 .friend-choice-list .family-choice .family-name{font-size:18px!important}
 .friend-pill .family-code{min-width:0!important;width:auto!important;height:auto!important;padding:0!important;border:0!important;background:transparent!important;font-size:27px!important;box-shadow:none!important}
 .friend-pill{padding:8px 11px!important}
+
+/* Saigon v1.0.2 — traveller selector shows emoji and name, without badge chrome. */
+.friend-pill .family-identity{display:inline-flex!important;align-items:center!important;gap:7px!important}
+.friend-pill .family-name{display:inline!important;visibility:visible!important;opacity:1!important;max-width:none!important;width:auto!important;font-size:15px!important;font-weight:800!important;line-height:1!important;color:var(--theme-ink)!important}
+.friend-pill .family-code{font-size:29px!important;line-height:1!important}
+.friend-pill{min-width:0!important;padding:8px 13px!important}
+.friend-choice-list .family-choice .family-name{display:inline!important;visibility:visible!important;opacity:1!important}
