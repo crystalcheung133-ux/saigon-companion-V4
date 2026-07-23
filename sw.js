@@ -1,1 +1,122 @@
-const CACHE_NAME = 'saigon-companion-v4-base-clean';const ASSETS=["./", "./index.html", "./styles.css", "./script.js", "./manifest.json", "./offline.html", "./icon-192.png", "./icon-512.png", "./logo-watermark-monogram.png", "./logo-monogram-transparent.png", "./bakes.html", "./bep-me-in.html", "./book-street.html", "./cafe-apartments.html", "./com-tam-moc.html", "./cong.html", "./cooking.html", "./dauple.html", "./day1.html", "./day2.html", "./day3.html", "./day4.html", "./day5.html", "./fine-arts.html", "./fusion.html", "./garmentory.html", "./guide.html", "./ha-spa.html", "./itinerary.html", "./libe.html", "./little-bear.html", "./lune.html", "./marou.html", "./memory.html", "./moc-huong.html", "./moc-kim.html", "./moments.html", "./expenses.html", "./new-playground.html", "./nha-suga.html", "./nosbyn.html", "./notre-dame.html", "./ohquao.html", "./omakase-tiger.html", "./pho-sol.html", "./pho-vietnam.html", "./pink-church.html", "./pizza4ps.html", "./post-office.html", "./push-push.html", "./quan-thuy.html", "./quince.html", "./running-bean.html", "./saigon-concept.html", "./temple-leaf.html", "./trip.html", "./war-museum.html"];self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting()))});self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(caches.match(e.request).then(c=>c||fetch(e.request).then(r=>{let copy=r.clone();caches.open(CACHE_NAME).then(cache=>cache.put(e.request,copy));return r}).catch(()=>caches.match('./offline.html'))))});
+importScripts('./theme-config.js', './asset-config.js', './locale-config.js', './formatter.js', './navigation-config.js', './storage-config.js', './trip-config.js');
+const CACHE_NAME = `travel-engine-${TRIP_CONFIG.storageNamespace}-${TRIP_CONFIG.version}-engine-integrity-e1-e5`;
+const CRITICAL_EXTENSIONS = /\.(?:css|js)$/i;
+const ASSETS = [
+  './',
+  './index.html',
+  './styles.css',
+  './core-runtime.js',
+  './trip-runtime.js',
+  './moments-compat.js',
+  './currency-runtime.js',
+  './script.js',
+  './guide-runtime.js',
+  './expenses.js',
+  './supabase-client-runtime.js',
+  './expense-sync-runtime.js',
+  './moment-sync-runtime.js',
+  './generation-runtime.js',
+  './moments.js',
+  './admin.js',
+  './reset-runtime.js',
+  './publication-runtime.js',
+  './complete-runtime.js',
+  './export-runtime.js',
+  './pwa.js',
+  './app-runtime.js',
+  './theme-config.js',
+  './asset-config.js',
+  './locale-config.js',
+  './formatter.js',
+  './money-config.js',
+  './money.js',
+  './navigation-config.js',
+  './navigation.js',
+  './storage-config.js',
+  './storage.js',
+  './sync-config.js',
+  './sync-runtime.js',
+  './trip-config.js',
+  './engine-integrity.js',
+  './data.js',
+  './itinerary-authority.js',
+  './place.html',
+  './day.html',
+  './offline.html',
+  './manifest.webmanifest',
+  './' + ASSET_CONFIG.icons.icon192,
+  './' + ASSET_CONFIG.icons.icon512,
+  './' + ASSET_CONFIG.branding.secondaryMark,
+  './' + ASSET_CONFIG.branding.splashLogo,
+  './guide.html',
+  './itinerary.html',
+  './memory.html',
+  './moments.html',
+  './expenses.html',
+  './trip.html'
+];
+
+
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
+});
+
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => Promise.all(ASSETS.map(asset => cache.add(new Request(asset,{cache:'reload'})))))
+  );
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))))
+      .then(() => self.clients.claim())
+  );
+});
+
+async function networkFirst(request) {
+  const cache = await caches.open(CACHE_NAME);
+  try {
+    const response = await fetch(request);
+    if (response && response.ok) cache.put(request, response.clone());
+    return response;
+  } catch (error) {
+    let cached = await caches.match(request, { ignoreSearch: true });
+    if (!cached) {
+      const url = new URL(request.url);
+      cached = await caches.match(url.pathname.split('/').pop() || './index.html', { ignoreSearch: true });
+    }
+    return cached || caches.match('./offline.html');
+  }
+}
+
+async function cacheFirstMedia(request) {
+  const cache = await caches.open(CACHE_NAME);
+  const cached = await cache.match(request, {ignoreSearch:true});
+  if (cached) return cached;
+  try {
+    const response = await fetch(request);
+    if (response && response.ok) cache.put(request, response.clone());
+    return response;
+  } catch (error) {
+    return caches.match('./offline.html');
+  }
+}
+
+self.addEventListener('fetch', event => {
+  if (event.request.method !== 'GET') return;
+
+  const url = new URL(event.request.url);
+  if (url.origin !== self.location.origin) return;
+
+  const acceptsHtml = event.request.headers.get('accept')?.includes('text/html');
+  if (event.request.mode === 'navigate' || acceptsHtml) {
+    event.respondWith(networkFirst(event.request));
+  } else if (CRITICAL_EXTENSIONS.test(url.pathname)) {
+    event.respondWith(networkFirst(event.request));
+  } else {
+    event.respondWith(cacheFirstMedia(event.request));
+  }
+});
