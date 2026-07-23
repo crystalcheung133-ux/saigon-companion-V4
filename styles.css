@@ -1930,3 +1930,33 @@ body{background:var(--saigon-ivory)!important;color:var(--saigon-espresso)!impor
   .journey-segment{align-items:flex-start;flex-direction:column;gap:3px;}
   .journey-next{text-align:left;max-width:100%;}
 }
+
+
+/* Saigon RC23.6 — targeted correction pass */
+#ccmvSplash .splash-content{
+  width:min(88vw,430px)!important;padding:32px 24px 28px!important;
+  border:1px solid rgba(169,121,120,.24)!important;border-radius:28px!important;
+  background:linear-gradient(155deg,rgba(255,253,249,.98),rgba(244,229,225,.94))!important;
+  box-shadow:0 28px 80px rgba(73,53,54,.16),inset 0 1px 0 rgba(255,255,255,.9)!important;
+  opacity:0;transform:translateY(18px) scale(.94);animation:saigonTileReveal 1.7s cubic-bezier(.22,.8,.22,1) .15s forwards!important;
+}
+#ccmvSplash .splash-logo{width:min(68vw,310px)!important;margin-bottom:16px!important;animation:saigonLogoReveal 1.25s cubic-bezier(.22,.8,.22,1) .55s both!important;}
+#ccmvSplash .splash-line{font-family:var(--font-sans)!important;font-weight:950!important;animation:saigonTextReveal .9s cubic-bezier(.22,.8,.22,1) 1.65s both!important;}
+#ccmvSplash .splash-destination{font-family:var(--font-sans)!important;font-weight:900!important;animation:saigonTextReveal .9s cubic-bezier(.22,.8,.22,1) 2.45s both!important;}
+@keyframes saigonTileReveal{to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes saigonLogoReveal{from{opacity:0;transform:scale(.84)}to{opacity:1;transform:scale(1)}}
+@keyframes saigonTextReveal{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+.guide-category-menu{max-height:min(72vh,520px)!important;overflow-y:auto!important;overscroll-behavior:contain!important;}
+.guide-category-menu button{min-height:48px!important;}
+.guide-compact-section{margin:12px 0 0;padding:13px 14px;border:1px solid var(--saigon-line);border-radius:15px;background:rgba(255,253,249,.72);}
+.guide-compact-section h3{margin:0 0 7px;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:#916a66;}
+.guide-compact-section ul{margin:0;padding-left:19px;}.guide-compact-section li{margin:4px 0;line-height:1.45;}
+/* Expenses keeps its established sage identity. */
+body.expenses-page{background:#edf4ec!important;color:#294238!important;}
+body.expenses-page .site-nav{background:rgba(247,251,246,.96)!important;border-bottom-color:rgba(92,126,91,.20)!important;}
+body.expenses-page .page-hero,body.expenses-page .module-hero{background:linear-gradient(135deg,#d9ead7 0%,#edf5e9 58%,#f8fbf5 100%)!important;border-color:rgba(94,130,91,.22)!important;box-shadow:0 18px 42px rgba(47,82,58,.09)!important;}
+body.expenses-page .page-hero h1,body.expenses-page .prose-block h2{color:#29483a!important;}
+body.expenses-page .kicker{color:#5e8060!important;}
+body.expenses-page .prose-block,body.expenses-page .expense-card,body.expenses-page .expense-summary-card{background:#fbfdf9!important;border-color:rgba(94,130,91,.18)!important;box-shadow:0 14px 34px rgba(47,82,58,.07)!important;}
+body.expenses-page .primary-action,body.expenses-page .btn{background:linear-gradient(180deg,#6f9470,#557759)!important;border-color:#557759!important;color:#fff!important;}
+body.expenses-page .pill,body.expenses-page .mini-btn{border-color:rgba(94,130,91,.26)!important;color:#365943!important;background:#f8fcf6!important;}

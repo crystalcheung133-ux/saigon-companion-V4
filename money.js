@@ -134,19 +134,27 @@
   async function fetchLatestRate(fetchImpl){
     const request=fetchImpl||root.fetch;
     if(typeof request!=='function') throw new Error('rate request unavailable');
-    const response=await request(apiUrl(),{cache:'no-store'});
-    if(!response||!response.ok) throw new Error('rate request failed');
-    const data=await response.json();
-    const rate=Number(data&&data.rate)||(data&&data.rates&&Number(data.rates[homeCurrency()]));
-    if(!(rate>0)) throw new Error('invalid rate');
-    return normalizeRateRecord({
-      base:tripCurrency().code,
-      quote:homeCurrency(),
-      rate,
-      date:data.date||new Date().toISOString().slice(0,10),
-      savedAt:new Date().toISOString(),
-      source:'live'
-    },'live');
+    const trip=tripCurrency().code;
+    const home=homeCurrency();
+    const urls=[
+      apiUrl(),
+      `${root.MONEY_CONFIG.ratesApiBase||'https://api.frankfurter.dev/v2/rates'}?base=${encodeURIComponent(trip)}&quotes=${encodeURIComponent(home)}`
+    ];
+    let lastError=null;
+    for(const url of urls){
+      try{
+        const response=await request(url,{cache:'no-store',headers:{Accept:'application/json'}});
+        if(!response||!response.ok) throw new Error(`rate request failed (${response&&response.status})`);
+        const data=await response.json();
+        const row=Array.isArray(data)?data.find(item=>String(item.quote||'').toUpperCase()===home):data;
+        const rate=Number(row&&row.rate)||(row&&row.rates&&Number(row.rates[home]));
+        if(!(rate>0)) throw new Error('invalid rate');
+        return normalizeRateRecord({base:trip,quote:home,rate,date:row.date||new Date().toISOString().slice(0,10),savedAt:new Date().toISOString(),source:'live'},'live');
+      }catch(error){lastError=error;}
+    }
+    const fallback=Number(root.MONEY_CONFIG&&root.MONEY_CONFIG.fallbackRate);
+    if(fallback>0) return normalizeRateRecord({base:trip,quote:home,rate:fallback,date:'planning estimate',savedAt:new Date().toISOString(),source:'estimate'},'estimate');
+    throw lastError||new Error('rate request failed');
   }
 
   const service=Object.freeze({

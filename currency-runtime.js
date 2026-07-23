@@ -27,14 +27,14 @@
     const outputLabel=document.getElementById('currencyOutputLabel');
     const resultEl=document.getElementById('currencyResult');
     const status=document.getElementById('currencyStatus');
-    if(card) card.textContent=state.rate?`${tripCurrency.code} 100 ≈ ${homeCurrency} ${formatMoney(MONEY.convertToHome(100,state.rate))}`:`${tripCurrency.code} 100 ≈ ${homeCurrency} --`;
-    if(meta) meta.textContent=state.rate?(state.source==='live'?`Rate date · ${state.date}`:`Last saved · ${state.date||'offline'}`):'Rate unavailable';
+    if(card) card.textContent=state.rate?`${tripCurrency.code} 1,000,000 ≈ ${homeCurrency} ${formatMoney(MONEY.convertToHome(1000000,state.rate))}`:`${tripCurrency.code} 1,000,000 ≈ ${homeCurrency} --`;
+    if(meta) meta.textContent=state.rate?(state.source==='live'?`Rate date · ${state.date}`:state.source==='estimate'?'Planning estimate':`Last saved · ${state.date||'offline'}`):'Rate unavailable';
     if(inputCode) inputCode.textContent=state.base;
     if(inputLabel) inputLabel.textContent=state.base===tripCurrency.code?tripCurrency.name:'Australian dollar';
     if(outputLabel) outputLabel.textContent=state.quote===homeCurrency?'Australian dollar':tripCurrency.name;
     if(resultEl) resultEl.textContent=`${state.quote} ${result===null?'--':formatMoney(result)}`;
     if(status){
-      if(state.rate) status.textContent=state.source==='live'?`Latest daily reference rate · ${state.date}`:`Offline rate saved from ${state.date||'the last update'}`;
+      if(state.rate) status.textContent=state.source==='live'?`Latest daily reference rate · ${state.date}`:state.source==='estimate'?'Planning estimate shown because the live rate is temporarily unavailable.':`Offline rate saved from ${state.date||'the last update'}`;
       else status.textContent='Connect to the internet to load the exchange rate.';
     }
   }

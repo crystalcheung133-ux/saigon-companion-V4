@@ -80,18 +80,25 @@ function openShoppingDirectoryView(){
 window.addEventListener('hashchange',applyGuideHashView);
 document.addEventListener('DOMContentLoaded',applyGuideHashView);
 
+const CAFE_KEYS=new Set(['running-bean','maison-marou','bakes','dreamers','cafe-apartments']);
+function mappedGuideItems(keys){
+ return (keys||[]).map(item=>{const key=typeof item==='string'?item:item&&item.key;return key&&PRODUCTION_GUIDE.places[key]?Object.assign({key},PRODUCTION_GUIDE.places[key]):null;}).filter(Boolean);
+}
 function guideCategoryItems(cat){
- if(cat==='EXPLORE'){
-  return [...(PRODUCTION_GUIDE.categories.ATTRACTIONS||[]),...(PRODUCTION_GUIDE.categories.ACTIVITIES||[])]
-   .map(item=>{const key=typeof item==='string'?item:item&&item.key;return key&&PRODUCTION_GUIDE.places[key]?Object.assign({key},PRODUCTION_GUIDE.places[key]):null;})
-   .filter(item=>item&&!((TRIP_CONFIG.guide?.excludedPlaceIds||[]).includes(item.key)));
- }
- return (PRODUCTION_GUIDE.categories[cat]||[])
-  .map(item=>{const key=typeof item==='string'?item:item&&item.key;return key&&PRODUCTION_GUIDE.places[key]?Object.assign({key},PRODUCTION_GUIDE.places[key]):null;})
-  .filter(Boolean);
+ let items=[];
+ if(cat==='STAY') items=mappedGuideItems(PRODUCTION_GUIDE.categories.STAY);
+ else if(cat==='SPA') items=mappedGuideItems(PRODUCTION_GUIDE.categories.WELLNESS);
+ else if(cat==='SHOP') items=mappedGuideItems(PRODUCTION_GUIDE.categories.SHOPPING);
+ else if(cat==='ATTRACTIONS') items=mappedGuideItems(PRODUCTION_GUIDE.categories.ATTRACTIONS);
+ else if(cat==='CAFES') items=mappedGuideItems(PRODUCTION_GUIDE.order.filter(key=>CAFE_KEYS.has(key)));
+ else if(cat==='EXPERIENCES') items=mappedGuideItems(PRODUCTION_GUIDE.categories.ACTIVITIES);
+ else if(cat==='RESTAURANTS') items=mappedGuideItems((PRODUCTION_GUIDE.categories.DINING||[]).filter(item=>!CAFE_KEYS.has(typeof item==='string'?item:item&&item.key)));
+ else if(cat==='EXPLORE') items=mappedGuideItems([...(PRODUCTION_GUIDE.categories.ATTRACTIONS||[]),...(PRODUCTION_GUIDE.categories.ACTIVITIES||[])]);
+ else items=mappedGuideItems(PRODUCTION_GUIDE.categories[cat]);
+ return items.filter(item=>!((TRIP_CONFIG.guide?.excludedPlaceIds||[]).includes(item.key)));
 }
 function guideCategoryHeading(cat){
- return cat==='EXPLORE'?'SIGHTS & ACTIVITIES':cat;
+ return ({STAY:'STAY',SPA:'SPA & WELLNESS',SHOP:'SHOPS',ATTRACTIONS:'ATTRACTIONS',CAFES:'CAFÉS',EXPERIENCES:'EXPERIENCES',RESTAURANTS:'RESTAURANTS',EXPLORE:'SIGHTS & ACTIVITIES'})[cat]||cat;
 }
 function openGuideCategory(cat){
  saveGuideNavigationContext(cat);
@@ -185,9 +192,9 @@ function criticalGuideNotes(g){
  return usefulGoodToKnow(g.worth||g.tips||[]).filter(x=>rules.test(x));
 }
 function compactGuideSections(g){
- const suggested=suggestedItems(g).map(x=>`<li>${x}</li>`).join('');
- const notes=criticalGuideNotes(g).map(x=>`<li>${x}</li>`).join('');
- return `${suggested?`<h3>Suggested Dishes</h3><ul>${suggested}</ul>`:''}${notes?`<h3>Before You Go</h3><ul>${notes}</ul>`:''}`;
+ const known=(g.signature||g.highlights||[]).filter(Boolean).map(x=>`<li>${String(x).replace(/^(Signature|House Special|Tasting Experience)\s*[·:]?\s*/i,'')}</li>`).join('');
+ const notes=usefulGoodToKnow(g.worth||g.tips||[]).map(x=>`<li>${x}</li>`).join('');
+ return `${known?`<section class="guide-compact-section"><h3>Known For</h3><ul>${known}</ul></section>`:''}${notes?`<section class="guide-compact-section"><h3>Good to Know</h3><ul>${notes}</ul></section>`:''}`;
 }
 
 function openGuideModal(key){
@@ -224,19 +231,18 @@ function renderPlaceGroupPage(keys){
   const clean=[...new Set((Array.isArray(keys)?keys:[]).filter(key=>key&&PRODUCTION_GUIDE.places[key]))];
   const mount=document.getElementById('placeMain');
   if(!clean.length||!mount) return;
-  // Defensive auto-routing for old/shared links containing a single id.
   if(clean.length===1){ renderPlacePage(clean[0]); return; }
   const cards=clean.map((key,index)=>{
     const g=PRODUCTION_GUIDE.places[key];
     return `<article class="place-group-card" id="guide-${key}">
-      <div class="page-hero place-group-hero"><p class="kicker">Option ${index+1}</p><h1>${g.emoji} ${g.title}</h1><p class="lead">${g.sub||''}</p></div>
+      <div class="page-hero place-group-hero"><p class="kicker">STOP ${index+1}</p><h1>${g.emoji} ${g.title}</h1><p class="lead">${g.sub||''}</p></div>
       <section class="prose-block guide-overview"><h2>Why Go</h2><p>${g.desc||''}</p></section>
       <section aria-label="Quick Info" class="quick-info-card">${quickInfoInnerHTML(g,key)}</section>
       ${compactGuideSections(g)}
     </article>`;
   }).join('');
-  mount.innerHTML=`<button class="place-detail-close" type="button" aria-label="Close guide options" onclick="closePlaceDetail()">×</button><div class="page-hero"><p class="kicker">Guide</p><h1>Choose an option</h1><p class="lead">Compare the planned choices, then use Navigate inside the restaurant card you choose.</p></div>${cards}`;
-  document.title=`Guide options · ${TRIP_CONFIG.tripName}`;
+  mount.innerHTML=`<button class="place-detail-close" type="button" aria-label="Close route guide" onclick="closePlaceDetail()">×</button><div class="page-hero"><p class="kicker">ROUTE GUIDE</p><h1>All planned stops</h1><p class="lead">These places are part of the same itinerary stop. Scroll down for all ${clean.length} guide cards.</p></div>${cards}`;
+  document.title=`Route Guide · ${TRIP_CONFIG.tripName}`;
 }
 
 

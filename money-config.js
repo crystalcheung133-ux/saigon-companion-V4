@@ -8,6 +8,8 @@
     homeCurrency: 'AUD',
     exchangeProvider: 'frankfurter',
     apiBase: 'https://api.frankfurter.dev/v2/rate',
+    ratesApiBase: 'https://api.frankfurter.dev/v2/rates',
+    fallbackRate: 0.0000585,
     cacheHours: 12,
     storageVersion: 1,
     supportedCurrencies: Object.freeze(['AUD', 'NZD', 'JPY', 'VND'])
