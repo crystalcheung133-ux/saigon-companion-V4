@@ -74,7 +74,9 @@
         placeId:event.placeId,
         bookingId:event.bookingIds[0]||null,
         ...(event.presentation.guidePlaceIds.length?{guideIds:event.presentation.guidePlaceIds}:{}),
-        ...(event.presentation.showShoppingDirectory?{showShoppingDirectory:true}:{})
+        ...(event.presentation.showShoppingDirectory?{showShoppingDirectory:true}:{}),
+        ...(event.presentation.nearbyPlaceIds?.length?{nearbyPlaceIds:event.presentation.nearbyPlaceIds}:{}),
+        ...(event.presentation.alternativePlaceIds?.length?{alternativePlaceIds:event.presentation.alternativePlaceIds}:{})
       }))),
       dayId:frozenDay.dayId
     })];

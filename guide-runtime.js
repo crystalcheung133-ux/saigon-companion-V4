@@ -43,7 +43,7 @@ function openGuideCategory(cat){
 }
 
 function quickInfoInnerHTML(g,key){
- return `<div class="quick-info-top"><span class="category-tag">${g.categoryLabel||g.cat||'Guide'}</span></div><div class="quick-info-grid"><div class="quick-info-row"><span class="quick-info-icon">📍</span><span><span class="quick-info-label">Address</span><span class="quick-info-value">${g.address||'Check before visit'}</span></span></div><div class="quick-info-row"><span class="quick-info-icon">🕘</span><span><span class="quick-info-label">Hours</span><span class="quick-info-value">${g.hours||'Check before visit'}</span></span></div><div class="quick-info-row"><span class="quick-info-icon">💰</span><span><span class="quick-info-label">Price</span><span class="quick-info-value">${g.price||'Varies'}</span></span></div>${visitDayHTML(key)}</div><div class="quick-info-actions"><a class="map-button" href="${g.maps}" target="_blank" rel="noopener">🗺 Open Google Maps</a><button class="moment-button" aria-label="Add Moment" onclick="openMomentsModal('${key}')">✨ Moment</button></div>`;
+ return `<div class="quick-info-top"><span class="category-tag">${g.categoryLabel||g.cat||'Guide'}</span></div><div class="quick-info-grid"><div class="quick-info-row"><span class="quick-info-icon">📍</span><span><span class="quick-info-label">Address</span><span class="quick-info-value">${g.address||'Check before visit'}</span></span></div><div class="quick-info-row"><span class="quick-info-icon">🕘</span><span><span class="quick-info-label">Hours</span><span class="quick-info-value">${g.hours||'Check before visit'}</span></span></div><div class="quick-info-row"><span class="quick-info-icon">💰</span><span><span class="quick-info-label">Price</span><span class="quick-info-value">${g.price||'Varies'}</span></span></div>${visitDayHTML(key)}</div><div class="quick-info-actions"><a class="map-button" href="${g.maps}" target="_blank" rel="noopener">🗺 Directions</a></div>`;
 }
 function quickInfoHTML(g,key){
  return `<div class="quick-info-card">${quickInfoInnerHTML(g,key)}</div>`;
@@ -64,13 +64,14 @@ function closeGuideModal(){$('guideModal').classList.remove('show');clearGuideNa
 
 function renderPlacePage(key){
   const g = VN_PRESENTATION.places[key];
+  const optionalContext = new URLSearchParams(location.search).get('optional');
   const mount = document.getElementById('placeMain');
   if(!g || !mount) return;
   const sig = (g.signature||g.highlights||[]).map(x=>`<li>${x}</li>`).join('');
   const worth = (g.worth||g.tips||[]).map(x=>`<li>${x}</li>`).join('');
   mount.innerHTML = `
 <button class="place-detail-close" type="button" aria-label="Close place detail" data-action="place-close">×</button>
-<div class="page-hero"><p class="kicker">Guide</p><h1>${g.emoji} ${g.title}</h1><p class="lead">${g.sub||''}</p></div>
+<div class="page-hero"><p class="kicker">Guide</p><h1>${g.emoji} ${g.title}</h1>${optionalContext?`<span class="optional-badge">OPTIONAL · ${optionalContext}</span>`:''}<p class="lead">${g.sub||''}</p></div>
 <section aria-label="Quick Info" class="quick-info-card">${quickInfoInnerHTML(g,key)}</section>
 <section class="prose-block guide-overview"><h2>Overview</h2><p>${g.desc||''}</p></section>
 <section class="prose-block"><h2>Highlights</h2><ul>${sig}</ul></section>

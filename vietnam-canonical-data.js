@@ -25,7 +25,7 @@
   }));
 
   const guidePlaceIds=Object.freeze([
-    'fusion','bakes','cong','marou','cafe-apartments','running-bean',
+    'fusion','bakes','cong','marou','cafe-apartments','workshop-coffee','running-bean',
     'bep-me-in','com-tam-moc','little-bear','lune','omakase-tiger','pho-sol',
     'pho-vietnam','pizza4ps','quince','quan-thuy','garmentory','dauple','libe',
     'nosbyn','ohquao','push-push','saigon-concept','new-playground','ha-spa',
@@ -34,7 +34,7 @@
   ]);
   const categoryMembers=Object.freeze({
     STAY:Object.freeze(['fusion']),
-    'CAFÉS':Object.freeze(['bakes','cong','marou','cafe-apartments','running-bean']),
+    'CAFÉS':Object.freeze(['bakes','cong','marou','cafe-apartments','workshop-coffee','running-bean']),
     RESTAURANTS:Object.freeze(['bep-me-in','com-tam-moc','little-bear','lune','omakase-tiger','pho-sol','pho-vietnam','pizza4ps','quince','quan-thuy']),
     SHOP:Object.freeze(['garmentory','dauple','libe','nosbyn','ohquao','push-push','saigon-concept','new-playground']),
     SPA:Object.freeze(['ha-spa','moc-huong','moc-kim','nha-suga','temple-leaf']),
@@ -61,6 +61,21 @@
     placeType:'airport'
   });
 
+  const nearbyOptionMap=Object.freeze({
+    'day1:cafe-apartments':Object.freeze(['workshop-coffee'])
+  });
+  const mealAlternativeMap=Object.freeze({
+    'day1:pho-sol':Object.freeze(['com-tam-moc','pho-vietnam']),
+    'day1:omakase-tiger':Object.freeze(['quince','lune']),
+    'day2:com-tam-moc':Object.freeze(['pho-sol','pho-vietnam']),
+    'day2:lune':Object.freeze(['quince','little-bear']),
+    'day3:quan-thuy':Object.freeze(['pho-sol','com-tam-moc']),
+    'day3:little-bear':Object.freeze(['quince','lune']),
+    'day4:pizza4ps':Object.freeze(['bep-me-in','com-tam-moc']),
+    'day4:quince':Object.freeze(['lune','little-bear']),
+    'day5:pho-vietnam':Object.freeze(['pho-sol','com-tam-moc']),
+    'day5:bep-me-in':Object.freeze(['pizza4ps','quince'])
+  });
   const eventSpecs=Object.freeze([
     [1,'fusion','fusion',null,[],false],[1,'pho-sol','pho-sol',null,[],false],
     [1,'post-office','post-office',null,[],false],[1,'nha-suga','nha-suga',null,[],false],
@@ -112,7 +127,9 @@
           order:dayOrder,
           map:item.map,
           guidePlaceIds:Object.freeze(guidePlaceIdsForCard.slice()),
-          showShoppingDirectory
+          showShoppingDirectory,
+          nearbyPlaceIds:nearbyOptionMap[`day${dayNumber}:${legacyId}`]||Object.freeze([]),
+          alternativePlaceIds:mealAlternativeMap[`day${dayNumber}:${legacyId}`]||Object.freeze([])
         })
       });
   });
@@ -125,7 +142,8 @@
     dauple:Object.freeze([['day2','libe']]),
     nosbyn:Object.freeze([['day2','libe']]),
     'new-playground':Object.freeze([['day2','libe']]),
-    marou:Object.freeze([['day5','takashimaya']])
+    marou:Object.freeze([['day5','takashimaya']]),
+    'workshop-coffee':Object.freeze([['day1','cafe-apartments']])
   });
   const guideEntries=guidePlaceIds.map(placeId=>{
     const value=PLACES[placeId];
