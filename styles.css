@@ -2116,3 +2116,25 @@ body.home-bg .home-day-button{
 body.currency-keyboard-open{
   padding-bottom:var(--currency-keyboard-space,0px)!important;
 }
+
+
+/* RC4.4 verified currency owner: wide desktop entry without changing mobile keyboard behaviour */
+.currency-converter{
+  width:100%;
+  min-width:0;
+}
+.currency-converter input{
+  flex:1 1 132px;
+  width:auto!important;
+  min-width:118px!important;
+  max-width:180px;
+  box-sizing:border-box;
+  font-variant-numeric:tabular-nums;
+}
+@media (max-width:720px){
+  .currency-converter input{
+    flex-basis:116px;
+    min-width:104px!important;
+    max-width:none;
+  }
+}

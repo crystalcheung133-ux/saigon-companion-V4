@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="zh-Hant"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><title>Home · Saigon Companion</title><link href="manifest.json" rel="manifest"/><meta content="#8A4F2D" name="theme-color"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="Saigon" name="apple-mobile-web-app-title"/><link href="icon-192.png" rel="apple-touch-icon"/><link href="styles.css?v=1.0rc43" rel="stylesheet"/></head><body class="home-bg"><div aria-hidden="true" id="ccmvSplash" role="presentation"><div class="splash-paper"></div><div class="splash-glow"></div><div class="splash-content"><img alt="" class="splash-logo" src="ccmv-logo-calibrated.png"/><h1 class="splash-line">TRAVEL TOGETHER,<br/>CAPTURE TOGETHER</h1><div class="splash-destination">VIETNAM 2026</div></div><div class="splash-fadeout"></div></div><script>(function(){
+<html lang="zh-Hant"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><title>Home · Saigon Companion</title><link href="manifest.json" rel="manifest"/><meta content="#8A4F2D" name="theme-color"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="Saigon" name="apple-mobile-web-app-title"/><link href="icon-192.png" rel="apple-touch-icon"/><link href="styles.css?v=1.0rc44" rel="stylesheet"/></head><body class="home-bg"><div aria-hidden="true" id="ccmvSplash" role="presentation"><div class="splash-paper"></div><div class="splash-glow"></div><div class="splash-content"><img alt="" class="splash-logo" src="ccmv-logo-calibrated.png"/><h1 class="splash-line">TRAVEL TOGETHER,<br/>CAPTURE TOGETHER</h1><div class="splash-destination">VIETNAM 2026</div></div><div class="splash-fadeout"></div></div><script>(function(){
   var splash=document.getElementById('ccmvSplash');
   if(!splash) return;
 
@@ -108,6 +108,8 @@
  const currencyInput=document.getElementById('currencyAmount');
  const currencyCard=document.querySelector('.live-rate');
  let currencyKeyboardActive=false;
+ let replaceCurrencyOnNextEntry=true;
+ let currencyValueOnFocus='';
  function keepCurrencyCardVisible(){
   if(!currencyKeyboardActive||!currencyCard)return;
   const viewport=window.visualViewport;
@@ -126,8 +128,13 @@
  }
  function openCurrencyKeyboardView(){
   currencyKeyboardActive=true;
+  replaceCurrencyOnNextEntry=true;
+  currencyValueOnFocus=currencyInput?.value||'';
   document.body.classList.add('currency-keyboard-open');
-  requestAnimationFrame(()=>requestAnimationFrame(keepCurrencyCardVisible));
+  requestAnimationFrame(()=>{
+   try{currencyInput?.select();}catch(e){}
+   requestAnimationFrame(keepCurrencyCardVisible);
+  });
   setTimeout(keepCurrencyCardVisible,180);
   setTimeout(keepCurrencyCardVisible,420);
  }
@@ -136,7 +143,27 @@
   document.body.classList.remove('currency-keyboard-open');
   document.body.style.removeProperty('--currency-keyboard-space');
  }
- currencyInput?.addEventListener('input',renderCurrency);
+ currencyInput?.addEventListener('beforeinput',event=>{
+  if(!replaceCurrencyOnNextEntry||event.isComposing)return;
+  if(!event.inputType?.startsWith('insert')||!event.data)return;
+  const typed=String(event.data).replace(/[^0-9.]/g,'');
+  if(!typed)return;
+  event.preventDefault();
+  currencyInput.value=typed;
+  replaceCurrencyOnNextEntry=false;
+  renderCurrency();
+ });
+ currencyInput?.addEventListener('input',()=>{
+  if(replaceCurrencyOnNextEntry){
+   const current=currencyInput.value;
+   if(current!==currencyValueOnFocus){
+    const appended=current.startsWith(currencyValueOnFocus)?current.slice(currencyValueOnFocus.length):current;
+    currencyInput.value=appended||current;
+    replaceCurrencyOnNextEntry=false;
+   }
+  }
+  renderCurrency();
+ });
  currencyInput?.addEventListener('focus',openCurrencyKeyboardView);
  currencyInput?.addEventListener('blur',()=>setTimeout(closeCurrencyKeyboardView,120));
  window.visualViewport?.addEventListener('resize',keepCurrencyCardVisible);
