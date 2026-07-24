@@ -1,4 +1,4 @@
-const CACHE_NAME='ccmv-vietnam-2026-stage2-canonical';
+const CACHE_NAME='ccmv-vietnam-2026-stage2-canonical-day-nav-fix';
 const ASSETS = [
   './',
   './index.html',
