@@ -2,6 +2,7 @@
    Owns Guide categories, Shopping entry, Guide modal, Place detail, and booking presentation helpers.
    Vietnam-specific values are supplied by config/data modules. */
 function visitDayHTML(key){
+  if(key==='workshop-coffee') return '';
   const days=VN_PRESENTATION.dayLinks[key]||[];
   if(!days.length) return '';
   const buttons=days.map(([label,href])=>`<a class="day-jump-button" href="${href}">${label} →</a>`).join('');

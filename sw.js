@@ -1,4 +1,4 @@
-const CACHE_NAME='ccmv-vietnam-2026-vn-ux-regression-fix-1';
+const CACHE_NAME='ccmv-vietnam-2026-timeline-fidelity-rc1';
 const ASSETS = [
   './',
   './index.html',
