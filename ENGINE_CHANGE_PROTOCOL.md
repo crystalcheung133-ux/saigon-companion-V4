@@ -1,4 +1,4 @@
-# CCMV Travel Engine Change Protocol.
+# CCMV Travel Engine Change Protocol
 
 ## Required sequence
 
