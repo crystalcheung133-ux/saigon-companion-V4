@@ -2,10 +2,13 @@
    Owns Guide categories, Shopping entry, Guide modal, Place detail, and booking presentation helpers.
    Vietnam-specific values are supplied by config/data modules. */
 function visitDayHTML(key){
-  if(key==='workshop-coffee') return '';
+  const place=VN_PRESENTATION.places[key];
+  if(!place || place.cat==='STAY' || key==='workshop-coffee') return '';
   const days=VN_PRESENTATION.dayLinks[key]||[];
-  if(!days.length) return '';
-  const buttons=days.map(([label,href])=>`<a class="day-jump-button" href="${href}">${label} →</a>`).join('');
+  const unique=[]; const seen=new Set();
+  days.forEach(([label,href])=>{const token=String(label)+'|'+String(href);if(!seen.has(token)){seen.add(token);unique.push([label,href]);}});
+  if(!unique.length) return '';
+  const buttons=unique.map(([label,href])=>`<a class="day-jump-button" href="${href}">${label} →</a>`).join('');
   return `<div class="quick-info-row visit-row"><span class="quick-info-icon">📅</span><span><span class="quick-info-label">Visit Day</span><span class="quick-info-value day-link-row">${buttons}</span></span></div>`;
 }
 
@@ -50,7 +53,7 @@ function openGuideCategory(cat){
 }
 
 function quickInfoInnerHTML(g,key){
- return `<div class="quick-info-top"><span class="category-tag">${g.categoryLabel||g.cat||'Guide'}</span></div><div class="quick-info-grid"><div class="quick-info-row"><span class="quick-info-icon">📍</span><span><span class="quick-info-label">Address</span><span class="quick-info-value">${g.address||'Check before visit'}</span></span></div><div class="quick-info-row"><span class="quick-info-icon">🕘</span><span><span class="quick-info-label">Hours</span><span class="quick-info-value">${g.hours||'Check before visit'}</span></span></div><div class="quick-info-row"><span class="quick-info-icon">💰</span><span><span class="quick-info-label">Price</span><span class="quick-info-value">${g.price||'Varies'}</span></span></div>${visitDayHTML(key)}</div><div class="quick-info-actions"><a class="map-button" href="${g.maps}" target="_blank" rel="noopener">🗺 Directions</a></div>`;
+ return `<div class="quick-info-top"><span class="category-tag">${g.categoryLabel||g.cat||'Guide'}</span></div><div class="quick-info-grid"><div class="quick-info-row"><span class="quick-info-icon">📍</span><span><span class="quick-info-label">Address</span><span class="quick-info-value">${g.address||'Check before visit'}</span></span></div><div class="quick-info-row"><span class="quick-info-icon">🕘</span><span><span class="quick-info-label">Hours</span><span class="quick-info-value">${g.hours||'Check before visit'}</span></span></div><div class="quick-info-row"><span class="quick-info-icon">💰</span><span><span class="quick-info-label">Price</span><span class="quick-info-value">${g.price||'Varies'}</span></span></div>${visitDayHTML(key)}</div><div class="quick-info-actions"><a class="timeline-action timeline-action--map guide-navigate-button" href="${g.maps}" target="_blank" rel="noopener">🧭 Navigate</a></div>`;
 }
 function quickInfoHTML(g,key){
  return `<div class="quick-info-card">${quickInfoInnerHTML(g,key)}</div>`;

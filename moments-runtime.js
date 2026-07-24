@@ -260,7 +260,9 @@ function formatTime(iso){
     if(!host) return;
     const day=VN_PRESENTATION.itineraryData[momentSelectorDay];
     const momentTypes=new Set(['meal','experience','spa','shoppingWindow']);
-    const chips=(day?.items||[]).filter(item=>momentTypes.has(item.type)).map(item=>`<button type="button" class="moment-activity-chip" onclick="chooseMomentActivity('${momentSelectorDay}','${String(item.id).replace(/'/g,"\'")}')"><span>${stripMomentTitle(item.title)}</span><small>${item.time||''}</small></button>`).join('');
+    const plannedItems=(day?.items||[]).filter(item=>momentTypes.has(item.type));
+    if(momentSelectorDay==='1' && VN_PRESENTATION.places['workshop-coffee']) plannedItems.splice(Math.max(0,plannedItems.findIndex(item=>item.id==='nha-suga')+1),0,{id:'workshop-coffee',placeId:'workshop-coffee',dayId:'day1',time:'Optional',title:'☕ The Workshop Coffee',type:'meal'});
+    const chips=plannedItems.map(item=>`<button type="button" class="moment-activity-chip" onclick="chooseMomentActivity('${momentSelectorDay}','${String(item.id).replace(/'/g,"\'")}')"><span>${stripMomentTitle(item.title)}</span><small>${item.time||''}</small></button>`).join('');
     /* Stage 5B-2B2: the "Just this moment" chip is redundant when the composer was entered via the
        Planned activity card — returning to free capture is done by closing the composer and choosing
        the other card instead. Only render the chip for the general-entry "+Add planned activity" path. */

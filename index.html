@@ -52,8 +52,8 @@
 <div aria-label="Live travel dashboard" class="home-live-grid">
 <div class="live-card live-countdown"><span class="live-icon">⏳</span><small>Countdown</small><strong id="countdownText">Counting down...</strong></div>
 <div class="live-card live-time"><span class="live-icon">🕒</span><small>Ho Chi Minh</small><strong id="hcmTime">--:--</strong></div>
-<div class="live-card live-weather"><span class="live-icon">☀️</span><small>Weather</small><strong>Hot · Humid</strong><em>Likely showers</em></div>
-<div class="live-card live-rate"><span class="live-icon">💱</span><small>Exchange</small><strong>1 AUD ≈ 18,126 VND</strong></div>
+<div class="live-card live-weather" aria-live="polite"><span class="live-icon" id="weatherIcon">☀️</span><small>Ho Chi Minh Weather</small><strong id="weatherNow">Loading…</strong><em id="weatherDetail">Live forecast</em></div>
+<div class="live-card live-rate"><span class="live-icon">💱</span><small>AUD → VND</small><label class="currency-converter"><span>AUD</span><input id="audAmount" type="number" inputmode="decimal" min="0" step="1" value="100" aria-label="Australian dollars"/></label><strong id="vndAmount">Loading…</strong><em id="rateUpdated">Live rate</em></div>
 </div>
 <a class="home-day-button" href="day.html?day=1">Let's go ✨</a>
 </section>
@@ -67,7 +67,25 @@
   const t=document.getElementById('hcmTime');
   if(t){ t.textContent=new Intl.DateTimeFormat('en-AU',{timeZone:'Asia/Ho_Chi_Minh',hour:'2-digit',minute:'2-digit',hour12:false}).format(now)+' ICT'; }
  }
- updateHomeDash(); setInterval(updateHomeDash,30000);
+
+ const weatherCodes={0:['☀️','Clear'],1:['🌤️','Mostly clear'],2:['⛅','Partly cloudy'],3:['☁️','Cloudy'],45:['🌫️','Fog'],48:['🌫️','Fog'],51:['🌦️','Light drizzle'],53:['🌦️','Drizzle'],55:['🌧️','Heavy drizzle'],61:['🌦️','Light rain'],63:['🌧️','Rain'],65:['🌧️','Heavy rain'],80:['🌦️','Showers'],81:['🌧️','Showers'],82:['⛈️','Heavy showers'],95:['⛈️','Thunderstorm'],96:['⛈️','Thunderstorm'],99:['⛈️','Thunderstorm']};
+ async function loadWeather(){
+  try{
+   const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude=10.8231&longitude=106.6297&current=temperature_2m,apparent_temperature,weather_code,precipitation_probability&timezone=Asia%2FHo_Chi_Minh',{cache:'no-store'});
+   if(!r.ok)throw new Error('weather'); const d=await r.json(); const c=d.current||{}; const meta=weatherCodes[c.weather_code]||['🌤️','Current conditions'];
+   document.getElementById('weatherIcon').textContent=meta[0]; document.getElementById('weatherNow').textContent=`${Math.round(c.temperature_2m)}°C · ${meta[1]}`; document.getElementById('weatherDetail').textContent=`Feels ${Math.round(c.apparent_temperature)}° · Rain ${Math.round(c.precipitation_probability||0)}%`;
+  }catch(e){document.getElementById('weatherNow').textContent='29–33°C';document.getElementById('weatherDetail').textContent='Live weather unavailable';}
+ }
+ let audVndRate=18126;
+ function renderCurrency(){const input=document.getElementById('audAmount');const out=document.getElementById('vndAmount');if(!input||!out)return;const amount=Math.max(0,Number(input.value)||0);out.textContent=`≈ ${Math.round(amount*audVndRate).toLocaleString('en-AU')} VND`;}
+ async function loadCurrency(){
+  try{const r=await fetch('https://open.er-api.com/v6/latest/AUD',{cache:'no-store'});if(!r.ok)throw new Error('rate');const d=await r.json();if(!d.rates?.VND)throw new Error('rate');audVndRate=Number(d.rates.VND);document.getElementById('rateUpdated').textContent=`1 AUD ≈ ${Math.round(audVndRate).toLocaleString('en-AU')} VND · live`;}
+  catch(e){document.getElementById('rateUpdated').textContent='Reference rate · offline fallback';}
+  renderCurrency();
+ }
+ document.getElementById('audAmount')?.addEventListener('input',renderCurrency);
+ updateHomeDash(); setInterval(updateHomeDash,30000); loadWeather(); loadCurrency();
+
 })();</script><div class="mini-menu" id="guideMenu"><button data-action="guide-category" data-category="ATTRACTIONS"><span><span class="menu-title">📍 ATTRACTIONS</span></span><span>›</span></button><button data-action="guide-category" data-category="CAFÉS"><span><span class="menu-title">☕ CAFÉS</span></span><span>›</span></button><button data-action="guide-category" data-category="EXPERIENCE"><span><span class="menu-title">🍳 EXPERIENCE</span></span><span>›</span></button><button data-action="guide-category" data-category="RESTAURANTS"><span><span class="menu-title">🍽 RESTAURANTS</span></span><span>›</span></button><button data-action="guide-category" data-category="SHOP"><span><span class="menu-title">🛍 SHOP</span></span><span>›</span></button><button data-action="guide-category" data-category="SPA"><span><span class="menu-title">💆 SPA</span></span><span>›</span></button><button data-action="guide-category" data-category="STAY"><span><span class="menu-title">🏨 STAY</span></span><span>›</span></button></div><div class="mini-menu" id="tripMenu">
 <a href="#" data-action="trip-card" data-trip-key="checklist"><span><span class="menu-title">✅ Checklist</span><span class="menu-sub">Before the Trip</span></span><span>›</span></a>
 <a href="#" data-action="trip-card" data-trip-key="city"><span><span class="menu-title">🇻🇳 City</span><span class="menu-sub">Ho Chi Minh</span></span><span>›</span></a>

@@ -1971,3 +1971,15 @@ body.home-bg .home-day-button{
 .directory-close{position:absolute;top:14px;right:14px;z-index:10;width:44px;height:44px;border:1px solid var(--line);border-radius:999px;background:rgba(255,250,243,.92);color:var(--ink);font:750 24px/1 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;cursor:pointer}
 .shopping-directory-view .app-nav{display:flex}
 @media(max-width:520px){.nearby-option--before{margin-left:0}.option-actions{display:grid;grid-template-columns:1fr 1fr}.option-actions .timeline-action{width:100%}}
+
+/* RC4 Companion polish */
+.route-hint{display:grid;gap:3px}.route-hint strong{display:block}.route-hint span{display:block}
+.nearby-options{margin-top:10px}
+.nearby-options summary,.meal-alternatives summary{list-style:none;cursor:pointer}
+.nearby-options summary::-webkit-details-marker,.meal-alternatives summary::-webkit-details-marker{display:none}
+.option-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.option-actions .timeline-action{width:100%;min-height:44px;display:flex;align-items:center;justify-content:center;text-align:center}
+.guide-navigate-button{width:100%;display:flex;align-items:center;justify-content:center;min-height:46px}
+.currency-converter{display:flex;align-items:center;gap:7px;margin:6px 0 4px;font-size:11px;font-weight:850}
+.currency-converter input{width:86px;min-width:0;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.72);padding:7px 8px;font:inherit;color:var(--ink)}
+.live-rate strong{font-size:14px!important;line-height:1.2!important}.live-weather strong{font-size:14px!important;line-height:1.2!important}.live-card em{font-size:10px;display:block;margin-top:4px;position:relative;z-index:1}
