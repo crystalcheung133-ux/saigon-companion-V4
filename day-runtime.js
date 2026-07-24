@@ -36,8 +36,9 @@
     const href = `https://www.google.com/maps/dir/?${params.toString()}`;
     return `<a class="day-route-action" href="${esc(href)}" target="_blank" rel="noopener"><span>View Today’s Route</span><b aria-hidden="true">›</b></a>`;
   }
-  const todayRoute = buildTodayRoute(data);
-  const items = data.items.map(item => {
+  const visibleItems=(data.items||[]).filter(item=>!(/\bgrab\b/i.test(String(item.title||''))));
+  const todayRoute = buildTodayRoute({...data,items:visibleItems});
+  const items = visibleItems.map(item => {
     const detailHtml = (item.details || []).map(text => `<p>${esc(text)}</p>`).join('');
     const routeText = String(item.route||'').replace(/^\s*(?:🚕|🚗|🚶|✈️?|🛫)?\s*To next stop\s*[:：-]?\s*/i,'').trim();
     const routeHtml = routeText ? `<div class="route-hint"><strong>🚕 To next stop</strong><span>${esc(routeText)}</span></div>` : '';

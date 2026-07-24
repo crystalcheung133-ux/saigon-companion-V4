@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="zh-Hant"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><title>Home · Saigon Companion</title><link href="manifest.json" rel="manifest"/><meta content="#8A4F2D" name="theme-color"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="Saigon" name="apple-mobile-web-app-title"/><link href="icon-192.png" rel="apple-touch-icon"/><link href="styles.css?v=1.0rc412" rel="stylesheet"/></head><body class="home-bg"><div aria-hidden="true" id="ccmvSplash" role="presentation"><div class="splash-paper"></div><div class="splash-glow"></div><div class="splash-content"><img alt="" class="splash-logo" src="ccmv-logo-calibrated.png"/><h1 class="splash-line">TRAVEL TOGETHER,<br/>CAPTURE TOGETHER</h1><div class="splash-destination">VIETNAM 2026</div></div><div class="splash-fadeout"></div></div><script>(function(){
+<html lang="zh-Hant"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><title>Home · Saigon Companion</title><link href="manifest.json" rel="manifest"/><meta content="#8A4F2D" name="theme-color"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="Saigon" name="apple-mobile-web-app-title"/><link href="icon-192.png" rel="apple-touch-icon"/><link href="styles.css?v=1.0rc42" rel="stylesheet"/></head><body class="home-bg"><div aria-hidden="true" id="ccmvSplash" role="presentation"><div class="splash-paper"></div><div class="splash-glow"></div><div class="splash-content"><img alt="" class="splash-logo" src="ccmv-logo-calibrated.png"/><h1 class="splash-line">TRAVEL TOGETHER,<br/>CAPTURE TOGETHER</h1><div class="splash-destination">VIETNAM 2026</div></div><div class="splash-fadeout"></div></div><script>(function(){
   var splash=document.getElementById('ccmvSplash');
   if(!splash) return;
 
@@ -105,7 +105,10 @@
   catch(e){document.getElementById('rateUpdated').textContent='Reference rate · offline fallback';}
   renderCurrency();
  }
- document.getElementById('currencyAmount')?.addEventListener('input',renderCurrency);
+ const currencyAmount=document.getElementById('currencyAmount');
+ currencyAmount?.addEventListener('input',renderCurrency);
+ currencyAmount?.addEventListener('focus',function(){this.select();});
+ currencyAmount?.addEventListener('pointerup',function(event){event.preventDefault();this.select();});
  document.getElementById('currencySwap')?.addEventListener('click',swapCurrency);
  updateHomeDash(); setInterval(updateHomeDash,30000); loadWeather(); loadCurrency();
 
