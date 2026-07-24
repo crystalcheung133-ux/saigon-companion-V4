@@ -1,1 +1,12 @@
-(function(root){'use strict';root.ASSET_CONFIG=Object.freeze({branding:Object.freeze({primaryLogo:'ccmv-saigon-logo-v102.png',secondaryMark:'ccmv-saigon-logo-v102.png',splashLogo:'ccmv-saigon-logo-v102.png',splashMark:'ccmv-saigon-logo-v102.png'}),hero:Object.freeze({coverImage:null,heroImage:null,heroOverlay:null}),icons:Object.freeze({favicon:'icon-192.png',appIcon:'icon-192.png',appleIcon:'icon-192.png',icon192:'icon-192.png',icon512:'icon-512.png'}),splash:Object.freeze({background:null,assets:Object.freeze(['ccmv-saigon-logo-v102.png'])})});})(globalThis);
+/* asset-config.js - canonical CCMV asset ownership. */
+(function(root){
+  'use strict';
+  root.ASSET_CONFIG=Object.freeze({
+    branding:Object.freeze({
+      splashLogo:'ccmv-logo-calibrated.png',
+      watermark:'logo-watermark-monogram.png',
+      headerMark:'logo-monogram-transparent.png'
+    }),
+    icons:Object.freeze({icon192:'icon-192.png',icon512:'icon-512.png'})
+  });
+})(globalThis);

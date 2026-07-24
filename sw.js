@@ -1,53 +1,37 @@
-importScripts('./theme-config.js', './asset-config.js', './locale-config.js', './formatter.js', './navigation-config.js', './storage-config.js', './trip-config.js');
-const CACHE_NAME = `travel-engine-${TRIP_CONFIG.storageNamespace}-${TRIP_CONFIG.version}-vn-rc1-2-popup-fix`;
-const CRITICAL_EXTENSIONS = /\.(?:css|js)$/i;
+const CACHE_NAME='ccmv-vietnam-2026-stage2-canonical';
 const ASSETS = [
   './',
   './index.html',
   './styles.css',
-  './core-runtime.js',
-  './trip-runtime.js',
-  './moments-compat.js',
-  './currency-runtime.js',
-  './script.js',
-  './guide-runtime.js',
-  './expenses.js',
-  './supabase-client-runtime.js',
-  './expense-sync-runtime.js',
-  './moment-sync-runtime.js',
-  './generation-runtime.js',
-  './moments.js',
-  './admin.js',
-  './reset-runtime.js',
-  './publication-runtime.js',
-  './complete-runtime.js',
-  './export-runtime.js',
-  './pwa.js',
-  './app-runtime.js',
   './theme-config.js',
   './asset-config.js',
-  './locale-config.js',
-  './formatter.js',
-  './money-config.js',
-  './money.js',
-  './navigation-config.js',
-  './navigation.js',
+  './trip-config.js',
   './storage-config.js',
   './storage.js',
-  './sync-config.js',
-  './sync-runtime.js',
-  './trip-config.js',
-  './engine-integrity.js',
+  './navigation-config.js',
+  './navigation.js',
+  './core-runtime.js',
+  './trip-runtime.js',
+  './guide-runtime.js',
+  './day-runtime.js',
+  './itinerary-runtime.js',
+  './moments-runtime.js',
+  './expenses-runtime.js',
+  './app-runtime.js',
+  './pwa.js',
   './data.js',
-  './itinerary-authority.js',
+  './canonical-core.js',
+  './vietnam-canonical-data.js',
+  './vietnam-presentation-adapter.js',
+  './manifest.json',
   './place.html',
   './day.html',
   './offline.html',
-  './manifest.webmanifest',
-  './' + ASSET_CONFIG.icons.icon192,
-  './' + ASSET_CONFIG.icons.icon512,
-  './' + ASSET_CONFIG.branding.secondaryMark,
-  './' + ASSET_CONFIG.branding.splashLogo,
+  './icon-192.png',
+  './icon-512.png',
+  './logo-watermark-monogram.png',
+  './logo-monogram-transparent.png',
+  './ccmv-logo-calibrated.png',
   './guide.html',
   './itinerary.html',
   './memory.html',
@@ -56,22 +40,21 @@ const ASSETS = [
   './trip.html'
 ];
 
-
-self.addEventListener('message', event => {
-  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
-});
-
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => Promise.all(ASSETS.map(asset => cache.add(new Request(asset,{cache:'reload'})))))
+      .then(cache => cache.addAll(ASSETS))
+      .then(() => self.skipWaiting())
   );
 });
 
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys()
-      .then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))))
+      .then(keys => Promise.all(keys.filter(key =>
+        key !== CACHE_NAME &&
+        (key.startsWith('ccmv-vietnam-2026-') || key.startsWith('ccmv-saigon-companion-'))
+      ).map(key => caches.delete(key))))
       .then(() => self.clients.claim())
   );
 });
@@ -83,26 +66,19 @@ async function networkFirst(request) {
     if (response && response.ok) cache.put(request, response.clone());
     return response;
   } catch (error) {
-    let cached = await caches.match(request, { ignoreSearch: true });
-    if (!cached) {
-      const url = new URL(request.url);
-      cached = await caches.match(url.pathname.split('/').pop() || './index.html', { ignoreSearch: true });
-    }
+    const cached = await caches.match(request);
     return cached || caches.match('./offline.html');
   }
 }
 
-async function cacheFirstMedia(request) {
+async function staleWhileRevalidate(request) {
   const cache = await caches.open(CACHE_NAME);
-  const cached = await cache.match(request, {ignoreSearch:true});
-  if (cached) return cached;
-  try {
-    const response = await fetch(request);
+  const cached = await caches.match(request);
+  const fetched = fetch(request).then(response => {
     if (response && response.ok) cache.put(request, response.clone());
     return response;
-  } catch (error) {
-    return caches.match('./offline.html');
-  }
+  }).catch(() => null);
+  return cached || fetched || caches.match('./offline.html');
 }
 
 self.addEventListener('fetch', event => {
@@ -114,9 +90,7 @@ self.addEventListener('fetch', event => {
   const acceptsHtml = event.request.headers.get('accept')?.includes('text/html');
   if (event.request.mode === 'navigate' || acceptsHtml) {
     event.respondWith(networkFirst(event.request));
-  } else if (CRITICAL_EXTENSIONS.test(url.pathname)) {
-    event.respondWith(networkFirst(event.request));
   } else {
-    event.respondWith(cacheFirstMedia(event.request));
+    event.respondWith(staleWhileRevalidate(event.request));
   }
 });

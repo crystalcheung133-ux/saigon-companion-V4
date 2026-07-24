@@ -1,7 +1,62 @@
-/* Travel Engine Stage 7K-2B — Moments page module
-   Canonical Moments capture, photo prototype, context, timeline, and
-   shared latest-expense mini-card compatibility extracted from script.js.
-   Existing global handler names and storage schemas are preserved. */
+/* moments-runtime.js - CCMV Travel Engine reusable owner.
+   Owns the existing Frozen VN Moments behaviour and compatibility reads; no Stage 2 behaviour is included.
+   Vietnam-specific values are supplied by config/data modules. */
+let currentMomentKey='';
+function closeMomentsModal(){$('momentsModal').classList.remove('show')}
+function setStars(n){document.querySelectorAll('.star').forEach((el,i)=>el.classList.toggle('active',i<n));$('momentsRating').value=n;}
+
+/* Stage 4C-4: legacy one-per-place Moments functions were removed.
+   The active Moments API is the append/edit/delete implementation below
+   (moments_list + legacy localStorage compatibility inside renderMoments).
+   These vars keep global onclick/bare calls stable until the canonical API assigns
+   window.openMomentsModal / window.saveMoments / window.editMoment /
+   window.deleteMoment / window.renderMoments later in this file. */
+var openMomentsModal, saveMoments, editMoment, deleteMoment, renderMoments;
+
+function openUnexpectedModal(){$('unexpectedFriend').textContent=VN_PRESENTATION.friends[getFriend()];$('unexpectedText').value='';$('unexpectedModal').classList.add('show')}
+function closeUnexpectedModal(){$('unexpectedModal').classList.remove('show')}
+function saveUnexpected(){const arr=JSON.parse(localStorage.getItem('moments_freeform')||'[]');arr.push({page:document.title.replace(' · Saigon Companion',''),friendLabel:VN_PRESENTATION.friends[getFriend()],text:$('unexpectedText').value,savedAt:new Date().toISOString()});localStorage.setItem('moments_freeform',JSON.stringify(arr));closeUnexpectedModal();renderUnexpected();}
+function renderUnexpected(){const box=$('unexpectedTimeline');if(!box)return;let arr=[];try{arr=JSON.parse(localStorage.getItem('moments_freeform')||'[]');if(!Array.isArray(arr))arr=[];}catch(e){arr=[];}box.innerHTML=arr.length?arr.map(e=>`<div class="moments-entry"><strong>✨ ${escapeHTML(e.page)}</strong><p>${escapeHTML(e.friendLabel)}</p><p>${escapeHTML(e.text)}</p></div>`).join(''):'<p>暫時未有 Moments。</p>'}
+
+
+const MOODS=[
+  ["🤩","Wow"],["😋","Delicious"],["😵","Exhausted"],["🔥","正到爆"],
+  ["🤯","估你唔到"],["😶","Speechless"],["🥲","仆街了"],["🤬","Damn"]
+];
+let currentMood=[];
+let editingExpenseIndex=null;
+
+function renderMoodButtons(selected=[]){
+  currentMood = selected || [];
+  const box=document.getElementById('moodGrid');
+  if(!box) return;
+  box.innerHTML=MOODS.map(([emoji,label])=>{
+    const on=currentMood.includes(label);
+    return `<button type="button" class="mood-btn ${on?'active':''}" onclick="toggleMood('${label}')">${emoji} ${label}</button>`;
+  }).join('');
+}
+function toggleMood(label){
+  if(currentMood.includes(label)){
+    currentMood=currentMood.filter(x=>x!==label);
+  }else{
+    if(currentMood.length>=2) currentMood.shift();
+    currentMood.push(label);
+  }
+  renderMoodButtons(currentMood);
+}
+function moodLabel(labels=[]){
+  return labels.map(l=>{
+    const m=MOODS.find(x=>x[1]===l);
+    return m?m[0]+' '+m[1]:l;
+  }).join(' · ');
+}
+function formatTime(iso){
+  if(!iso) return '';
+  try{
+    return new Date(iso).toLocaleString([], {dateStyle:'medium', timeStyle:'short'});
+  }catch(e){return iso}
+}
+
 
 /* v3.2 P0 workflow fixes: append Moments, latest-first Expenses, save-and-stay expense tool */
 (function(){
@@ -11,8 +66,14 @@
   let momentSelectorDay = '1';
   let momentEntryIsPlanned = false; /* Stage 5B-2B2: true only while the composer was opened via the "Planned activity" landing card */
   const prototypePhotoUrls = new Map();
-  function readJson(key, fallback){try{return STORAGE.local.readJSON(key,fallback);}catch(e){return fallback;}}
-  function writeJson(key, value){STORAGE.local.writeJSON(key,value);}
+  function readJson(key, fallback){try{return JSON.parse(localStorage.getItem(key)||JSON.stringify(fallback));}catch(e){return fallback;}}
+  function writeJson(key, value){localStorage.setItem(key, JSON.stringify(value));}
+  function formatBytes(bytes){
+    if(!Number.isFinite(bytes)) return '';
+    if(bytes < 1024) return bytes + ' B';
+    if(bytes < 1024*1024) return (bytes/1024).toFixed(bytes < 10240 ? 1 : 0) + ' KB';
+    return (bytes/(1024*1024)).toFixed(1) + ' MB';
+  }
   function clearMomentPhoto(revoke=true){
     if(currentMomentPhoto?.url && revoke && ![...prototypePhotoUrls.values()].includes(currentMomentPhoto.url)){
       try{ URL.revokeObjectURL(currentMomentPhoto.url); }catch(e){}
@@ -36,7 +97,7 @@
     preview.hidden=false;
     preview.innerHTML=`<div class="photo-prototype-card">
       <img src="${currentMomentPhoto.url}" alt="Compressed moment preview"/>
-      <div class="photo-prototype-copy"><strong>✨ Looking good!</strong><span>${meta.width||'?'} × ${meta.height||'?'} · ${FORMATTER.bytes(meta.bytes)}</span><small>${meta.originalBytes ? `Original ${FORMATTER.bytes(meta.originalBytes)} → ` : ''}Compressed preview · local prototype</small></div>
+      <div class="photo-prototype-copy"><strong>✨ Looking good!</strong><span>${meta.width||'?'} × ${meta.height||'?'} · ${formatBytes(meta.bytes)}</span><small>${meta.originalBytes ? `Original ${formatBytes(meta.originalBytes)} → ` : ''}Compressed preview · local prototype</small></div>
       <button type="button" class="photo-remove" onclick="removeMomentPhoto()" aria-label="Remove photo">×</button>
     </div>`;
   }
@@ -64,12 +125,10 @@
     const ctx=canvas.getContext('2d',{alpha:false});
     ctx.fillStyle='#fff'; ctx.fillRect(0,0,width,height);
     ctx.drawImage(img,0,0,width,height);
-    /* RC10F: always encode Moment photos as JPEG. Mobile browsers can produce
-       WebP blobs inconsistently inside installed PWAs; JPEG is the stable
-       cross-device upload format and is allowed by the Supabase bucket. */
-    const type='image/jpeg';
-    let blob=await canvasToBlob(canvas,type,.82);
-    for(const q of [.74,.66,.58]){
+    let type='image/webp', quality=.75;
+    let blob=await canvasToBlob(canvas,type,quality);
+    if(!blob){ type='image/jpeg'; quality=.82; blob=await canvasToBlob(canvas,type,quality); }
+    for(const q of [.68,.60,.52]){
       if(blob && blob.size<=500*1024) break;
       const next=await canvasToBlob(canvas,type,q);
       if(next) blob=next;
@@ -114,26 +173,18 @@
   function normaliseDayId(value){
     if(value == null) return null;
     const raw=String(value);
-    if(/^day(?:10|[1-9])$/.test(raw)) return raw;
-    if(/^(?:10|[1-9])$/.test(raw)) return 'day'+raw;
+    if(/^day[1-5]$/.test(raw)) return raw;
+    if(/^[1-5]$/.test(raw)) return 'day'+raw;
     return null;
   }
   function dayNumberFromId(dayId){
-    const match=String(dayId||'').match(/day(10|[1-9])/);
+    const match=String(dayId||'').match(/day([1-5])/);
     return match ? match[1] : null;
-  }
-  function currentDayItems(dayNumber){
-    const key=String(dayNumber);
-    const master=((typeof ITINERARY_DATA!=='undefined'&&ITINERARY_DATA)||{})[key];
-    if(window.ITINERARY_AUTHORITY&&typeof ITINERARY_AUTHORITY.resolveDayItems==='function'){
-      return ITINERARY_AUTHORITY.resolveDayItems(key,master?.items||[]);
-    }
-    return (master?.items||[]).map(item=>({...item}));
   }
   function itineraryItems(){
     const out=[];
-    Object.entries((typeof ITINERARY_DATA!=='undefined'&&ITINERARY_DATA)||{}).forEach(([dayNumber])=>{
-      currentDayItems(dayNumber).forEach(item=>out.push({...item,_dayNumber:String(dayNumber),dayId:normaliseDayId(item.dayId)||('day'+dayNumber)}));
+    Object.entries(VN_PRESENTATION.itineraryData||{}).forEach(([dayNumber,day])=>{
+      (day?.items||[]).forEach(item=>out.push({...item,_dayNumber:String(dayNumber),dayId:normaliseDayId(item.dayId)||('day'+dayNumber)}));
     });
     return out;
   }
@@ -141,10 +192,10 @@
     return String(title||'Moment').replace(/^[^\p{L}\p{N}]+/u,'').trim() || 'Moment';
   }
   function guideCandidates(placeKey){
-    const links=(typeof DAY_LINKS!=='undefined'&&DAY_LINKS[placeKey])||[];
+    const links=VN_PRESENTATION.dayLinks[placeKey]||[];
     return links.map(link=>{
       const href=Array.isArray(link)?link[1]:'';
-      const dayMatch=String(href||'').match(/[?&]day=(10|[1-9])/);
+      const dayMatch=String(href||'').match(/[?&]day=([1-5])/);
       const idMatch=String(href||'').match(/#([^#?&]+)/);
       if(!dayMatch||!idMatch) return null;
       const item=itineraryItems().find(x=>x._dayNumber===dayMatch[1]&&x.id===decodeURIComponent(idMatch[1]));
@@ -153,29 +204,30 @@
   }
   function momentEntrySource(){
     const guideModalOpen=document.getElementById('guideModal')?.classList.contains('show');
-    if(guideModalOpen || NAVIGATION.isPage('guide') || NAVIGATION.isPage('place') || document.getElementById('placeMain')) return 'guide';
-    if(NAVIGATION.isPage('day')) return 'days';
+    const path=(location.pathname||'').split('/').pop();
+    if(guideModalOpen || path==='guide.html' || path==='place.html' || document.getElementById('placeMain')) return 'guide';
+    if(path==='day.html') return 'days';
     return 'unknown';
   }
   function resolveMomentContext(key, sourceHint){
     const raw=key||'general';
     if(raw==='general') return {contextType:'custom',placeKey:null,activityId:null,dayId:null,displayTitleSnapshot:'Just this moment'};
     const source=sourceHint||momentEntrySource();
-    if(source==='guide' && typeof PLACES!=='undefined' && PLACES[raw]){
+    if(source==='guide' && VN_PRESENTATION.places[raw]){
       const candidates=guideCandidates(raw);
       const unique=new Map(candidates.map(x=>[x.dayId+'|'+x.id,x]));
       const only=unique.size===1?[...unique.values()][0]:null;
-      return {contextType:'guide',placeKey:raw,activityId:only?.id||null,dayId:only?.dayId||null,displayTitleSnapshot:PLACES[raw].title||'Moment'};
+      return {contextType:'guide',placeKey:raw,activityId:only?.id||null,dayId:only?.dayId||null,displayTitleSnapshot:VN_PRESENTATION.places[raw].title||'Moment'};
     }
     const item=itineraryItems().find(x=>x.id===raw);
     if(item){
       return {contextType:'days',placeKey:item.placeId||null,activityId:item.id,dayId:item.dayId,displayTitleSnapshot:stripMomentTitle(item.title)};
     }
-    if(typeof PLACES!=='undefined'&&PLACES[raw]){
+    if(VN_PRESENTATION.places[raw]){
       const candidates=guideCandidates(raw);
       const unique=new Map(candidates.map(x=>[x.dayId+'|'+x.id,x]));
       const only=unique.size===1?[...unique.values()][0]:null;
-      return {contextType:'guide',placeKey:raw,activityId:only?.id||null,dayId:only?.dayId||null,displayTitleSnapshot:PLACES[raw].title||'Moment'};
+      return {contextType:'guide',placeKey:raw,activityId:only?.id||null,dayId:only?.dayId||null,displayTitleSnapshot:VN_PRESENTATION.places[raw].title||'Moment'};
     }
     return {contextType:'custom',placeKey:null,activityId:null,dayId:null,displayTitleSnapshot:'Just this moment'};
   }
@@ -183,7 +235,11 @@
     return {contextType:'planned-activity',placeKey:item.placeId||null,activityId:item.id,dayId:normaliseDayId(item.dayId)||('day'+dayNumber),displayTitleSnapshot:stripMomentTitle(item.title)};
   }
   function suggestedMomentDay(){
-    return String(tripDayNumber());
+    const start=new Date(2026,9,30);
+    const today=new Date();
+    const local=new Date(today.getFullYear(),today.getMonth(),today.getDate());
+    const diff=Math.round((local-start)/86400000);
+    return diff>=0&&diff<=4 ? String(diff+1) : '1';
   }
   function renderMomentContextSummary(){
     const box=document.getElementById('momentContextSummary');
@@ -202,12 +258,13 @@
   function renderPlannedActivityPicker(){
     const host=document.getElementById('momentPlannedPicker');
     if(!host) return;
-    const chips=currentDayItems(momentSelectorDay).map(item=>`<button type="button" class="moment-activity-chip" onclick="chooseMomentActivity('${momentSelectorDay}','${String(item.id).replace(/'/g,"\'")}')"><span>${stripMomentTitle(item.title)}</span><small>${item.time||''}</small></button>`).join('');
+    const day=VN_PRESENTATION.itineraryData[momentSelectorDay];
+    const chips=(day?.items||[]).map(item=>`<button type="button" class="moment-activity-chip" onclick="chooseMomentActivity('${momentSelectorDay}','${String(item.id).replace(/'/g,"\'")}')"><span>${stripMomentTitle(item.title)}</span><small>${item.time||''}</small></button>`).join('');
     /* Stage 5B-2B2: the "Just this moment" chip is redundant when the composer was entered via the
        Planned activity card — returning to free capture is done by closing the composer and choosing
        the other card instead. Only render the chip for the general-entry "+Add planned activity" path. */
     const customChoiceHTML=momentEntryIsPlanned ? '' : `<button type="button" class="moment-custom-choice" onclick="clearMomentActivity()">✨ Just this moment</button>`;
-    host.innerHTML=`${customChoiceHTML}<div class="moment-day-tabs">${Object.keys((typeof ITINERARY_DATA!=='undefined'&&ITINERARY_DATA)||{}).sort((a,b)=>Number(a)-Number(b)).map(n=>`<button type="button" class="moment-day-tab ${n===momentSelectorDay?'active':''}" onclick="setMomentSelectorDay('${n}')">Day ${n}</button>`).join('')}</div><div class="moment-activity-grid">${chips}</div>`;
+    host.innerHTML=`${customChoiceHTML}<div class="moment-day-tabs">${['1','2','3','4','5'].map(n=>`<button type="button" class="moment-day-tab ${n===momentSelectorDay?'active':''}" onclick="setMomentSelectorDay('${n}')">Day ${n}</button>`).join('')}</div><div class="moment-activity-grid">${chips}</div>`;
   }
   function ensureMomentContextUI(){
     const form=document.querySelector('#momentsModal .moments-form');
@@ -239,7 +296,7 @@
   };
   window.setMomentSelectorDay=function(dayNumber){ momentSelectorDay=String(dayNumber); renderPlannedActivityPicker(); };
   window.chooseMomentActivity=function(dayNumber,activityId){
-    const item=currentDayItems(dayNumber).find(x=>x.id===activityId);
+    const item=(VN_PRESENTATION.itineraryData[String(dayNumber)]?.items||[]).find(x=>x.id===activityId);
     if(!item) return;
     currentMomentKey=item.id;
     currentMomentContext=plannedMomentContext(String(dayNumber),item);
@@ -281,12 +338,12 @@
     currentMomentKey = key || 'general';
     currentMomentContext = resolveMomentContext(currentMomentKey);
     momentSelectorDay = dayNumberFromId(currentMomentContext.dayId) || suggestedMomentDay();
-    const g = PLACES[currentMomentContext.placeKey||currentMomentKey] || PLACES.general || {title:'Moment'};
+    const g = VN_PRESENTATION.places[currentMomentContext.placeKey||currentMomentKey] || VN_PRESENTATION.places.general || {title:'Moment'};
     const title = document.getElementById('momentsTitle');
     const friend = document.getElementById('momentsFriend');
     const text = document.getElementById('momentsText');
     if(title) title.textContent = currentMomentContext.displayTitleSnapshot || g.title || 'Moment';
-    if(friend) friend.textContent = FRIENDS[getFriend()];
+    if(friend) friend.textContent = VN_PRESENTATION.friends[getFriend()];
     if(text) text.value = '';
     ensureMomentContextUI();
     renderMomentContextSummary();
@@ -301,44 +358,35 @@
     if(modal) modal.classList.add('show');
     try{ if(typeof window.simplifyMomentsAuthor === 'function') window.simplifyMomentsAuthor(); }catch(e){}
   };
-  window.saveMoments = async function(){
+  window.saveMoments = function(){
     const key = currentMomentKey || 'general';
-    const g = PLACES[key] || PLACES.general || {title:'Moment'};
+    const g = VN_PRESENTATION.places[key] || VN_PRESENTATION.places.general || {title:'Moment'};
     const textEl=document.getElementById('momentsText');
     const ratingEl=document.getElementById('momentsRating');
     const now=new Date().toISOString();
-    let arr=readJson(STORAGE_CONFIG.keys.momentsList,[]);
+    let arr=readJson('moments_list',[]);
     let entry={
       id:editingMomentId || ('m_'+Date.now()+'_'+Math.random().toString(36).slice(2,7)),
       itemKey:key,
       itemTitle:currentMomentContext?.displayTitleSnapshot || g.title || 'Moment',
       context:{...(currentMomentContext||resolveMomentContext(key))},
-      friendLabel:FRIENDS[getFriend()],
+      friendLabel:VN_PRESENTATION.friends[getFriend()],
       rating:Number(ratingEl?.value||0),
       moods:(currentMood||[]).slice(),
       text:textEl?.value||'',
       photoPrototype:currentMomentPhoto ? {...currentMomentPhoto.meta, retained:false} : null,
-      createdAt:now,
-      updatedAt:now,
-      createdBy:(typeof getFriend==='function'?getFriend():'lee'),
-      editedBy:(typeof getFriend==='function'?getFriend():'lee')
+      createdAt:now
     };
     if(editingMomentId){
       const existing=arr.find(e=>e.id===editingMomentId);
       if(!currentMomentPhoto && existing?.photoPrototype) entry.photoPrototype=existing.photoPrototype;
-      arr=arr.map(e=> e.id===editingMomentId ? {...e,...entry,createdAt:e.createdAt||now,createdBy:e.createdBy||entry.createdBy,editedAt:now,updatedAt:now,editedBy:(typeof getFriend==='function'?getFriend():'lee')} : e);
+      arr=arr.map(e=> e.id===editingMomentId ? {...e,...entry,createdAt:e.createdAt||now,editedAt:now} : e);
     }else{
       arr.push(entry);
     }
     if(currentMomentPhoto?.url) prototypePhotoUrls.set(entry.id,currentMomentPhoto.url);
-    if(currentMomentPhoto?.blob && window.MOMENT_SYNC){
-      const photoState=await window.MOMENT_SYNC.stagePhoto(entry.id,currentMomentPhoto.blob);
-      entry={...entry,...(photoState||{}),updatedAt:new Date().toISOString()};
-      arr=arr.map(e=>e.id===entry.id?{...e,...entry}:e);
-    }
-    writeJson(STORAGE_CONFIG.keys.momentsList,arr);
-    window.MOMENT_SYNC?.queueSync();
-    STORAGE.local.writeJSON(STORAGE_CONFIG.keys.latestMomentPrefix+key,entry);
+    writeJson('moments_list',arr);
+    localStorage.setItem('moment_latest_'+key, JSON.stringify(entry));
     editingMomentId=null;
     if(textEl) textEl.value='';
     currentMomentPhoto=null;
@@ -349,7 +397,7 @@
     closeMomentsModal(); renderMoments();
   };
   window.editMoment = function(id){
-    const arr=readJson(STORAGE_CONFIG.keys.momentsList,[]);
+    const arr=readJson('moments_list',[]);
     const e=arr.find(x=>x.id===id);
     if(!e) return;
     editingMomentId=id;
@@ -365,7 +413,7 @@
     const friend=document.getElementById('momentsFriend');
     const text=document.getElementById('momentsText');
     if(title) title.textContent=e.context?.displayTitleSnapshot || e.itemTitle || 'Moment';
-    if(friend) friend.textContent=e.friendLabel || FRIENDS[getFriend()];
+    if(friend) friend.textContent=e.friendLabel || VN_PRESENTATION.friends[getFriend()];
     if(text) text.value=e.text || '';
     clearMomentPhoto(true);
     const rememberedUrl=prototypePhotoUrls.get(e.id);
@@ -382,38 +430,38 @@
     try{ if(typeof window.simplifyMomentsAuthor === 'function') window.simplifyMomentsAuthor(); }catch(e){}
   };
   window.deleteMoment = function(idOrKey){
-    let arr=readJson(STORAGE_CONFIG.keys.momentsList,[]);
+    let arr=readJson('moments_list',[]);
     const before=arr.length;
-    const deleting=arr.find(e=>e.id===idOrKey);
-    window.MOMENT_SYNC?.markDeleted(deleting);
     arr=arr.filter(e=>e.id!==idOrKey);
-    writeJson(STORAGE_CONFIG.keys.momentsList,arr);
-    if(before===arr.length && idOrKey && !idOrKey.startsWith('m_')) STORAGE.local.remove(STORAGE_CONFIG.keys.momentPrefix+idOrKey);
+    writeJson('moments_list',arr);
+    if(before===arr.length && idOrKey && !idOrKey.startsWith('m_')) localStorage.removeItem('moment_'+idOrKey);
     const photoUrl=prototypePhotoUrls.get(idOrKey);
     if(photoUrl){try{URL.revokeObjectURL(photoUrl);}catch(e){} prototypePhotoUrls.delete(idOrKey);}
-    window.MOMENT_SYNC?.queueSync();
     renderMoments();
   };
   window.renderMoments = function(){
     const box=document.getElementById('momentsTimeline'); if(!box) return;
-    let arr=readJson(STORAGE_CONFIG.keys.momentsList,[]);
+    let arr=readJson('moments_list',[]);
     // Include legacy one-per-place moments once so older saved data still appears.
-    for(const k of STORAGE.local.keys()){
-      if(k && k.startsWith(STORAGE_CONFIG.keys.momentPrefix) && !k.startsWith(STORAGE_CONFIG.keys.latestMomentPrefix)){
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      if(k && k.startsWith('moment_') && !k.startsWith('moment_latest_')){
         try{
-          const e=STORAGE.local.readJSON(k,null);
+          const e=JSON.parse(localStorage.getItem(k));
           if(e && !arr.some(x=>x.id===e.id || (x.createdAt===e.createdAt && x.itemKey===e.itemKey && x.text===e.text))){
-            arr.push({...e,id:e.id||('legacy_'+k.replace(STORAGE_CONFIG.keys.momentPrefix,''))});
+            arr.push({...e,id:e.id||('legacy_'+k.replace('moment_',''))});
           }
         }catch(err){}
       }
     }
     arr.sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||'')));
-    if(!arr.length){box.innerHTML='<p>No Moments yet.</p>';return;}
+    if(!arr.length){box.innerHTML='<p>暫時未有 Moments。</p>';return;}
     box.innerHTML=arr.map(e=>`<div class="moments-entry">
       <strong>${escapeHTML(e.itemTitle||'Moment')}</strong>
       <p class="timestamp">${escapeHTML(e.friendLabel||'')} · ${formatTime(e.createdAt)}${e.editedAt?` · Edited ${formatTime(e.editedAt)}`:''}</p>
-      ${(e.photoUrl||prototypePhotoUrls.get(e.id)) ? `<img class="moment-prototype-photo" src="${escapeHTML(e.photoUrl||prototypePhotoUrls.get(e.id))}" alt="Moment photo">` : (e.photoPending?`<p class="moment-photo-note">📸 Photo saved offline · waiting to sync</p>`:(e.photoPrototype?`<p class="moment-photo-note">📸 Photo preview unavailable on this device</p>`:''))}
+      ${e.photoPrototype ? (prototypePhotoUrls.get(e.id)
+        ? `<img class="moment-prototype-photo" src="${prototypePhotoUrls.get(e.id)}" alt="Moment photo preview">`
+        : `<p class="moment-photo-note">📸 Photo tested · preview was intentionally not kept after reload</p>`) : ''}
       <p class="moment-mood">${moodLabel(e.moods||[])}</p>
       <p class="moment-stars">${'⭐'.repeat(e.rating||0)}</p>
       <p class="moment-copy">${escapeHTML(e.text||'')}</p>
@@ -422,7 +470,80 @@
   };
   /* Stage 4C-6: removed legacy v3.2 window.saveExpense; canonical handler is later in this file. */
 
+  window.renderLatestExpenseMini = function(){
+    const box=document.getElementById('latestExpenseMini'); if(!box) return;
+    const arr=readJson('expenses',[]);
+    const latest=arr.map((e,i)=>({...e,_idx:i})).sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||''))).slice(0,3);
+    if(!latest.length){box.innerHTML='<p class="timestamp">No transactions yet.</p>';return;}
+    box.innerHTML=latest.map(e=>`<div class="expense-card">
+      <strong>${escapeHTML(e.item)}</strong>
+      <p class="timestamp">${formatTime(e.createdAt)}</p>
+      <p>${Number(e.total).toLocaleString()} VND · Paid by ${VN_PRESENTATION.friends[e.paidBy]}</p>
+      <div class="entry-actions"><button class="mini-btn" onclick="editExpense(${e._idx})">✏️ Edit</button><button class="mini-btn" onclick="deleteExpense(${e._idx})">🗑 Delete</button></div>
+    </div>`).join('');
+  };
   /* Stage 4C-6: removed legacy v3.2 window.renderExpenses; canonical handler is later in this file. */
 
-  document.addEventListener('DOMContentLoaded',()=>{enhanceMomentPhotoInput();renderMoodButtons([]);renderMoments();renderExpenses();window.MOMENT_SYNC?.queueSync(150);document.addEventListener(window.MOMENT_SYNC?.EVENTS?.changed||'travelengine:momentsyncchanged',()=>renderMoments());});
+  document.addEventListener('DOMContentLoaded',()=>{enhanceMomentPhotoInput();renderMoodButtons([]);renderMoments();renderExpenses();});
 })();
+
+/* Stage 4C-6: legacy v3.4 Expenses wrappers removed; Stage 4F-Q owns the single canonical Expenses module. */
+
+/* v3.5 guard: bottom bar is summary navigation; buttons on summary pages open tools */
+document.addEventListener('DOMContentLoaded',()=>{
+  document.querySelectorAll('.summary-link-row').forEach(x=>x.remove());
+  try{ renderExpenses(); renderMoments(); }catch(e){}
+});
+
+/* v3.6 production polish: non-overriding expense copy polish only.
+   Stage 4C-6 removed the old open/save wrappers from this block. */
+(function(){
+  function polishExpenseCopy(){
+    document.querySelectorAll('button,a').forEach(el=>{
+      if((el.textContent||'').includes('Add Expense') || (el.textContent||'').includes('Split Bill')){
+        el.textContent='💰 What did we spend?';
+      }
+    });
+    const title=document.getElementById('expenseModalTitle'); if(title) title.textContent='💰 What did we spend?';
+    const intro=document.getElementById('expenseIntro'); if(intro) intro.textContent='記低每一筆公數或個人消費，系統會自動計 Personal Spend 同 Settlement。';
+    const save=document.getElementById('expenseSaveButton'); if(save) save.textContent='Save';
+  }
+  document.addEventListener('DOMContentLoaded',polishExpenseCopy);
+  window.polishExpenseCopy = polishExpenseCopy;
+})();
+
+/* Stage 4C-6: removed legacy v3.7 Expenses save/open wrappers. */
+
+/* Stage 4F-A: removed stale legacy dayN.html swipe handler. Active day route is day.html?day=N. */
+
+/* v3.9.6c Final UX Hotfix: current-user Moments author label.
+   Stage 4C-6 removed the expense open/save/edit wrappers from this block;
+   Expense current-user defaults are handled by the Stage 4F-Q module. */
+(function(){
+  const DEFAULT_FRIEND = 'crystal';
+  function currentUser(){
+    try { return (typeof getFriend === 'function' ? getFriend() : localStorage.getItem('saigon_friend')) || DEFAULT_FRIEND; }
+    catch(e){ return DEFAULT_FRIEND; }
+  }
+  function friendLabel(k){
+    try { return VN_PRESENTATION.friends[k] || VN_PRESENTATION.friends[DEFAULT_FRIEND] || '👓 Crystal'; }
+    catch(e){ return '👓 Crystal'; }
+  }
+  function simplifyMomentsAuthor(){
+    const row=document.querySelector('#momentsModal p:has(#momentsFriend)');
+    const badge=document.getElementById('momentsFriend');
+    if(badge) badge.textContent='By ' + friendLabel(currentUser());
+    if(row){
+      row.classList.add('moments-author-row');
+      row.querySelectorAll('button').forEach(btn=>btn.remove());
+    }
+  }
+  window.simplifyMomentsAuthor = simplifyMomentsAuthor;
+
+
+  document.addEventListener('DOMContentLoaded',()=>{
+    simplifyMomentsAuthor();
+  });
+})();
+
+/* Stage 4C-6: removed legacy v3.9.6d paid-by wrapper chain. Paid-by UI is owned by the Stage 4F-Q canonical Expenses module. */
