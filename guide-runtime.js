@@ -12,10 +12,38 @@ function visitDayHTML(key){
   return `<div class="quick-info-row visit-row"><span class="quick-info-icon">📅</span><span><span class="quick-info-label">Visit Day</span><span class="quick-info-value day-link-row">${buttons}</span></span></div>`;
 }
 
+function groupShoppingDirectory(){
+ const directory=document.getElementById('shopping-directory');
+ const grid=directory?.querySelector('.directory-grid');
+ if(!grid || grid.dataset.grouped==='true') return;
+ const cards=Array.from(grid.querySelectorAll(':scope > .directory-card'));
+ const groups=[
+  {title:'Day 2 · Nguyễn Trãi & Central D1',match:/Day 2|Nguyễn Trãi|Central D1|Lý Tự Trọng|Vincom/i},
+  {title:'Day 3 · Thảo Điền Lifestyle Walk',match:/Day 3|Thảo Điền|OHQUAO|Saigon Concept/i},
+  {title:'Day 4 · Phú Nhuận & District 3',match:/Day 4|Phú Nhuận|District 3|Trần Quang Diệu/i},
+  {title:'Optional Detours',match:/.*/}
+ ];
+ groups.forEach(group=>{
+   const selected=[];
+   cards.slice().forEach(card=>{
+     if(card.dataset.grouped) return;
+     if(group.match.test(card.textContent||'')){card.dataset.grouped='true';selected.push(card);}
+   });
+   if(!selected.length)return;
+   const section=document.createElement('section');
+   section.className='directory-route-group';
+   section.innerHTML=`<h3>${group.title}</h3><div class="directory-route-grid"></div>`;
+   const mount=section.querySelector('.directory-route-grid');
+   selected.forEach(card=>mount.appendChild(card));
+   grid.appendChild(section);
+ });
+ grid.dataset.grouped='true';
+}
 function applyGuideHashView(){
  const directory=document.getElementById('shopping-directory');
  const main=directory?.closest('main');
  if(!directory||!main)return;
+ groupShoppingDirectory();
  const directoryOnly=location.hash==='#shopping-directory';
  Array.from(main.children).forEach(el=>{el.hidden=directoryOnly&&el!==directory;});
  document.body.classList.toggle('shopping-directory-view',directoryOnly);

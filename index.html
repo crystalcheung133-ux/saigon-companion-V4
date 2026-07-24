@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="zh-Hant"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><title>Home · Saigon Companion</title><link href="manifest.json" rel="manifest"/><meta content="#8A4F2D" name="theme-color"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="Saigon" name="apple-mobile-web-app-title"/><link href="icon-192.png" rel="apple-touch-icon"/><link href="styles.css?v=1.0rc1" rel="stylesheet"/></head><body class="home-bg"><div aria-hidden="true" id="ccmvSplash" role="presentation"><div class="splash-paper"></div><div class="splash-glow"></div><div class="splash-content"><img alt="" class="splash-logo" src="ccmv-logo-calibrated.png"/><h1 class="splash-line">TRAVEL TOGETHER,<br/>CAPTURE TOGETHER</h1><div class="splash-destination">VIETNAM 2026</div></div><div class="splash-fadeout"></div></div><script>(function(){
+<html lang="zh-Hant"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><title>Home · Saigon Companion</title><link href="manifest.json" rel="manifest"/><meta content="#8A4F2D" name="theme-color"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="Saigon" name="apple-mobile-web-app-title"/><link href="icon-192.png" rel="apple-touch-icon"/><link href="styles.css?v=1.0rc41" rel="stylesheet"/></head><body class="home-bg"><div aria-hidden="true" id="ccmvSplash" role="presentation"><div class="splash-paper"></div><div class="splash-glow"></div><div class="splash-content"><img alt="" class="splash-logo" src="ccmv-logo-calibrated.png"/><h1 class="splash-line">TRAVEL TOGETHER,<br/>CAPTURE TOGETHER</h1><div class="splash-destination">VIETNAM 2026</div></div><div class="splash-fadeout"></div></div><script>(function(){
   var splash=document.getElementById('ccmvSplash');
   if(!splash) return;
 
@@ -53,7 +53,7 @@
 <div class="live-card live-countdown"><span class="live-icon">⏳</span><small>Countdown</small><strong id="countdownText">Counting down...</strong></div>
 <div class="live-card live-time"><span class="live-icon">🕒</span><small>Ho Chi Minh</small><strong id="hcmTime">--:--</strong></div>
 <div class="live-card live-weather" aria-live="polite"><span class="live-icon" id="weatherIcon">☀️</span><small>Ho Chi Minh Weather</small><strong id="weatherNow">Loading…</strong><em id="weatherDetail">Live forecast</em></div>
-<div class="live-card live-rate"><span class="live-icon">💱</span><small>AUD → VND</small><label class="currency-converter"><span>AUD</span><input id="audAmount" type="number" inputmode="decimal" min="0" step="1" value="100" aria-label="Australian dollars"/></label><strong id="vndAmount">Loading…</strong><em id="rateUpdated">Live rate</em></div>
+<div class="live-card live-rate"><span class="live-icon">💱</span><div class="currency-heading"><small id="currencyDirection">AUD → VND</small><button class="currency-swap" id="currencySwap" type="button" aria-label="Swap currencies">⇄</button></div><label class="currency-converter"><span id="currencyInputCode">AUD</span><input id="currencyAmount" type="number" inputmode="decimal" min="0" step="1" value="100" aria-label="Currency amount"/></label><strong id="currencyResult">Loading…</strong><em id="rateUpdated">Live rate</em></div>
 </div>
 <a class="home-day-button" href="day.html?day=1">Let's go ✨</a>
 </section>
@@ -77,13 +77,36 @@
   }catch(e){document.getElementById('weatherNow').textContent='29–33°C';document.getElementById('weatherDetail').textContent='Live weather unavailable';}
  }
  let audVndRate=18126;
- function renderCurrency(){const input=document.getElementById('audAmount');const out=document.getElementById('vndAmount');if(!input||!out)return;const amount=Math.max(0,Number(input.value)||0);out.textContent=`≈ ${Math.round(amount*audVndRate).toLocaleString('en-AU')} VND`;}
+ let currencyForward=true;
+ function renderCurrency(){
+  const input=document.getElementById('currencyAmount');
+  const out=document.getElementById('currencyResult');
+  const inputCode=document.getElementById('currencyInputCode');
+  const direction=document.getElementById('currencyDirection');
+  if(!input||!out||!inputCode||!direction)return;
+  const amount=Math.max(0,Number(input.value)||0);
+  if(currencyForward){
+   inputCode.textContent='AUD'; direction.textContent='AUD → VND';
+   out.textContent=`≈ ${Math.round(amount*audVndRate).toLocaleString('en-AU')} VND`;
+  }else{
+   inputCode.textContent='VND'; direction.textContent='VND → AUD';
+   out.textContent=`≈ ${(amount/audVndRate).toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2})} AUD`;
+  }
+ }
+ function swapCurrency(){
+  const input=document.getElementById('currencyAmount');
+  const current=Math.max(0,Number(input?.value)||0);
+  currencyForward=!currencyForward;
+  if(input){input.value=currencyForward ? Math.round(current/audVndRate) : Math.round(current*audVndRate);}
+  renderCurrency();
+ }
  async function loadCurrency(){
   try{const r=await fetch('https://open.er-api.com/v6/latest/AUD',{cache:'no-store'});if(!r.ok)throw new Error('rate');const d=await r.json();if(!d.rates?.VND)throw new Error('rate');audVndRate=Number(d.rates.VND);document.getElementById('rateUpdated').textContent=`1 AUD ≈ ${Math.round(audVndRate).toLocaleString('en-AU')} VND · live`;}
   catch(e){document.getElementById('rateUpdated').textContent='Reference rate · offline fallback';}
   renderCurrency();
  }
- document.getElementById('audAmount')?.addEventListener('input',renderCurrency);
+ document.getElementById('currencyAmount')?.addEventListener('input',renderCurrency);
+ document.getElementById('currencySwap')?.addEventListener('click',swapCurrency);
  updateHomeDash(); setInterval(updateHomeDash,30000); loadWeather(); loadCurrency();
 
 })();</script><div class="mini-menu" id="guideMenu"><button data-action="guide-category" data-category="ATTRACTIONS"><span><span class="menu-title">📍 ATTRACTIONS</span></span><span>›</span></button><button data-action="guide-category" data-category="CAFÉS"><span><span class="menu-title">☕ CAFÉS</span></span><span>›</span></button><button data-action="guide-category" data-category="EXPERIENCE"><span><span class="menu-title">🍳 EXPERIENCE</span></span><span>›</span></button><button data-action="guide-category" data-category="RESTAURANTS"><span><span class="menu-title">🍽 RESTAURANTS</span></span><span>›</span></button><button data-action="guide-category" data-category="SHOP"><span><span class="menu-title">🛍 SHOP</span></span><span>›</span></button><button data-action="guide-category" data-category="SPA"><span><span class="menu-title">💆 SPA</span></span><span>›</span></button><button data-action="guide-category" data-category="STAY"><span><span class="menu-title">🏨 STAY</span></span><span>›</span></button></div><div class="mini-menu" id="tripMenu">

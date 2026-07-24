@@ -58,15 +58,20 @@
     const inferredGuideIds = (!operationalTypes.has(item.type) && item.placeId && VN_PRESENTATION.places[item.placeId]) ? [item.placeId] : [];
     const guideIds = [...new Set(explicitGuideIds.length ? explicitGuideIds : inferredGuideIds)].filter(key=>VN_PRESENTATION.places[key]);
     const directoryHtml = item.showShoppingDirectory
-      ? `<button class="timeline-action timeline-action--directory" onclick="location.href='guide.html?return=${encodeURIComponent(sourceUrl)}#shopping-directory'">🛍 View Shopping Route</button>`
+      ? `<button class="timeline-action timeline-action--directory" onclick="location.href='guide.html?return=${encodeURIComponent(sourceUrl)}#shopping-directory'">🛍 Shopping Directory</button>`
       : '';
-    const guideHtml = guideIds.map(key => {
-      const place = VN_PRESENTATION.places[key] || {};
-      const label = '📖 Guide';
+    const routeGuideHtml = item.showShoppingDirectory && guideIds.length > 1
+      ? `<details class="meal-alternatives shopping-route-options"><summary>🛍 Route stops</summary><div class="alternative-list">${guideIds.map(key=>{
+          const place=VN_PRESENTATION.places[key]||{};
+          const detailUrl=placeHref(key,{returnTo:sourceUrl});
+          return `<div class="alternative-option route-stop-card"><div class="option-copy"><strong>${esc(place.emoji||'🛍')} ${esc(place.title||key)}</strong><p>${esc(place.sub||'Shopping stop')}</p></div><div class="option-actions"><a class="timeline-action timeline-action--map" href="${esc(place.maps||'#')}" target="_blank" rel="noopener">🧭 Navigate</a><button class="timeline-action timeline-action--guide" onclick="location.href='${esc(detailUrl)}'">📖 Guide</button></div></div>`;
+        }).join('')}</div></details>`
+      : '';
+    const guideHtml = (item.showShoppingDirectory && guideIds.length > 1 ? [] : guideIds).map(key => {
       const detailUrl=placeHref(key,{returnTo:sourceUrl});
-      return `<button class="timeline-action timeline-action--guide" onclick="location.href='${esc(detailUrl)}'">${esc(label)}</button>`;
+      return `<button class="timeline-action timeline-action--guide" onclick="location.href='${esc(detailUrl)}'">📖 Guide</button>`;
     }).join('');
-    const actionCount = guideIds.length + (item.showShoppingDirectory ? 1 : 0) + (item.map ? 1 : 0);
+    const actionCount = (item.showShoppingDirectory && guideIds.length > 1 ? 0 : guideIds.length) + (item.showShoppingDirectory ? 1 : 0) + (item.map ? 1 : 0);
     const actionClass = actionCount > 3 ? 'timeline-actions timeline-actions--multi' : 'timeline-actions';
     return `
     <div class="timeline-item" id="${esc(item.id)}">
@@ -78,7 +83,7 @@
         <div class="${actionClass}">
           ${mapHtml}${directoryHtml}${guideHtml}
         </div>
-        ${nearbyHtml}${alternativeHtml}
+        ${routeGuideHtml}${nearbyHtml}${alternativeHtml}
       </div>
     </div>`;
   }).join('');

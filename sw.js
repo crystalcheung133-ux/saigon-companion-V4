@@ -1,4 +1,4 @@
-const CACHE_NAME='ccmv-vietnam-2026-rc4-companion-polish';
+const CACHE_NAME='ccmv-vn-rc4-1';
 const ASSETS = [
   './',
   './index.html',
