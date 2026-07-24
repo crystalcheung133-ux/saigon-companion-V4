@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="zh-Hant"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><title>Home · Saigon Companion</title><link href="manifest.json" rel="manifest"/><meta content="#8A4F2D" name="theme-color"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="Saigon" name="apple-mobile-web-app-title"/><link href="icon-192.png" rel="apple-touch-icon"/><link href="styles.css?v=1.0rc42" rel="stylesheet"/></head><body class="home-bg"><div aria-hidden="true" id="ccmvSplash" role="presentation"><div class="splash-paper"></div><div class="splash-glow"></div><div class="splash-content"><img alt="" class="splash-logo" src="ccmv-logo-calibrated.png"/><h1 class="splash-line">TRAVEL TOGETHER,<br/>CAPTURE TOGETHER</h1><div class="splash-destination">VIETNAM 2026</div></div><div class="splash-fadeout"></div></div><script>(function(){
+<html lang="zh-Hant"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><title>Home · Saigon Companion</title><link href="manifest.json" rel="manifest"/><meta content="#8A4F2D" name="theme-color"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="Saigon" name="apple-mobile-web-app-title"/><link href="icon-192.png" rel="apple-touch-icon"/><link href="styles.css?v=1.0rc43" rel="stylesheet"/></head><body class="home-bg"><div aria-hidden="true" id="ccmvSplash" role="presentation"><div class="splash-paper"></div><div class="splash-glow"></div><div class="splash-content"><img alt="" class="splash-logo" src="ccmv-logo-calibrated.png"/><h1 class="splash-line">TRAVEL TOGETHER,<br/>CAPTURE TOGETHER</h1><div class="splash-destination">VIETNAM 2026</div></div><div class="splash-fadeout"></div></div><script>(function(){
   var splash=document.getElementById('ccmvSplash');
   if(!splash) return;
 
@@ -53,7 +53,7 @@
 <div class="live-card live-countdown"><span class="live-icon">⏳</span><small>Countdown</small><strong id="countdownText">Counting down...</strong></div>
 <div class="live-card live-time"><span class="live-icon">🕒</span><small>Ho Chi Minh</small><strong id="hcmTime">--:--</strong></div>
 <div class="live-card live-weather" aria-live="polite"><span class="live-icon" id="weatherIcon">☀️</span><small>Ho Chi Minh Weather</small><strong id="weatherNow">Loading…</strong><em id="weatherDetail">Live forecast</em></div>
-<div class="live-card live-rate"><span class="live-icon">💱</span><div class="currency-heading"><small id="currencyDirection">AUD → VND</small><button class="currency-swap" id="currencySwap" type="button" aria-label="Swap currencies">⇄</button></div><label class="currency-converter"><span id="currencyInputCode">AUD</span><input id="currencyAmount" type="number" inputmode="decimal" min="0" step="1" value="100" aria-label="Currency amount"/></label><strong id="currencyResult">Loading…</strong><em id="rateUpdated">Live rate</em></div>
+<div class="live-card live-rate"><span class="live-icon">💱</span><div class="currency-heading"><small id="currencyDirection">VND → AUD</small><button class="currency-swap" id="currencySwap" type="button" aria-label="Swap currencies">⇄</button></div><label class="currency-converter"><span id="currencyInputCode">VND</span><input id="currencyAmount" type="number" inputmode="decimal" min="0" step="1" value="1000000" aria-label="Currency amount"/></label><strong id="currencyResult">Loading…</strong><em id="rateUpdated">Live rate</em></div>
 </div>
 <a class="home-day-button" href="day.html?day=1">Let's go ✨</a>
 </section>
@@ -77,7 +77,7 @@
   }catch(e){document.getElementById('weatherNow').textContent='29–33°C';document.getElementById('weatherDetail').textContent='Live weather unavailable';}
  }
  let audVndRate=18126;
- let currencyForward=true;
+ let currencyForward=false;
  function renderCurrency(){
   const input=document.getElementById('currencyAmount');
   const out=document.getElementById('currencyResult');
@@ -105,10 +105,42 @@
   catch(e){document.getElementById('rateUpdated').textContent='Reference rate · offline fallback';}
   renderCurrency();
  }
- const currencyAmount=document.getElementById('currencyAmount');
- currencyAmount?.addEventListener('input',renderCurrency);
- currencyAmount?.addEventListener('focus',function(){this.select();});
- currencyAmount?.addEventListener('pointerup',function(event){event.preventDefault();this.select();});
+ const currencyInput=document.getElementById('currencyAmount');
+ const currencyCard=document.querySelector('.live-rate');
+ let currencyKeyboardActive=false;
+ function keepCurrencyCardVisible(){
+  if(!currencyKeyboardActive||!currencyCard)return;
+  const viewport=window.visualViewport;
+  const viewportTop=viewport?viewport.offsetTop:0;
+  const viewportHeight=viewport?viewport.height:window.innerHeight;
+  const keyboardHeight=Math.max(0,window.innerHeight-viewportHeight-viewportTop);
+  document.body.style.setProperty('--currency-keyboard-space',`${keyboardHeight+32}px`);
+  const rect=currencyCard.getBoundingClientRect();
+  const nav=document.querySelector('.site-nav');
+  const safeTop=viewportTop+(nav?nav.getBoundingClientRect().height:0)+12;
+  const safeBottom=viewportTop+viewportHeight-18;
+  let delta=0;
+  if(rect.bottom>safeBottom)delta=rect.bottom-safeBottom;
+  else if(rect.top<safeTop)delta=rect.top-safeTop;
+  if(Math.abs(delta)>1)window.scrollBy({top:delta,behavior:'auto'});
+ }
+ function openCurrencyKeyboardView(){
+  currencyKeyboardActive=true;
+  document.body.classList.add('currency-keyboard-open');
+  requestAnimationFrame(()=>requestAnimationFrame(keepCurrencyCardVisible));
+  setTimeout(keepCurrencyCardVisible,180);
+  setTimeout(keepCurrencyCardVisible,420);
+ }
+ function closeCurrencyKeyboardView(){
+  currencyKeyboardActive=false;
+  document.body.classList.remove('currency-keyboard-open');
+  document.body.style.removeProperty('--currency-keyboard-space');
+ }
+ currencyInput?.addEventListener('input',renderCurrency);
+ currencyInput?.addEventListener('focus',openCurrencyKeyboardView);
+ currencyInput?.addEventListener('blur',()=>setTimeout(closeCurrencyKeyboardView,120));
+ window.visualViewport?.addEventListener('resize',keepCurrencyCardVisible);
+ window.visualViewport?.addEventListener('scroll',keepCurrencyCardVisible);
  document.getElementById('currencySwap')?.addEventListener('click',swapCurrency);
  updateHomeDash(); setInterval(updateHomeDash,30000); loadWeather(); loadCurrency();
 

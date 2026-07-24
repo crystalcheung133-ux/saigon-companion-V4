@@ -36,7 +36,10 @@
     const href = `https://www.google.com/maps/dir/?${params.toString()}`;
     return `<a class="day-route-action" href="${esc(href)}" target="_blank" rel="noopener"><span>View Today’s Route</span><b aria-hidden="true">›</b></a>`;
   }
-  const visibleItems=(data.items||[]).filter(item=>!(/\bgrab\b/i.test(String(item.title||''))));
+  const visibleItems=(data.items||[]).filter(item=>{
+    const type=String(item.type||'').trim().toLowerCase();
+    return type!=='transport' && !(/\bgrab\b/i.test(String(item.title||'')));
+  });
   const todayRoute = buildTodayRoute({...data,items:visibleItems});
   const items = visibleItems.map(item => {
     const detailHtml = (item.details || []).map(text => `<p>${esc(text)}</p>`).join('');

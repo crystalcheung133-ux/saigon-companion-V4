@@ -1398,9 +1398,6 @@ body.home-bg .home-brand-card.v37-dashboard-home .home-trip-line span{
     overflow-wrap:anywhere!important;
     box-sizing:border-box!important;
   }
-  .timeline-actions:not(.timeline-actions--multi) .timeline-action--guide{
-    grid-column:1 / -1!important;
-  }
   .timeline-actions--multi .timeline-action--directory{
     grid-column:1 / -1!important;
   }
@@ -2101,4 +2098,21 @@ body.home-bg .home-day-button{
   }
   body.home-bg .home-live-grid .live-card{padding:10px 12px!important;min-height:82px!important;}
   body.home-bg .home-day-button{margin-bottom:4px!important;min-height:38px!important;padding:8px 22px!important;}
+}
+
+
+/* RC4.3 root-cause fixes: timeline action parity + iOS currency keyboard clearance */
+@media (max-width:720px){
+  .timeline-actions:not(.timeline-actions--multi){
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  .timeline-actions:not(.timeline-actions--multi) > .timeline-action{
+    grid-column:auto!important;
+  }
+  .timeline-actions:not(.timeline-actions--multi) > .timeline-action:only-child{
+    grid-column:1 / -1!important;
+  }
+}
+body.currency-keyboard-open{
+  padding-bottom:var(--currency-keyboard-space,0px)!important;
 }

@@ -1,4 +1,4 @@
-const CACHE_NAME='ccmv-vn-rc4-2';
+const CACHE_NAME='ccmv-vn-rc4-3';
 const ASSETS = [
   './',
   './index.html',
@@ -53,7 +53,7 @@ self.addEventListener('activate', event => {
     caches.keys()
       .then(keys => Promise.all(keys.filter(key =>
         key !== CACHE_NAME &&
-        (key.startsWith('ccmv-vietnam-2026-') || key.startsWith('ccmv-saigon-companion-'))
+        (key.startsWith('ccmv-vn-') || key.startsWith('ccmv-vietnam-2026-') || key.startsWith('ccmv-saigon-companion-'))
       ).map(key => caches.delete(key))))
       .then(() => self.clients.claim())
   );
