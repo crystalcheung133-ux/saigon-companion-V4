@@ -40,28 +40,32 @@
   const items = data.items.map(item => {
     const detailHtml = (item.details || []).map(text => `<p>${esc(text)}</p>`).join('');
     const routeHtml = item.route ? `<div class="route-hint"><strong>🚕 To next stop</strong><br/>${esc(item.route)}</div>` : '';
-    const nearbyHtml = (item.nearbyPlaceIds||[]).map(key=>{
+    const sourceUrl=`day.html?day=${encodeURIComponent(day)}#${encodeURIComponent(item.id)}`;
+    const nearbyBeforeHtml = (item.nearbyBeforePlaceIds||[]).map(key=>{
       const place=VN_PRESENTATION.places[key]||{};
-      return `<div class="nearby-option"><div><span class="optional-badge">NEARBY OPTION</span><strong>${esc(place.emoji||'📍')} ${esc(place.title||key)}</strong><p>${esc(place.sub||'Optional nearby stop')}</p></div><a class="timeline-action timeline-action--map" href="${esc(place.maps||'#')}" target="_blank" rel="noopener">Directions</a><button class="timeline-action timeline-action--guide" onclick="location.href='place.html?id=${esc(key)}&optional=${encodeURIComponent('Nearby option')}';">Guide</button></div>`;
+      const detailUrl=placeHref(key,{optional:'Nearby before spa',returnTo:sourceUrl});
+      return `<aside class="nearby-option nearby-option--before"><div class="option-copy"><span class="optional-badge">NEARBY · BEFORE SPA</span><strong>${esc(place.emoji||'📍')} ${esc(place.title||key)}</strong><p>${esc(place.sub||'Optional nearby stop')}</p></div><div class="option-actions"><a class="timeline-action timeline-action--map" href="${esc(place.maps||'#')}" target="_blank" rel="noopener">Directions</a><button class="timeline-action timeline-action--guide" onclick="location.href='${esc(detailUrl)}'">Guide</button></div></aside>`;
     }).join('');
     const alternativeHtml = (item.alternativePlaceIds||[]).length ? `<details class="meal-alternatives"><summary>Alternatives</summary><div class="alternative-list">${item.alternativePlaceIds.map(key=>{
       const place=VN_PRESENTATION.places[key]||{};
-      return `<div class="alternative-option"><div><span class="optional-badge">OPTIONAL</span><strong>${esc(place.emoji||'🍽')} ${esc(place.title||key)}</strong><p>${esc(place.sub||'Alternative meal option')}</p></div><a class="timeline-action timeline-action--map" href="${esc(place.maps||'#')}" target="_blank" rel="noopener">Directions</a><button class="timeline-action timeline-action--guide" onclick="location.href='place.html?id=${esc(key)}&optional=${encodeURIComponent('Meal alternative')}';">Guide</button></div>`;
+      const detailUrl=placeHref(key,{optional:'Meal alternative',returnTo:sourceUrl});
+      return `<div class="alternative-option"><div class="option-copy"><span class="optional-badge">OPTIONAL</span><strong>${esc(place.emoji||'🍽')} ${esc(place.title||key)}</strong><p>${esc(place.sub||'Alternative meal option')}</p></div><div class="option-actions"><a class="timeline-action timeline-action--map" href="${esc(place.maps||'#')}" target="_blank" rel="noopener">Directions</a><button class="timeline-action timeline-action--guide" onclick="location.href='${esc(detailUrl)}'">Guide</button></div></div>`;
     }).join('')}</div></details>` : '';
     const mapHtml = item.map ? `<a class="timeline-action timeline-action--map" href="${esc(item.map)}" target="_blank" rel="noopener">Navigate</a>` : '';
     const guideIds = Array.isArray(item.guideIds) && item.guideIds.length ? item.guideIds : [item.placeId || item.id];
     const directoryHtml = item.showShoppingDirectory
-      ? `<button class="timeline-action timeline-action--directory" onclick="location.href='guide.html#shopping-directory'">Shopping List</button>`
+      ? `<button class="timeline-action timeline-action--directory" onclick="location.href='guide.html?return=${encodeURIComponent(sourceUrl)}#shopping-directory'">View Shopping Route</button>`
       : '';
     const guideHtml = guideIds.map(key => {
       const place = VN_PRESENTATION.places[key] || {};
       const label = place.title ? `${place.title} Guide` : 'Guide';
-      return `<button class="timeline-action timeline-action--guide" onclick="location.href='place.html?id=${esc(key)}'">${esc(label)}</button>`;
+      const detailUrl=placeHref(key,{returnTo:sourceUrl});
+      return `<button class="timeline-action timeline-action--guide" onclick="location.href='${esc(detailUrl)}'">${esc(label)}</button>`;
     }).join('');
     const actionCount = guideIds.length + (item.showShoppingDirectory ? 1 : 0) + (item.map ? 1 : 0);
     const actionClass = actionCount > 3 ? 'timeline-actions timeline-actions--multi' : 'timeline-actions';
     return `
-    <div class="timeline-item" id="${esc(item.id)}">
+    ${nearbyBeforeHtml}<div class="timeline-item" id="${esc(item.id)}">
       <div class="timeline-time">${esc(item.time)}</div>
       <div class="timeline-main">
         <h3>${esc(item.title)}</h3>
@@ -70,7 +74,7 @@
         <div class="${actionClass}">
           ${mapHtml}${directoryHtml}${guideHtml}
         </div>
-        ${nearbyHtml}${alternativeHtml}
+        ${alternativeHtml}
       </div>
     </div>`;
   }).join('');

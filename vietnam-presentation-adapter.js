@@ -65,7 +65,7 @@
       items:Object.freeze(events.map(event=>Object.freeze({
         id:event.presentation.legacyId,
         time:event.timeText,
-        title:event.title,
+        title:(event.presentation.dayNumber===2&&event.presentation.legacyId==='libe')?'Nguyễn Trãi Shopping Route':event.title,
         details:event.notes,
         route:event.routeToNext||'',
         map:event.presentation.map||'',
@@ -75,7 +75,7 @@
         bookingId:event.bookingIds[0]||null,
         ...(event.presentation.guidePlaceIds.length?{guideIds:event.presentation.guidePlaceIds}:{}),
         ...(event.presentation.showShoppingDirectory?{showShoppingDirectory:true}:{}),
-        ...(event.presentation.nearbyPlaceIds?.length?{nearbyPlaceIds:event.presentation.nearbyPlaceIds}:{}),
+        ...(event.presentation.nearbyBeforePlaceIds?.length?{nearbyBeforePlaceIds:event.presentation.nearbyBeforePlaceIds}:{}),
         ...(event.presentation.alternativePlaceIds?.length?{alternativePlaceIds:event.presentation.alternativePlaceIds}:{})
       }))),
       dayId:frozenDay.dayId

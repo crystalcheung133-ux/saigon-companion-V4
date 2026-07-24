@@ -17,6 +17,12 @@ function applyGuideHashView(){
  document.body.classList.toggle('shopping-directory-view',directoryOnly);
  if(directoryOnly)requestAnimationFrame(()=>window.scrollTo({top:0,left:0,behavior:'auto'}));
 }
+function closeShoppingDirectoryView(){
+ const returnTo=new URLSearchParams(location.search).get('return');
+ if(returnTo){location.href=returnTo;return;}
+ if(history.length>1){history.back();return;}
+ location.href='index.html';
+}
 function openShoppingDirectoryView(){
  closeGuideModal();closeMiniMenus();
  const onGuide=/guide\.html$/.test(location.pathname)||location.pathname.endsWith('/guide.html');

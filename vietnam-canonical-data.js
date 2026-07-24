@@ -61,8 +61,8 @@
     placeType:'airport'
   });
 
-  const nearbyOptionMap=Object.freeze({
-    'day1:cafe-apartments':Object.freeze(['workshop-coffee'])
+  const nearbyBeforeOptionMap=Object.freeze({
+    'day1:nha-suga':Object.freeze(['workshop-coffee'])
   });
   const mealAlternativeMap=Object.freeze({
     'day1:pho-sol':Object.freeze(['com-tam-moc','pho-vietnam']),
@@ -84,7 +84,7 @@
     [2,'com-tam-moc','com-tam-moc',null,[],false],
     [2,'cooking','cooking','cooking-class-booking',[],false],
     [2,'moc-kim','moc-kim',null,[],false],
-    [2,'libe','libe',null,['libe','dauple','nosbyn'],true],
+    [2,'libe',null,null,[],true],
     [2,'lune','lune',null,[],false],
     [3,'quan-thuy','quan-thuy',null,[],false],[3,'pink-church','pink-church',null,[],false],
     [3,'push-push','push-push',null,[],false],
@@ -128,7 +128,7 @@
           map:item.map,
           guidePlaceIds:Object.freeze(guidePlaceIdsForCard.slice()),
           showShoppingDirectory,
-          nearbyPlaceIds:nearbyOptionMap[`day${dayNumber}:${legacyId}`]||Object.freeze([]),
+          nearbyBeforePlaceIds:nearbyBeforeOptionMap[`day${dayNumber}:${legacyId}`]||Object.freeze([]),
           alternativePlaceIds:mealAlternativeMap[`day${dayNumber}:${legacyId}`]||Object.freeze([])
         })
       });
@@ -143,7 +143,7 @@
     nosbyn:Object.freeze([['day2','libe']]),
     'new-playground':Object.freeze([['day2','libe']]),
     marou:Object.freeze([['day5','takashimaya']]),
-    'workshop-coffee':Object.freeze([['day1','cafe-apartments']])
+    'workshop-coffee':Object.freeze([['day1','nha-suga']])
   });
   const guideEntries=guidePlaceIds.map(placeId=>{
     const value=PLACES[placeId];
