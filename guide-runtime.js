@@ -17,17 +17,22 @@ function groupShoppingDirectory(){
  const grid=directory?.querySelector('.directory-grid');
  if(!grid || grid.dataset.grouped==='true') return;
  const cards=Array.from(grid.querySelectorAll(':scope > .directory-card'));
+ const bestWithText=card=>{
+   const row=Array.from(card.querySelectorAll('p')).find(p=>/Best with/i.test(p.textContent||''));
+   return row?.textContent||'';
+ };
  const groups=[
-  {title:'Day 2 · Nguyễn Trãi & Central D1',match:/Day 2|Nguyễn Trãi|Central D1|Lý Tự Trọng|Vincom/i},
-  {title:'Day 3 · Thảo Điền Lifestyle Walk',match:/Day 3|Thảo Điền|OHQUAO|Saigon Concept/i},
-  {title:'Day 4 · Phú Nhuận & District 3',match:/Day 4|Phú Nhuận|District 3|Trần Quang Diệu/i},
+  {title:'Day 2 · Nguyễn Trãi & Central D1',match:/Day 2/i},
+  {title:'Day 3 · Thảo Điền Lifestyle Walk',match:/Day 3/i},
+  {title:'Day 4 · Phú Nhuận & District 3',match:/Day 4/i},
   {title:'Optional Detours',match:/.*/}
  ];
  groups.forEach(group=>{
    const selected=[];
    cards.slice().forEach(card=>{
      if(card.dataset.grouped) return;
-     if(group.match.test(card.textContent||'')){card.dataset.grouped='true';selected.push(card);}
+     const groupingText=group.title==='Optional Detours'?(card.textContent||''):bestWithText(card);
+     if(group.match.test(groupingText)){card.dataset.grouped='true';selected.push(card);}
    });
    if(!selected.length)return;
    const section=document.createElement('section');
