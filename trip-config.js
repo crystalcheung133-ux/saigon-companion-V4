@@ -22,7 +22,7 @@
     version:'stage1-refactored',
     features:Object.freeze({
       /* Stage 3.2D validation flag. Legacy remains authoritative. */
-      expenseCanonicalDualWrite:false
+      expenseCanonicalDualWrite:true
     }),
     participants
     ,parties:Object.freeze({
