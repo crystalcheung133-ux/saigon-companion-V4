@@ -54,8 +54,8 @@ for(const file of htmlFiles){
   const html=fs.readFileSync(file,'utf8');
   const trip=html.indexOf('trip-config.js');
   const storage=html.indexOf('storage.js');
-  const bootstrap=html.indexOf('expense-canonical-bootstrap.js?v=stage3-2d-vn-wiring-1');
-  const runtime=html.indexOf('expenses-runtime.js?v=stage3-2h-vn-r5');
+  const bootstrap=html.indexOf('expense-canonical-bootstrap.js?v=stage3-2e-1');
+  const runtime=html.indexOf('expenses-runtime.js?v=stage3-2e-1');
   assert(trip>=0&&trip<storage&&storage<bootstrap&&bootstrap<runtime,`${file} production script order`);
 }
 

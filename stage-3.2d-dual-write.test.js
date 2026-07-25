@@ -136,16 +136,14 @@ test('duplicate VN stable source key generates id mapping failure and disables s
   const result=dual.afterLegacyWrite({action:'create',legacyRecords:[record,duplicate],targetIndex:1});
   assert.equal(result.success,false);assert.equal(result.diagnostics[0].code,'ID_MAPPING_FAILURE');
 });
-test('VN modal supports production custom split and retains modal-stays-open ordering',()=>{
+test('VN modal/HTML remains byte-identical and runtime retains modal-stays-open ordering',()=>{
   const html=fs.readFileSync('expenses.html','utf8');
   assert(html.includes('id="expenseSaveButton" onclick="saveExpense()">Save Expense</button>'));
   assert(html.includes('Save 完會留喺呢個視窗，可以連續輸入多筆'));
   const source=fs.readFileSync('expenses-runtime.js','utf8');
   assert(source.includes('Intentional: keep modal open for quick multiple expense entry.'));
   assert(source.indexOf('writeExpenses(arr);')<source.indexOf('window.CCMV_EXPENSE_DUAL_WRITE?.afterLegacyWrite'));
-  assert.equal(source.includes('customShare_'),true);
-  assert(source.includes("if(!MONEY.amountsMatch(allocated,total)) return alert('Custom split must equal the total.')"));
-  assert(source.includes('calculateCustomRemainder'));
+  assert.equal(source.includes('customShare_'),false);
 });
 
 let passed=0;
