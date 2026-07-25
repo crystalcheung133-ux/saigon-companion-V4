@@ -362,3 +362,42 @@ function clearAllSplit() {
     window.renderExpenses();
   });
 })();
+
+
+/* VN capability UI v2: NZ-proven expense interaction without category. */
+(function(){
+  let calculatorTarget='expenseTotal';
+  window.setExpenseType=function(type){
+    const personal=type==='personal';
+    document.getElementById('expensePersonal').checked=personal;
+    document.getElementById('expenseSharedTab')?.classList.toggle('active',!personal);
+    document.getElementById('expensePersonalTab')?.classList.toggle('active',personal);
+    document.getElementById('splitPickerWrap').style.display=personal?'none':'';
+    updateExpenseMode();
+  };
+  window.setSplitMode=function(mode){
+    const custom=mode==='custom'; document.getElementById('expenseCustom').checked=custom;
+    document.getElementById('equalModeBtn')?.classList.toggle('active',!custom);
+    document.getElementById('customModeBtn')?.classList.toggle('active',custom);
+    updateExpenseMode(); if(custom) recalculateCustomRemainder();
+  };
+  window.clearExpenseField=function(id){const el=document.getElementById(id);if(el){el.value='';el.focus();}recalculateCustomRemainder();};
+  window.clearCustomParty=function(p){const el=document.querySelector(`[data-custom-split="${p}"]`);if(el){el.value='';el.focus();}recalculateCustomRemainder();};
+  window.recalculateCustomRemainder=function(){
+    const total=Number(String(document.getElementById('expenseTotal')?.value||'').replace(/[^0-9.]/g,''));
+    const keys=['christal','crystal','mero']; let used=0; keys.forEach(k=>used+=Number(String(document.querySelector(`[data-custom-split="${k}"]`)?.value||'').replace(/[^0-9.]/g,''))||0);
+    const last=document.querySelector('[data-custom-split="vivian"]'); const msg=document.getElementById('customBalanceMessage');
+    if(!last)return; if(!total){last.value='';if(msg)msg.textContent='Enter the total amount first.';return;}
+    const remainder=total-used; last.value=remainder>=0?String(Math.round(remainder)):'';
+    if(msg)msg.textContent=remainder<0?`Over total by ${Math.abs(Math.round(remainder)).toLocaleString()} VND`:`Remaining ${Math.round(remainder).toLocaleString()} VND assigned to Vivian.`;
+    msg?.classList.toggle('error',remainder<0);
+  };
+  window.applySplitPreset=function(){const v=document.getElementById('expenseSplitPreset')?.value;if(v==='all')splitAll();else document.getElementById('equalSplitChoices')?.scrollIntoView({block:'nearest'});syncSplitPreset();};
+  window.syncSplitPreset=function(){const boxes=[...document.querySelectorAll('#equalSplitChoices [data-split]')];const all=boxes.every(x=>x.checked);const sel=document.getElementById('expenseSplitPreset');if(sel)sel.value=all?'all':'choose';};
+  window.openExpenseCalculator=function(target){calculatorTarget=target||'expenseTotal';document.getElementById('calculatorExpression').value=document.getElementById(calculatorTarget)?.value||'';document.getElementById('expenseCalculator')?.classList.add('show');setTimeout(()=>document.getElementById('calculatorExpression')?.focus(),50);};
+  window.openExpenseCalculatorForParty=function(p){openExpenseCalculator(`custom-${p}`); calculatorTarget=`custom-${p}`; const el=document.querySelector(`[data-custom-split="${p}"]`);document.getElementById('calculatorExpression').value=el?.value||'';};
+  window.closeExpenseCalculator=function(){document.getElementById('expenseCalculator')?.classList.remove('show');};
+  window.clearCalculator=function(){const el=document.getElementById('calculatorExpression');el.value='';el.focus();};
+  window.applyCalculatorResult=function(){const raw=document.getElementById('calculatorExpression')?.value||'';if(!/^[0-9+\-*/().\s]+$/.test(raw))return alert('Use numbers and + − × ÷ only.');let result;try{result=Function(`"use strict";return (${raw})`)()}catch(e){return alert('Invalid calculation.')}if(!Number.isFinite(result)||result<0)return alert('Invalid calculation.');result=Math.round(result);if(calculatorTarget.startsWith('custom-')){const p=calculatorTarget.slice(7);const el=document.querySelector(`[data-custom-split="${p}"]`);if(el)el.value=result;}else{const el=document.getElementById(calculatorTarget);if(el)el.value=result;}closeExpenseCalculator();recalculateCustomRemainder();};
+  document.addEventListener('DOMContentLoaded',()=>{setExpenseType('shared');setSplitMode('equal');syncSplitPreset();});
+})();
