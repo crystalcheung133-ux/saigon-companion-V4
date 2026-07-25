@@ -1,4 +1,4 @@
-const CACHE_NAME='ccmv-vn-rc4-4-stage26';
+const CACHE_NAME='ccmv-vn-rc4-4-stage32d-wiring-1';
 const ASSETS = [
   './',
   './index.html',
@@ -16,6 +16,13 @@ const ASSETS = [
   './day-runtime.js',
   './itinerary-runtime.js',
   './moments-runtime.js',
+  './expense-canonical-bootstrap.js',
+  './expense-calculator.js',
+  './legacy-expense-adapter.js',
+  './canonical-expense-repository.js',
+  './canonical-expense-core.js',
+  './canonical-expense-local-provider.js',
+  './expense-dual-write.js',
   './expenses-runtime.js',
   './app-runtime.js',
   './pwa.js',

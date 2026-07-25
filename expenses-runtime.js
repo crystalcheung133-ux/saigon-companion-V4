@@ -1,16 +1,6 @@
 /* expenses-runtime.js - CCMV Travel Engine reusable owner.
    Owns the existing Frozen VN Expenses behaviour; calculations and schema are unchanged.
    Vietnam-specific values are supplied by config/data modules. */
-/* Stage 3.2D: load the isolated canonical validation path only when the
-   default-off Trip Config flag is explicitly enabled. */
-if(globalThis.TRIP_CONFIG?.features?.expenseCanonicalDualWrite===true && !globalThis.CCMV_EXPENSE_DUAL_WRITE){
-  document.write([
-    'expense-calculator.js','legacy-expense-adapter.js',
-    'canonical-expense-repository.js','canonical-expense-core.js',
-    'canonical-expense-local-provider.js','expense-dual-write.js'
-  ].map(file=>`<script src="${file}?v=stage3-2d"><\/script>`).join(''));
-}
-
 function updateExpenseMode(){
   const personal = document.getElementById('expensePersonal')?.checked;
   const splitBlock = document.getElementById('splitBetweenBlock');
