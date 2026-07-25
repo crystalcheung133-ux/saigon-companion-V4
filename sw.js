@@ -1,4 +1,4 @@
-const CACHE_NAME='ccmv-vn-rc4-4-stage32d-wiring-1';
+const CACHE_NAME='ccmv-vn-capability-upgrade-1';
 const ASSETS = [
   './',
   './index.html',
@@ -23,7 +23,13 @@ const ASSETS = [
   './canonical-expense-core.js',
   './canonical-expense-local-provider.js',
   './expense-dual-write.js',
+  './expense-read-shadow.js',
   './expenses-runtime.js',
+  './expense-calculation-module.js',
+  './capability-sync.js',
+  './capability-export.js',
+  './capability-admin.js',
+
   './app-runtime.js',
   './pwa.js',
   './data.js',

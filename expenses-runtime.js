@@ -3,9 +3,12 @@
    Vietnam-specific values are supplied by config/data modules. */
 function updateExpenseMode(){
   const personal = document.getElementById('expensePersonal')?.checked;
+  const custom = document.getElementById('expenseCustom')?.checked;
   const splitBlock = document.getElementById('splitBetweenBlock');
   const consumedBlock = document.getElementById('consumedByBlock');
   if(splitBlock) splitBlock.style.display = personal ? 'none' : 'block';
+  const customBlock=document.getElementById('customSplitBlock'); if(customBlock) customBlock.style.display=(!personal&&custom)?'block':'none';
+  const equalBlock=document.getElementById('equalSplitChoices'); if(equalBlock) equalBlock.style.display=(!personal&&!custom)?'block':'none';
   if(consumedBlock) consumedBlock.style.display = personal ? 'block' : 'none';
   if(personal) syncConsumedIfAuto();
 }
@@ -55,6 +58,10 @@ function clearAllSplit() {
   function readExpenses(){
     try{return STORAGE.local.readJSON(STORAGE_CONFIG.keys.expenses,[]);}
     catch(e){return [];}
+  }
+  function observeExpenseShadow(action,records){
+    try{window.CCMV_EXPENSE_READ_SHADOW?.observe({action,legacyRecords:records});}
+    catch(error){}
   }
   function writeExpenses(arr){
     STORAGE.local.writeJSON(STORAGE_CONFIG.keys.expenses,Array.isArray(arr)?arr:[]);
@@ -127,6 +134,8 @@ function clearAllSplit() {
     const total=document.getElementById('expenseTotal'); if(total) total.value='';
     setSelectValue('expensePaidBy',user);
     const personal=document.getElementById('expensePersonal'); if(personal) personal.checked=false;
+    const custom=document.getElementById('expenseCustom'); if(custom) custom.checked=false;
+    document.querySelectorAll('[data-custom-split]').forEach(x=>x.value='');
     const consumed=document.getElementById('expenseConsumedBy');
     if(consumed){consumed.dataset.manual='false';setSelectValue('expenseConsumedBy',user);}
     try{splitAll();}
@@ -170,17 +179,20 @@ function clearAllSplit() {
     const total=Number(String(document.getElementById('expenseTotal')?.value||'').replace(/[^0-9.]/g,''));
     const paidBy=document.getElementById('expensePaidBy')?.value || currentUser();
     const personal=!!document.getElementById('expensePersonal')?.checked;
+    const custom=!!document.getElementById('expenseCustom')?.checked;
     const split=[...document.querySelectorAll('#expenseModal input[data-split]:checked')].map(x=>x.value);
     const consumedBy=document.getElementById('expenseConsumedBy')?.value || paidBy;
     if(!item || !total) return alert('Please complete item and total.');
-    if(!personal && !split.length) return alert('Please choose who to split between.');
+    if(!personal && !custom && !split.length) return alert('Please choose who to split between.');
+    let customAllocations=null;
+    if(!personal&&custom){customAllocations={};document.querySelectorAll('[data-custom-split]').forEach(x=>{const v=Number(String(x.value||'').replace(/[^0-9.]/g,''));if(v)customAllocations[x.dataset.customSplit]=v});const sum=Object.values(customAllocations).reduce((a,b)=>a+b,0);if(Math.abs(sum-total)>1)return alert('Custom split amounts must equal the total.');}
 
     const arr=readExpenses();
     const now=new Date().toISOString();
     const operationIndex=editingExpenseIndex;
     const operation=operationIndex!==null?'update':'create';
     const previousRecord=operationIndex!==null&&arr[operationIndex]?Object.assign({},arr[operationIndex]):null;
-    const data={item,total,paidBy,type:personal?'personal':'shared',split:personal?[consumedBy]:split,consumedBy:personal?consumedBy:null,createdAt:now};
+    const data={item,total,paidBy,type:personal?'personal':'shared',split:personal?[consumedBy]:(custom?Object.keys(customAllocations):split),customAllocations:custom?customAllocations:null,consumedBy:personal?consumedBy:null,createdAt:now};
     if(editingExpenseIndex!==null && arr[editingExpenseIndex]){
       data.createdAt=arr[editingExpenseIndex].createdAt || now;
       data.editedAt=now;
@@ -198,7 +210,7 @@ function clearAllSplit() {
         previousRecord
       });
     }catch(error){}
-    window.renderExpenses();
+    window.renderExpenses(operation);
     resetExpenseForm();
     showExpenseSavedNote();
     const first=document.getElementById('expenseItem'); if(first) setTimeout(()=>first.focus(),60);
@@ -212,9 +224,10 @@ function clearAllSplit() {
     box.innerHTML=`<h3>Transaction History</h3>${latest.length?latest.map(expenseCard).join(''):'<p class="timestamp">No transactions yet.</p>'}`;
   };
 
-  window.renderExpenses=function(){
+  window.renderExpenses=function(shadowAction){
     const pageBox=document.getElementById('expensePageList');
     const arr=readExpenses();
+    observeExpenseShadow(typeof shadowAction==='string'?shadowAction:'render',arr);
     const sorted=arr.map((e,i)=>({...e,_idx:i})).sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||'')));
     if(pageBox){
       const total=arr.reduce((sum,e)=>sum+Number(e.total||0),0);
@@ -231,9 +244,7 @@ function clearAllSplit() {
           personalSpend[consumer]+=amount;
           balance[consumer]-=amount;
         }else{
-          const split=(e.split&&e.split.length)?e.split:[e.paidBy];
-          const share=amount/split.length;
-          split.forEach(k=>{if(!personalSpend[k]) personalSpend[k]=0;if(!balance[k]) balance[k]=0;personalSpend[k]+=share;balance[k]-=share;});
+          Object.entries(CCMV_EXPENSE_CALC.allocations(e)).forEach(([k,share])=>{if(!personalSpend[k]) personalSpend[k]=0;if(!balance[k]) balance[k]=0;personalSpend[k]+=share;balance[k]-=share;});
         }
       });
       const spendHtml=FRIEND_ORDER.map(k=>`<p>${labelFor(k)}<br><strong>${Math.round(personalSpend[k]||0).toLocaleString()} VND</strong></p>`).join('');
@@ -262,14 +273,7 @@ function clearAllSplit() {
         personalSpend[consumer]+=amount;
         balance[consumer]-=amount;
       }else{
-        const split=(e.split&&e.split.length)?e.split:[e.paidBy];
-        const share=amount/split.length;
-        split.forEach(k=>{
-          if(!(k in personalSpend)) personalSpend[k]=0;
-          if(!(k in balance)) balance[k]=0;
-          personalSpend[k]+=share;
-          balance[k]-=share;
-        });
+        Object.entries(CCMV_EXPENSE_CALC.allocations(e)).forEach(([k,share])=>{if(!(k in personalSpend))personalSpend[k]=0;if(!(k in balance))balance[k]=0;personalSpend[k]+=share;balance[k]-=share;});
       }
     });
     const rows=[
@@ -313,6 +317,7 @@ function clearAllSplit() {
 
   window.editExpense=function(i){
     const arr=readExpenses();
+    observeExpenseShadow('edit-load',arr);
     const e=arr[i]; if(!e) return;
     editingExpenseIndex=i;
     ensurePaidByUI();
@@ -327,6 +332,7 @@ function clearAllSplit() {
       consumed.dataset.manual=personal && consumed.value!==e.paidBy ? 'true':'false';
     }
     document.querySelectorAll('#expenseModal input[data-split]').forEach(x=>x.checked=(e.split||[]).includes(x.value));
+    const custom=document.getElementById('expenseCustom');if(custom)custom.checked=!!e.customAllocations;document.querySelectorAll('[data-custom-split]').forEach(x=>x.value=e.customAllocations?.[x.dataset.customSplit]||'');
     try{updateExpenseMode();}catch(e){}
     const title=document.getElementById('expenseModalTitle'); if(title) title.textContent='✏️ Edit Expense';
     const save=document.getElementById('expenseSaveButton'); if(save) save.textContent='Update Expense';
@@ -346,7 +352,7 @@ function clearAllSplit() {
       });
     }catch(error){}
     if(editingExpenseIndex===i) editingExpenseIndex=null;
-    window.renderExpenses();
+    window.renderExpenses('delete');
   };
 
   window.resetExpenseForm=resetExpenseForm;
