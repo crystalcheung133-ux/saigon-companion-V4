@@ -4,9 +4,14 @@
 function updateExpenseMode(){
   const personal = document.getElementById('expensePersonal')?.checked;
   const splitBlock = document.getElementById('splitBetweenBlock');
+  const sharedControls = document.getElementById('sharedControls');
+  const splitChoices = document.getElementById('splitPartyChoices');
   const consumedBlock = document.getElementById('consumedByBlock');
-  if(splitBlock) splitBlock.style.display = personal ? 'none' : 'block';
-  if(consumedBlock) consumedBlock.style.display = personal ? 'block' : 'none';
+  if(splitBlock) splitBlock.hidden = !!personal;
+  if(sharedControls) sharedControls.hidden = !!personal;
+  if(splitChoices && personal) splitChoices.hidden = true;
+  if(consumedBlock) consumedBlock.hidden = !personal;
+  document.querySelectorAll('[data-expense-type]').forEach(btn=>btn.classList.toggle('active',btn.dataset.expenseType===(personal?'personal':'shared')));
   if(personal) syncConsumedIfAuto();
 }
 function syncConsumedIfAuto(){
@@ -34,6 +39,19 @@ function clearAllSplit() {
   document.querySelectorAll('#expenseModal input[data-split]').forEach(x => x.checked = false);
 }
 
+
+let expenseCalculatorTarget='expenseTotal';
+let expenseCalculatorExpression='';
+function setExpenseType(type){const box=document.getElementById('expensePersonal');if(box){box.checked=type==='personal';updateExpenseMode();}}
+function clearExpenseField(id){const input=document.getElementById(id);if(input){input.value='';input.focus();try{input.dispatchEvent(new Event('input',{bubbles:true}));}catch(e){}}}
+function toggleSplitChoices(){const panel=document.getElementById('splitPartyChoices');if(panel) panel.hidden=!panel.hidden;}
+function updateSplitSummary(){const selected=[...document.querySelectorAll('#expenseModal input[data-split]:checked')];const all=document.querySelectorAll('#expenseModal input[data-split]').length;const button=document.getElementById('splitBySummary');if(button){const text=selected.length===all?'All':selected.length?`${selected.length} selected`:'None';button.innerHTML=`${text} <span>⌄</span>`;}}
+function openExpenseCalculator(targetId){expenseCalculatorTarget=targetId||'expenseTotal';const target=document.getElementById(expenseCalculatorTarget);expenseCalculatorExpression=String(target?.value||'').replace(/[^0-9.+\-*/()]/g,'');const display=document.getElementById('expenseCalculatorDisplay');if(display)display.textContent=expenseCalculatorExpression||'0';document.getElementById('expenseCalculatorModal')?.classList.add('show');}
+function closeExpenseCalculator(){document.getElementById('expenseCalculatorModal')?.classList.remove('show');}
+function safeExpenseCalculation(expression){if(!/^[0-9+\-*/().\s]+$/.test(expression||''))throw new Error('Invalid');return Function(`"use strict";return (${expression})`)();}
+function calcPress(key){if(key==='C')expenseCalculatorExpression='';else if(key==='⌫')expenseCalculatorExpression=expenseCalculatorExpression.slice(0,-1);else if(key==='='){try{expenseCalculatorExpression=String(Math.round(safeExpenseCalculation(expenseCalculatorExpression)*100)/100);}catch(e){expenseCalculatorExpression='';}}else expenseCalculatorExpression+=key;const display=document.getElementById('expenseCalculatorDisplay');if(display)display.textContent=expenseCalculatorExpression||'0';}
+function useExpenseCalculatorResult(){try{const value=Math.round(safeExpenseCalculation(expenseCalculatorExpression)*100)/100;const target=document.getElementById(expenseCalculatorTarget);if(target){target.value=String(value);target.dispatchEvent(new Event('input',{bubbles:true}));}closeExpenseCalculator();}catch(e){alert('Please complete the calculation first.');}}
+
 /* ============================================================================
    STAGE 4F-Q — EXPENSES SINGLE CANONICAL MODULE
    ----------------------------------------------------------------------------
@@ -59,7 +77,7 @@ function clearAllSplit() {
     const previous=values||Object.fromEntries([...panel.querySelectorAll('input[data-custom-party]')].map(i=>[i.dataset.customParty,i.value]));
     const selected=selectedSplit();
     panel.hidden=expenseSplitMode!=='custom';
-    panel.innerHTML=selected.map(k=>`<label class="custom-split-row"><span>${labelFor(k)}</span><div class="custom-split-field"><input data-custom-party="${k}" inputmode="decimal" type="text" value="${previous[k]??''}" placeholder="0" oninput="recalculateCustomSplit()" onblur="autofillCustomRemainderOnExit('${k}')"><button class="custom-clear-btn" type="button" onclick="clearCustomAmount('${k}')">Clear</button><button class="custom-remainder-btn" type="button" onclick="calculateCustomRemainder('${k}')" aria-label="Calculate remainder for ${labelFor(k)}">🧮</button></div></label>`).join('')+`<p class="custom-split-status" id="customSplitStatus"></p>`;
+    panel.innerHTML=selected.map(k=>`<label class="custom-split-row"><span class="custom-party-label"><span class="party-emoji">${emojiFor(k)}</span><span>${plainLabelFor(k)}</span></span><div class="custom-split-field"><input data-custom-party="${k}" inputmode="decimal" type="text" value="${previous[k]??''}" placeholder="0" oninput="recalculateCustomSplit()" onblur="autofillCustomRemainderOnExit('${k}')"><button class="custom-clear-btn" type="button" onclick="clearCustomAmount('${k}')">Clear</button><button class="custom-remainder-btn" type="button" onclick="calculateCustomRemainder('${k}')" aria-label="Calculate remainder for ${plainLabelFor(k)}">🧮</button></div></label>`).join('')+`<p class="custom-split-status" id="customSplitStatus"></p>`;
     recalculateCustomSplit();
   }
   function customShares(){
@@ -102,6 +120,8 @@ function clearAllSplit() {
     try{return participantLabel(k);}
     catch(e){return k||'';}
   }
+  function emojiFor(k){return ({christal:'🧸',crystal:'👓',mero:'✝️',vivian:'👟'})[k]||'';}
+  function plainLabelFor(k){return ({christal:'Christal',crystal:'Crystal',mero:'Mero',vivian:'Vivian'})[k]||String(k||'');}
   function readExpenses(){
     try{return STORAGE.local.readJSON(STORAGE_CONFIG.keys.expenses,[]);}
     catch(e){return [];}
@@ -186,7 +206,7 @@ function clearAllSplit() {
     expenseSplitMode='equal';
     try{splitAll();}
     catch(e){document.querySelectorAll('#expenseModal input[data-split]').forEach(x=>x.checked=true);}
-    try{updateExpenseMode();updateSplitModeUI();}catch(e){}
+    try{updateExpenseMode();updateSplitModeUI();updateSplitSummary();}catch(e){}
     const title=document.getElementById('expenseModalTitle'); if(title) title.textContent='💰 What did we spend?';
     const save=document.getElementById('expenseSaveButton'); if(save) save.textContent='Save';
     ensurePaidByUI();
@@ -227,7 +247,7 @@ function clearAllSplit() {
     const personal=!!document.getElementById('expensePersonal')?.checked;
     const split=selectedSplit();
     const consumedBy=document.getElementById('expenseConsumedBy')?.value || paidBy;
-    if(!item || !total) return alert('Please complete item and total.');
+    if(!total) return alert('Please enter the total amount.');
     if(!personal && !split.length) return alert('Please choose who to split between.');
     const splitMode=personal?'personal':expenseSplitMode;
     const shares=(!personal&&splitMode==='custom')?customShares():null;
@@ -241,7 +261,7 @@ function clearAllSplit() {
     const operationIndex=editingExpenseIndex;
     const operation=operationIndex!==null?'update':'create';
     const previousRecord=operationIndex!==null&&arr[operationIndex]?Object.assign({},arr[operationIndex]):null;
-    const data={item,total,paidBy,type:personal?'personal':'shared',split:personal?[consumedBy]:split,splitMode,shares:personal?null:shares,consumedBy:personal?consumedBy:null,createdAt:now};
+    const data={item:item||'Expense',total,paidBy,type:personal?'personal':'shared',split:personal?[consumedBy]:split,splitMode,shares:personal?null:shares,consumedBy:personal?consumedBy:null,createdAt:now};
     if(editingExpenseIndex!==null && arr[editingExpenseIndex]){
       data.createdAt=arr[editingExpenseIndex].createdAt || now;
       data.editedAt=now;
@@ -421,7 +441,7 @@ function clearAllSplit() {
   document.addEventListener('DOMContentLoaded',()=>{
     ensurePaidByUI();
     updatePaidByDisplay();
-    document.querySelectorAll('#expenseModal input[data-split]').forEach(x=>x.addEventListener('change',()=>{if(expenseSplitMode==='custom')renderCustomSplitPanel();}));
+    document.querySelectorAll('#expenseModal input[data-split]').forEach(x=>x.addEventListener('change',()=>{updateSplitSummary();if(expenseSplitMode==='custom')renderCustomSplitPanel();}));
     document.getElementById('expenseTotal')?.addEventListener('input',recalculateCustomSplit);
     window.renderExpenses();
   });

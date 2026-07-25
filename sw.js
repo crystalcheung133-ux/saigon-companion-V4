@@ -1,4 +1,4 @@
-const CACHE_NAME='ccmv-vn-vn-c1-stage32e-read-shadow-1';
+const CACHE_NAME='ccmv-vn-c1-1';
 const ASSETS = [
   './',
   './index.html',

@@ -2153,3 +2153,58 @@ body.currency-keyboard-open{
 .custom-split-status{margin:2px 0 0!important;font-size:13px!important;font-weight:750!important;color:var(--muted)!important}
 .custom-split-status.valid{color:#315f4e!important}.custom-split-status.invalid{color:#a33b2f!important}
 @media(max-width:420px){.custom-split-row{grid-template-columns:1fr}.custom-split-field{grid-template-columns:minmax(0,1fr) auto auto}.custom-clear-btn{padding:0 8px}}
+
+/* VN-C1.1 — NZ-format Expense modal, VN-owned UI */
+.expense-entry-modal{align-items:center;padding:14px}
+.expense-entry-sheet{width:min(760px,100%);max-height:calc(100dvh - 28px);overflow-y:auto;overscroll-behavior:contain;padding:28px 24px 24px;border-radius:32px}
+.expense-entry-sheet .expense-form{display:grid;gap:14px;margin-top:18px}
+.expense-type-selector,.expense-split-mode{display:grid;grid-template-columns:1fr 1fr;gap:0;border:2px solid rgba(111,143,107,.25);border-radius:18px;padding:4px;background:#f8fcfb}
+.expense-type-btn,.split-mode-btn{min-height:56px;border:0;border-radius:14px;background:transparent;font:inherit;font-weight:900;color:var(--ink)}
+.expense-type-btn.active,.split-mode-btn.active{background:var(--expense-accent);color:#fff}
+.expense-field-label,.expense-control-group>label{display:block;font-weight:900;font-size:18px;margin:2px 0 -7px}
+.expense-field-label span{font-size:13px;letter-spacing:.18em;color:#8a6a3b}
+.expense-entry-sheet input:not([type=checkbox]),.expense-select,.expense-split-summary{width:100%;min-height:58px;border:1.5px solid var(--line);border-radius:18px;background:#fffaf2;padding:13px 16px;font:inherit;font-weight:750;color:var(--ink)}
+.expense-amount-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:stretch}
+.expense-field-clear,.expense-calculator-btn,.custom-clear-btn,.custom-remainder-btn{min-width:72px;border:1.5px solid var(--line);border-radius:16px;background:#fffaf2;padding:0 12px;font:inherit;font-weight:850;color:var(--ink)}
+.expense-calculator-btn,.custom-remainder-btn{min-width:60px;font-size:23px;background:#eef9f8;border-color:#9ed8dc}
+.expense-shared-controls{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.expense-control-group{display:grid;gap:8px}
+.expense-split-summary{display:flex;align-items:center;justify-content:space-between;text-align:left}
+.expense-party-choices{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px;border:1.5px solid rgba(111,143,107,.25);border-radius:18px;background:#f8fcfb}
+.expense-party-choices[hidden]{display:none!important}
+.expense-party-choices label{display:flex;align-items:center;gap:7px;min-height:42px;font-weight:800}
+.expense-party-choices input{width:20px;height:20px;accent-color:var(--expense-accent)}
+.party-choice-emoji{font-size:17px;line-height:1}
+.custom-split-panel{display:grid;gap:10px;padding:14px;border:1.5px solid rgba(111,143,107,.25);border-radius:20px;background:#f6fbfb}
+.custom-split-row{display:grid!important;grid-template-columns:minmax(105px,150px) minmax(0,1fr);align-items:center;gap:10px}
+.custom-party-label{display:flex;align-items:center;gap:7px;font-weight:900;min-width:0}
+.custom-party-label .party-emoji{font-size:17px;line-height:1;flex:0 0 auto}
+.custom-split-field{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;min-width:0}
+.custom-split-field input{min-width:0;text-align:right;font-size:20px}
+.custom-split-status{margin:0!important;font-weight:800!important}
+.expense-save-button{position:sticky;bottom:0;z-index:3;width:100%;min-height:64px;margin-top:4px;border-radius:18px!important;background:var(--expense-accent)!important;color:#fff!important;box-shadow:0 -10px 24px rgba(255,250,242,.96)}
+#consumedByBlock[hidden]{display:none!important}
+.paid-by-panel{display:none!important}.paid-by-hidden-select{position:static!important;width:100%!important;height:auto!important;opacity:1!important;pointer-events:auto!important;clip:auto!important;clip-path:none!important}
+.expense-calculator-modal{position:fixed;inset:0;z-index:2500;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(36,30,24,.58)}
+.expense-calculator-modal.show{display:flex}
+.expense-calculator-sheet{position:relative;width:min(420px,100%);background:#fffaf2;border-radius:26px;padding:24px;box-shadow:0 24px 70px rgba(0,0,0,.28)}
+.expense-calculator-close{position:absolute;right:14px;top:10px;border:0;background:transparent;font-size:32px}
+.expense-calculator-display{min-height:72px;margin:18px 0 14px;padding:16px;border:1.5px solid var(--line);border-radius:16px;background:#fff;text-align:right;font-size:30px;font-weight:900;overflow-wrap:anywhere}
+.expense-calculator-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.expense-calculator-grid button{min-height:52px;border:1px solid var(--line);border-radius:14px;background:#fff;font:inherit;font-weight:850}
+.expense-calculator-grid .calculator-equals{grid-column:2/4}.expense-calculator-grid .calculator-use{grid-column:4;background:var(--expense-accent);color:#fff}
+@media(max-width:520px){
+ .expense-entry-sheet{padding:24px 18px 20px;border-radius:28px}
+ .expense-entry-sheet h2{font-size:40px}
+ .expense-shared-controls{grid-template-columns:1fr 1fr}
+ .custom-split-row{grid-template-columns:92px minmax(0,1fr)}
+ .custom-split-field{grid-template-columns:minmax(0,1fr) 62px 54px;gap:6px}
+ .expense-field-clear,.custom-clear-btn{min-width:62px;padding:0 8px}
+ .expense-calculator-btn,.custom-remainder-btn{min-width:54px;padding:0 8px}
+}
+@media(max-width:390px){
+ .expense-shared-controls{grid-template-columns:1fr}
+ .custom-split-row{grid-template-columns:1fr}
+ .expense-party-choices{grid-template-columns:1fr 1fr}
+}
+.expense-post-save-note{margin:0;text-align:center;font-size:12px;color:var(--muted)}
