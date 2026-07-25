@@ -1,6 +1,16 @@
 /* expenses-runtime.js - CCMV Travel Engine reusable owner.
    Owns the existing Frozen VN Expenses behaviour; calculations and schema are unchanged.
    Vietnam-specific values are supplied by config/data modules. */
+/* Stage 3.2D: load the isolated canonical validation path only when the
+   default-off Trip Config flag is explicitly enabled. */
+if(globalThis.TRIP_CONFIG?.features?.expenseCanonicalDualWrite===true && !globalThis.CCMV_EXPENSE_DUAL_WRITE){
+  document.write([
+    'expense-calculator.js','legacy-expense-adapter.js',
+    'canonical-expense-repository.js','canonical-expense-core.js',
+    'canonical-expense-local-provider.js','expense-dual-write.js'
+  ].map(file=>`<script src="${file}?v=stage3-2d"><\/script>`).join(''));
+}
+
 function updateExpenseMode(){
   const personal = document.getElementById('expensePersonal')?.checked;
   const splitBlock = document.getElementById('splitBetweenBlock');
@@ -177,6 +187,9 @@ function clearAllSplit() {
 
     const arr=readExpenses();
     const now=new Date().toISOString();
+    const operationIndex=editingExpenseIndex;
+    const operation=operationIndex!==null?'update':'create';
+    const previousRecord=operationIndex!==null&&arr[operationIndex]?Object.assign({},arr[operationIndex]):null;
     const data={item,total,paidBy,type:personal?'personal':'shared',split:personal?[consumedBy]:split,consumedBy:personal?consumedBy:null,createdAt:now};
     if(editingExpenseIndex!==null && arr[editingExpenseIndex]){
       data.createdAt=arr[editingExpenseIndex].createdAt || now;
@@ -187,6 +200,14 @@ function clearAllSplit() {
       arr.push(data);
     }
     writeExpenses(arr);
+    try{
+      window.CCMV_EXPENSE_DUAL_WRITE?.afterLegacyWrite({
+        action:operation,
+        legacyRecords:readExpenses(),
+        targetIndex:operationIndex!==null?operationIndex:arr.length-1,
+        previousRecord
+      });
+    }catch(error){}
     window.renderExpenses();
     resetExpenseForm();
     showExpenseSavedNote();
@@ -326,8 +347,14 @@ function clearAllSplit() {
   window.deleteExpense=function(i){
     const arr=readExpenses();
     if(!arr[i]) return;
+    const previousRecord=Object.assign({},arr[i]);
     arr.splice(i,1);
     writeExpenses(arr);
+    try{
+      window.CCMV_EXPENSE_DUAL_WRITE?.afterLegacyWrite({
+        action:'delete',legacyRecords:readExpenses(),targetIndex:i,previousRecord
+      });
+    }catch(error){}
     if(editingExpenseIndex===i) editingExpenseIndex=null;
     window.renderExpenses();
   };

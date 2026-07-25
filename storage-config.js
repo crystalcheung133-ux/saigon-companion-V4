@@ -5,6 +5,7 @@
     friend:'saigon_friend',
     checklist:'checklist',
     expenses:'expenses',
+    canonicalExpenseState:'ccmv-vietnam-2026:canonical_expenses:stage_3_2d:v1',
     momentsList:'moments_list',
     momentsFreeform:'moments_freeform',
     momentPrefix:'moment_',
@@ -20,6 +21,7 @@
       identity:Object.freeze({friend:keys.friend}),
       trip:Object.freeze({checklist:keys.checklist}),
       expenses:Object.freeze({records:keys.expenses}),
+      canonicalExpenses:Object.freeze({state:keys.canonicalExpenseState}),
       moments:Object.freeze({records:keys.momentsList,freeform:keys.momentsFreeform,legacyPrefix:keys.momentPrefix,latestPrefix:keys.latestMomentPrefix}),
       guide:Object.freeze({context:keys.guideNavContext,reopen:keys.guideNavReopen})
     })
