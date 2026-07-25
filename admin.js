@@ -10,11 +10,10 @@
    ============================================================================ */
 (function(){
   const MODE_KEY=STORAGE_CONFIG.keys.adminMode;
-  const DRAFT_KEY=STORAGE_CONFIG.keys.adminDraft;
-  const ADMIN_USER='lee';
+    const ADMIN_USER='crystal';
   const ADMIN_PIN='260922';
   const SESSION_KEY='travel_engine_admin_unlocked_v1';
-  const state={mode:false,dirty:false,draft:null};
+  const state={mode:false};
 
   function isAdminUser(){ return getFriend()===ADMIN_USER; }
   function isUnlocked(){ return sessionStorage.getItem(SESSION_KEY)==='1'; }
@@ -124,16 +123,8 @@
     if(enabled) STORAGE.local.set(MODE_KEY,'admin');
     else STORAGE.local.remove(MODE_KEY);
   }
-  function ensureDraft(){
-    if(!state.draft){
-      state.draft=STORAGE.local.readJSON(DRAFT_KEY,{version:1,tripId:TRIP_CONFIG.tripName,changes:{},updatedAt:null});
-    }
-    return state.draft;
-  }
-  function hasDraftChanges(draft){ return !!draft && !!draft.changes && Object.keys(draft.changes).length>0; }
   function updateUI(){
     document.body.classList.toggle('admin-mode',state.mode);
-    document.body.classList.toggle('admin-dirty',state.mode&&state.dirty);
     const control=document.getElementById('adminModeControl');
     if(control) control.hidden=!(isAdminUser() && state.mode);
     [document.getElementById('studioSelectorToggleInput'),document.getElementById('adminModeToggle')].filter(Boolean).forEach(toggle=>{
@@ -142,10 +133,6 @@
     });
     const banner=document.getElementById('adminModeBanner');
     if(banner) banner.hidden=!state.mode;
-    const bar=document.getElementById('adminSaveBar');
-    if(bar) bar.hidden=!(state.mode&&state.dirty);
-    const status=document.getElementById('adminDirtyText');
-    if(status) status.textContent=state.dirty?'Unsaved changes':'All changes saved';
     const exportButton=document.getElementById('expenseExportButton');
     if(exportButton){
       const showExport=state.mode && isUnlocked() && isAdminUser();
@@ -153,7 +140,7 @@
       exportButton.setAttribute('aria-hidden',String(!showExport));
       exportButton.style.display=showExport?'inline-flex':'none';
     }
-    ['tripStudioManagement','tripStudioExports'].forEach(id=>{
+    ['tripStudioManagement','tripStudioExports','tripStudioDanger'].forEach(id=>{
       const group=document.getElementById(id);
       if(group) group.hidden=!state.mode;
     });
@@ -165,7 +152,7 @@
       const selectorToggle=document.createElement('div');
       selectorToggle.id='tripStudioSelectorToggle';
       selectorToggle.className='trip-studio-selector-toggle';
-      selectorToggle.innerHTML=`<span><strong>⚙ Studio Mode</strong><small>Editing, Export Centre and trip controls</small></span><label class="admin-switch"><input id="studioSelectorToggleInput" type="checkbox" role="switch" aria-label="Toggle Studio Mode"><span></span></label>`;
+      selectorToggle.innerHTML=`<span><strong>⚙ Studio Mode</strong><small>Complete Trip, Export Centre and trip controls</small></span><label class="admin-switch"><input id="studioSelectorToggleInput" type="checkbox" role="switch" aria-label="Toggle Studio Mode"><span></span></label>`;
       familyList.insertAdjacentElement('afterend',selectorToggle);
       selectorToggle.querySelector('#studioSelectorToggleInput').addEventListener('change',event=>{
         const enabled=event.target.checked;
@@ -183,7 +170,7 @@
           <div>
             <p class="trip-studio-kicker">CREATOR WORKSPACE</p>
             <h3>Trip Studio</h3>
-            <small>Create, refine and manage this companion.</small>
+            <small>Manage exports and trip lifecycle controls.</small>
           </div>
           <button type="button" class="trip-studio-close" aria-label="Close Trip Studio">×</button>
         </header>
@@ -193,10 +180,15 @@
         </div>
         <div id="tripStudioExports" class="trip-studio-group" hidden>
           <p class="trip-studio-label">EXPORT CENTRE</p>
-          <button type="button" class="trip-studio-action" onclick="location.href='expenses.html';setTimeout(()=>window.exportExpenseData&&window.exportExpenseData(),400)"><span><strong>Export Expenses</strong><small>Open Expenses and export the current trip record.</small></span><span>↗</span></button>
+          <button type="button" class="trip-studio-action" onclick="location.href='expenses.html'"><span><strong>Export Centre</strong><small>Open Expenses to review or export the current trip record.</small></span><span>↗</span></button>
+        </div>
+        <div id="tripStudioDanger" class="trip-studio-group trip-studio-danger" hidden>
+          <p class="trip-studio-label">TRIP DATA</p>
+          <button id="resetTripDataButton" class="reset-trip-data-btn" type="button"><span><strong>Reset Trip Data</strong><small>Delete saved expenses, moments and progress for this Vietnam trip.</small></span><span>›</span></button>
         </div>`;
       familySheet.appendChild(block);
       block.querySelector('.trip-studio-close').addEventListener('click',closeTripStudioPanel);
+      block.querySelector('#resetTripDataButton').addEventListener('click',()=>window.resetTripData?.());
 
     }
     if(!document.getElementById('adminModeBanner')){
@@ -205,23 +197,10 @@
       banner.className='admin-mode-banner';
       banner.setAttribute('role','status');
       banner.hidden=true;
-      banner.innerHTML='<strong>TRIP STUDIO</strong><span id="adminDirtyText">All changes saved</span>';
+      banner.innerHTML='<strong>TRIP STUDIO</strong><span>Management Mode</span>';
       document.body.prepend(banner);
     }
-    if(!document.getElementById('adminSaveBar')){
-      const bar=document.createElement('div');
-      bar.id='adminSaveBar';
-      bar.className='admin-save-bar';
-      bar.hidden=true;
-      bar.innerHTML='<div><strong>Unsaved changes</strong><small>Save or discard before leaving Admin Mode.</small></div><div class="admin-save-actions"><button type="button" class="admin-discard-btn" onclick="discardAdminChanges()">Discard</button><button type="button" class="admin-save-btn" onclick="saveAdminChanges()">Save Changes</button></div>';
-      document.body.appendChild(bar);
-    }
   }
-  function confirmExit(){
-    if(!state.dirty) return true;
-    return window.confirm('You have unsaved Trip Studio changes. Discard them and leave Studio Mode?');
-  }
-
 
   /* window.resetTripData is defined in reset-runtime.js (RC11R4), which
      owns the whole reset transaction — RPC, storage, and every local store
@@ -240,11 +219,6 @@
       updateUI();
       return false;
     }
-    if(!enabled && state.dirty){
-      const leave=confirmExit();
-      if(!leave){ updateUI(); return false; }
-      window.discardAdminChanges();
-    }
     state.mode=enabled;
     setStoredMode(enabled);
     if(!enabled) lockAdminSession();
@@ -254,45 +228,9 @@
     return true;
   };
 
-  window.markAdminDirty=function(changeKey,payload){
-    if(!state.mode) return false;
-    const draft=ensureDraft();
-    draft.changes[String(changeKey||'general')]=payload==null?true:payload;
-    draft.updatedAt=new Date().toISOString();
-    STORAGE.local.writeJSON(DRAFT_KEY,draft);
-    state.dirty=true;
-    updateUI();
-    document.dispatchEvent(new CustomEvent('travelengine:admindirty',{detail:{changeKey,payload}}));
-    return true;
-  };
-
-  window.getAdminDraft=function(){ return JSON.parse(JSON.stringify(ensureDraft())); };
   window.isAdminMode=function(){ return state.mode && isUnlocked() && isAdminUser(); };
   window.isAdminUnlocked=function(){ return isUnlocked() && isAdminUser(); };
-  window.hasUnsavedAdminChanges=function(){ return state.dirty; };
-
-  window.saveAdminChanges=function(){
-    if(!state.mode || !state.dirty) return true;
-    const draft=ensureDraft();
-    document.dispatchEvent(new CustomEvent('travelengine:adminsave',{detail:{draft:JSON.parse(JSON.stringify(draft))}}));
-    draft.changes={};
-    draft.updatedAt=new Date().toISOString();
-    STORAGE.local.writeJSON(DRAFT_KEY,draft);
-    state.dirty=false;
-    updateUI();
-    return true;
-  };
-
-  window.discardAdminChanges=function(){
-    const draft=ensureDraft();
-    document.dispatchEvent(new CustomEvent('travelengine:admindiscard',{detail:{draft:JSON.parse(JSON.stringify(draft))}}));
-    draft.changes={};
-    draft.updatedAt=new Date().toISOString();
-    STORAGE.local.writeJSON(DRAFT_KEY,draft);
-    state.dirty=false;
-    updateUI();
-    return true;
-  };
+  window.hasUnsavedAdminChanges=function(){ return false; };
 
   window.openTripStudioPanel=openTripStudioPanel;
   window.closeTripStudioPanel=closeTripStudioPanel;
@@ -312,8 +250,6 @@
 
   const originalSetFriend=window.setFriend||setFriend;
   window.setFriend=function(key){
-    if(state.mode&&state.dirty&&!confirmExit()) return;
-    if(state.mode&&state.dirty) window.discardAdminChanges();
     if(key!==ADMIN_USER){ state.mode=false; setStoredMode(false); lockAdminSession(); }
     originalSetFriend(key);
     state.mode=readMode();
@@ -322,15 +258,8 @@
     document.dispatchEvent(new CustomEvent('travelengine:adminmodechange',{detail:{enabled:state.mode}}));
   };
 
-  /* Pending Admin changes are intentionally allowed to travel across pages.
-     The draft is already persisted under DRAFT_KEY by markAdminDirty(), so normal
-     in-app navigation must never commit, discard, or prompt. Only the explicit
-     Save Changes button commits the draft to itinerary overrides. */
-
   document.addEventListener('DOMContentLoaded',function(){
     buildShell();
-    state.draft=STORAGE.local.readJSON(DRAFT_KEY,{version:1,changes:{},updatedAt:null});
-    state.dirty=hasDraftChanges(state.draft);
     state.mode=readMode();
     if(STORAGE.local.get(MODE_KEY)==='admin' && !state.mode) setStoredMode(false);
     updateUI();
