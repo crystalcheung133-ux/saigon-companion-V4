@@ -55,7 +55,7 @@ for(const file of htmlFiles){
   const trip=html.indexOf('trip-config.js');
   const storage=html.indexOf('storage.js');
   const bootstrap=html.indexOf('expense-canonical-bootstrap.js?v=stage3-2d-vn-wiring-1');
-  const runtime=html.indexOf('expenses-runtime.js?v=stage3-2d-vn-wiring-1');
+  const runtime=html.indexOf('expenses-runtime.js?v=stage3-2h-vn-r5');
   assert(trip>=0&&trip<storage&&storage<bootstrap&&bootstrap<runtime,`${file} production script order`);
 }
 

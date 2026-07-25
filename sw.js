@@ -1,4 +1,4 @@
-const CACHE_NAME='ccmv-vn-stage32h-studio-management-r3';
+const CACHE_NAME = 'ccmv-vn-stage3-2h-r4';
 const ASSETS = [
   './',
   './index.html',
