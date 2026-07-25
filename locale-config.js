@@ -1,0 +1,1 @@
+(function(root){'use strict';root.LOCALE_CONFIG=Object.freeze({language:'en',locale:'en-US',timezone:'Asia/Ho_Chi_Minh',currency:Object.freeze({code:'VND',symbol:'₫',name:'Vietnamese dong'})});})(globalThis);
