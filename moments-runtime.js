@@ -170,15 +170,25 @@ function formatTime(iso){
     window.visualViewport.addEventListener('scroll',queueAppNavSync);
   }
   window.removeMomentPhoto=function(){ clearMomentPhoto(true); };
+  /* Stage 2.6: the trip's day keys, derived from the actual canonical
+     itinerary data rather than an assumed 1-5 range, so Moments keeps
+     resolving day context correctly for Day 6, Day 10, or any other
+     day count. */
+  function tripDayKeys(){
+    return Object.keys(VN_PRESENTATION.itineraryData||{}).sort((a,b)=>Number(a)-Number(b));
+  }
+  function tripDayCount(){
+    return tripDayKeys().length;
+  }
   function normaliseDayId(value){
     if(value == null) return null;
     const raw=String(value);
-    if(/^day[1-5]$/.test(raw)) return raw;
-    if(/^[1-5]$/.test(raw)) return 'day'+raw;
+    if(/^day([1-9]\d*)$/.test(raw)) return raw;
+    if(/^([1-9]\d*)$/.test(raw)) return 'day'+raw;
     return null;
   }
   function dayNumberFromId(dayId){
-    const match=String(dayId||'').match(/day([1-5])/);
+    const match=String(dayId||'').match(/day(\d+)/);
     return match ? match[1] : null;
   }
   function itineraryItems(){
@@ -195,7 +205,7 @@ function formatTime(iso){
     const links=VN_PRESENTATION.dayLinks[placeKey]||[];
     return links.map(link=>{
       const href=Array.isArray(link)?link[1]:'';
-      const dayMatch=String(href||'').match(/[?&]day=([1-5])/);
+      const dayMatch=String(href||'').match(/[?&]day=(\d+)/);
       const idMatch=String(href||'').match(/#([^#?&]+)/);
       if(!dayMatch||!idMatch) return null;
       const item=itineraryItems().find(x=>x._dayNumber===dayMatch[1]&&x.id===decodeURIComponent(idMatch[1]));
@@ -235,11 +245,14 @@ function formatTime(iso){
     return {contextType:'planned-activity',placeKey:item.placeId||null,activityId:item.id,dayId:normaliseDayId(item.dayId)||('day'+dayNumber),displayTitleSnapshot:stripMomentTitle(item.title)};
   }
   function suggestedMomentDay(){
-    const start=new Date(2026,9,30);
+    const startDate=VN_PRESENTATION.trip?.startDate;
+    const [y,m,d]=(startDate||'').split('-').map(Number);
+    const start=(y&&m&&d)?new Date(y,m-1,d):new Date(2026,9,30);
     const today=new Date();
     const local=new Date(today.getFullYear(),today.getMonth(),today.getDate());
     const diff=Math.round((local-start)/86400000);
-    return diff>=0&&diff<=4 ? String(diff+1) : '1';
+    const maxIndex=Math.max(0,tripDayCount()-1);
+    return diff>=0&&diff<=maxIndex ? String(diff+1) : '1';
   }
   function renderMomentContextSummary(){
     const box=document.getElementById('momentContextSummary');
@@ -267,7 +280,7 @@ function formatTime(iso){
        Planned activity card — returning to free capture is done by closing the composer and choosing
        the other card instead. Only render the chip for the general-entry "+Add planned activity" path. */
     const customChoiceHTML=momentEntryIsPlanned ? '' : `<button type="button" class="moment-custom-choice" onclick="clearMomentActivity()">✨ Just this moment</button>`;
-    host.innerHTML=`${customChoiceHTML}<div class="moment-day-tabs">${['1','2','3','4','5'].map(n=>`<button type="button" class="moment-day-tab ${n===momentSelectorDay?'active':''}" onclick="setMomentSelectorDay('${n}')">Day ${n}</button>`).join('')}</div><div class="moment-activity-grid">${chips}</div>`;
+    host.innerHTML=`${customChoiceHTML}<div class="moment-day-tabs">${tripDayKeys().map(n=>`<button type="button" class="moment-day-tab ${n===momentSelectorDay?'active':''}" onclick="setMomentSelectorDay('${n}')">Day ${n}</button>`).join('')}</div><div class="moment-activity-grid">${chips}</div>`;
   }
   function ensureMomentContextUI(){
     const form=document.querySelector('#momentsModal .moments-form');

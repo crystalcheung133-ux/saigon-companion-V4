@@ -3,6 +3,12 @@
    Vietnam-specific values are supplied by config/data modules. */
 (function(){
   const DAY_RENDER_DATA = VN_PRESENTATION.itineraryData;
+  /* Stage 2.6: derive the trip's day range from the actual canonical
+     itinerary data instead of assuming a fixed 5-day trip, so swipe
+     navigation keeps working for Day 6, Day 10, or any other day count. */
+  const dayNumbers = Object.keys(DAY_RENDER_DATA).map(Number).filter(n=>!Number.isNaN(n));
+  const minDayNumber = dayNumbers.length ? Math.min(...dayNumbers) : 1;
+  const maxDayNumber = dayNumbers.length ? Math.max(...dayNumbers) : 1;
   function esc(value){return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
   const params = new URLSearchParams(location.search);
   const day = params.get('day') || '1';
@@ -126,7 +132,7 @@
     const dy = t.clientY - touchStartY;
     if(Math.abs(dx) < 64 || Math.abs(dx) < Math.abs(dy) * 1.25) return;
     const current = Number(day);
-    if(dx < 0 && current < 5) location.href = `day.html?day=${current + 1}`;
-    if(dx > 0 && current > 1) location.href = `day.html?day=${current - 1}`;
+    if(dx < 0 && current < maxDayNumber) location.href = `day.html?day=${current + 1}`;
+    if(dx > 0 && current > minDayNumber) location.href = `day.html?day=${current - 1}`;
   }, {passive:true});
 })();

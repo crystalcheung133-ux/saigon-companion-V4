@@ -32,8 +32,11 @@ function renderDashboard(){
   if(!checks.length) return;
   const stored=STORAGE.local.readJSON(STORAGE_CONFIG.keys.checklist,[]);
   const done=stored.filter(Boolean).length;
-  const total=10;
-  const percent=Math.round((done/total)*100);
+  /* Stage 2.6: total is derived from the actual number of checklist items
+     present (falling back to the stored checklist length if the checklist
+     markup isn't on the current page), never a fixed trip-length constant. */
+  const total=document.querySelectorAll('[data-check]').length||stored.length||checks.length;
+  const percent=total?Math.round((done/total)*100):0;
   const pct=document.getElementById('dashReadyPercent');
   const bar=document.getElementById('dashReadyBar');
   const count=document.getElementById('dashChecklistCount');

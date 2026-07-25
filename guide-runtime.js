@@ -73,10 +73,11 @@ document.addEventListener('DOMContentLoaded',applyGuideHashView);
 function openGuideCategory(cat){
  saveGuideNavigationContext(cat);
  const list=(VN_PRESENTATION.categories[cat]||[]).slice().sort((a,b)=>String(a.title||'').localeCompare(String(b.title||'')));
- if(cat==='SHOP'){
+ const directoryId=(VN_PRESENTATION.directoryCategories||{})[cat];
+ if(directoryId){
   const directoryRow=`<button data-action="shopping-directory"><span><span class="guide-list-title">🛍 Shopping Directory</span><span class="guide-list-sub">Optional shops · Near · Best with Day</span></span><span>↓</span></button>`;
   const rows=directoryRow+list.map(i=>`<button data-action="place" data-place-id="${i.key}"><span><span class="guide-list-title">${i.emoji} ${i.title}</span><span class="guide-list-sub">${i.sub||''}</span></span><span>›</span></button>`).join('');
-  $('guideModalContent').innerHTML=`<p class="kicker">Guide</p><h2>SHOP</h2><div class="category-pop-list">${rows}</div>`;
+  $('guideModalContent').innerHTML=`<p class="kicker">Guide</p><h2>${cat}</h2><div class="category-pop-list">${rows}</div>`;
   closeMiniMenus();$('guideModal').classList.add('show');return;
  }
  if(list.length===1){closeMiniMenus();openGuideModal(list[0].key);return;}

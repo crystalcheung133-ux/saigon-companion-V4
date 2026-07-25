@@ -1,8 +1,41 @@
 /* vietnam-canonical-data.js - approved Vietnam trip data mapped to the
-   canonical CCMV entity graph. Frozen prose remains sourced from data.js,
-   but all runtime identity and relationships are established here. */
+   canonical CCMV entity graph.
+
+   Stage 2.6: all trip STRUCTURE (which entities exist, their stable IDs,
+   day/event/place/booking wiring, category taxonomy, Party/Participant
+   membership, and which categories behave as route-first directories) is
+   authored directly in this file and does not depend on the shape of any
+   legacy table. The only remaining dependency on legacy data is CONTENT
+   (prose, times, addresses, hours) which is read exclusively through the
+   `legacyContent` object immediately below - the single, explicit,
+   swappable seam in this file. A second trip can reuse every function and
+   pattern below unchanged by supplying its own `legacyContent`-shaped
+   object sourced from its own content instead of Vietnam's data.js /
+   trip-config.js. */
 (function(root){
   'use strict';
+
+  /* ---------------------------------------------------------------------
+     Legacy content boundary - the ONLY place in this file that reads
+     data.js / trip-config.js globals. Nothing below this block reads
+     PLACES / ITINERARY_DATA / TRIP_CONFIG / BOOKINGS_DATA directly.
+     --------------------------------------------------------------------- */
+  const legacyContent=Object.freeze({
+    trip(){ return TRIP_CONFIG; },
+    participantName(id){ return TRIP_CONFIG.participants.identities[id].name; },
+    place(id){ return PLACES[id]; },
+    dayItem(dayNumber,legacyId){
+      const day=ITINERARY_DATA[String(dayNumber)];
+      const item=day&&day.items.find(value=>value.id===legacyId);
+      if(!item)throw new Error(`Vietnam canonical Event source is missing day ${dayNumber} "${legacyId}"`);
+      return item;
+    },
+    day(dayNumber){ return ITINERARY_DATA[String(dayNumber)]; },
+    allBookings(){ return Object.values(BOOKINGS_DATA); },
+    booking(id){ return BOOKINGS_DATA[id]; }
+  });
+
+  const trip=legacyContent.trip();
 
   const participantIds=['christal','crystal','mero','vivian'];
   const participantEmoji={christal:'🧸',crystal:'👓',mero:'✝️',vivian:'👟'};
@@ -13,12 +46,12 @@
 
   const participants=participantIds.map(id=>({
     id,
-    displayName:TRIP_CONFIG.participants.identities[id].name,
+    displayName:legacyContent.participantName(id),
     presentation:Object.freeze({emoji:participantEmoji[id]})
   }));
   const parties=participantIds.map(id=>({
     id:partyId(id),
-    name:TRIP_CONFIG.participants.identities[id].name,
+    name:legacyContent.participantName(id),
     participantIds:Object.freeze([id]),
     kind:'person',
     presentation:Object.freeze({emoji:participantEmoji[id]})
@@ -41,8 +74,23 @@
     ATTRACTIONS:Object.freeze(['fine-arts','book-street','notre-dame','post-office','pink-church','war-museum']),
     EXPERIENCE:Object.freeze(['cooking'])
   });
+
+  /* Stage 2.6: which categories behave as a route-first "directory" view
+     (Vietnam has exactly one: its Shopping Directory, built from the SHOP
+     category). This is trip data, declared once, by category KEY rather
+     than by a string literal scattered through runtime code - a second
+     trip can list any of its own category keys here (e.g. a "MARKET"
+     category) and the same construction logic below builds a matching
+     Collection with no other file needing to know the category's name. */
+  const routeFirstDirectories=Object.freeze([
+    Object.freeze({id:'shopping-directory',title:'Shopping Directory',categoryKey:'SHOP'})
+  ]);
+  const directoryIdsByCategory=Object.freeze(Object.fromEntries(
+    routeFirstDirectories.map(directory=>[directory.categoryKey,directory.id])
+  ));
+
   const places=guidePlaceIds.map(id=>{
-    const value=PLACES[id];
+    const value=legacyContent.place(id);
     return {
       id,
       name:value.title,
@@ -125,15 +173,14 @@
   ]);
   const eventRows=[];
   eventSpecs.forEach(([dayNumber,legacyId,placeId,bookingId,guidePlaceIdsForCard,showShoppingDirectory],index)=>{
-      const day=ITINERARY_DATA[String(dayNumber)];
-      const item=day.items.find(value=>value.id===legacyId);
-      if(!item)throw new Error(`Vietnam canonical Event source is missing day ${dayNumber} "${legacyId}"`);
+      const item=legacyContent.dayItem(dayNumber,legacyId);
+      const day=legacyContent.day(dayNumber);
       const dayOrder=day.items.indexOf(item);
       eventRows.push({
         id:eventId(dayNumber,legacyId),
         title:item.title,
-        date:TRIP_CONFIG.startDate && new Date(`${TRIP_CONFIG.startDate}T00:00:00Z`)
-          ? new Date(Date.parse(`${TRIP_CONFIG.startDate}T00:00:00Z`)+(Number(dayNumber)-1)*86400000).toISOString().slice(0,10)
+        date:trip.startDate && new Date(`${trip.startDate}T00:00:00Z`)
+          ? new Date(Date.parse(`${trip.startDate}T00:00:00Z`)+(Number(dayNumber)-1)*86400000).toISOString().slice(0,10)
           : null,
         timeText:item.time,
         placeId:placeId||null,
@@ -169,7 +216,7 @@
     'workshop-coffee':Object.freeze([['day1','nha-suga']])
   });
   const guideEntries=guidePlaceIds.map(placeId=>{
-    const value=PLACES[placeId];
+    const value=legacyContent.place(placeId);
     const direct=eventRows.filter(event=>event.placeId===placeId&&event.eventType!=='buffer').map(event=>event.id);
     const extras=(extraGuideEventLinks[placeId]||[]).map(([dayId,legacyId])=>eventByLegacy.get(`${dayId}:${legacyId}`)).filter(Boolean);
     const relatedEventIds=[...new Set([...direct,...extras])];
@@ -188,7 +235,7 @@
       relatedCollectionIds:Object.freeze([
         'guide-all',
         `guide-category-${categorySlug(value.cat)}`,
-        ...(value.cat==='SHOP'?['shopping-directory']:[])
+        ...(directoryIdsByCategory[value.cat]?[directoryIdsByCategory[value.cat]]:[])
       ]),
       presentation:Object.freeze({
         legacyPlaceId:placeId,
@@ -214,11 +261,13 @@
       items:Object.freeze(items.map(placeId=>Object.freeze({ref:Object.freeze({type:'GuideEntry',id:guideId(placeId)})})))
     });
   });
-  collections.push({
-    id:'shopping-directory',
-    title:'Shopping Directory',
-    collectionType:'routeFirstDirectory',
-    items:Object.freeze(categoryMembers.SHOP.map(placeId=>Object.freeze({ref:Object.freeze({type:'GuideEntry',id:guideId(placeId)})})))
+  routeFirstDirectories.forEach(directory=>{
+    collections.push({
+      id:directory.id,
+      title:directory.title,
+      collectionType:'routeFirstDirectory',
+      items:Object.freeze((categoryMembers[directory.categoryKey]||[]).map(placeId=>Object.freeze({ref:Object.freeze({type:'GuideEntry',id:guideId(placeId)})})))
+    });
   });
 
   const bookingEventMap={
@@ -230,7 +279,7 @@
     'cooking-class-booking':'cooking',
     'airport-transfer-booking':'tan-son-nhat-airport'
   };
-  const bookings=Object.values(BOOKINGS_DATA).map(value=>({
+  const bookings=legacyContent.allBookings().map(value=>({
     id:value.id,
     bookingType:value.type,
     status:value.status,
@@ -257,25 +306,25 @@
     })
   }));
 
-  const trip={
-    id:TRIP_CONFIG.id,
+  const canonicalTrip={
+    id:trip.id,
     schemaVersion:1,
-    name:TRIP_CONFIG.name,
-    destinationLabel:TRIP_CONFIG.destination,
+    name:trip.name,
+    destinationLabel:trip.destination,
     countryCode:'VN',
-    startDate:TRIP_CONFIG.startDate,
-    endDate:TRIP_CONFIG.endDate,
+    startDate:trip.startDate,
+    endDate:trip.endDate,
     timezone:'Asia/Ho_Chi_Minh',
     homeCurrency:'AUD',
     tripCurrency:'VND',
     partyIds:Object.freeze(participantIds.map(partyId)),
     participantIds:Object.freeze(participantIds.slice()),
-    defaultPartyId:partyId(TRIP_CONFIG.participants.defaultKey),
+    defaultPartyId:partyId(trip.participants.defaultKey),
     presentationMetadata:Object.freeze({tripType:'friends-trip'})
   };
 
   const canonical=CCMV_CANONICAL.create({
-    trips:[trip],
+    trips:[canonicalTrip],
     parties,
     participants,
     places,

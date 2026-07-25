@@ -7,10 +7,33 @@
   const model=VN_CANONICAL.model;
   const trip=model.trips['ccmv-vietnam-2026'];
   const categoryCollections=Object.values(model.collections).filter(c=>c.collectionType==='guideCategory');
+  /* Stage 2.6: which Guide category key(s) have a route-first "directory"
+     view, and which Collection backs each one - derived entirely from the
+     canonical graph (any Collection whose collectionType is
+     'routeFirstDirectory', keyed by its member GuideEntries' categoryId).
+     No category name/code is hardcoded here or in any runtime module that
+     consumes this map; a trip with a differently-named shopping-like
+     category is supported automatically as long as its canonical data
+     declares a routeFirstDirectory Collection for that category. */
+  const directoryCategories=Object.freeze(Object.fromEntries(
+    Object.values(model.collections)
+      .filter(c=>c.collectionType==='routeFirstDirectory')
+      .map(collection=>{
+        const firstItem=collection.items[0];
+        const firstEntry=firstItem&&model.guideEntries[firstItem.ref.id];
+        return firstEntry?[firstEntry.categoryId,collection.id]:null;
+      })
+      .filter(Boolean)
+  ));
 
   function legacyPlace(entry){
     const place=model.places[entry.sourceRef.id];
     const frozen=PLACES[entry.presentation.legacyPlaceId];
+    /* Stage 2.6: canonical values are authoritative. Legacy `frozen` values
+       are read only as an explicit fallback when the canonical field is
+       absent/empty - never as an override of a present canonical value. */
+    const canonicalHighlights=entry.highlights&&entry.highlights.length?entry.highlights:null;
+    const canonicalGoodToKnow=entry.goodToKnow&&entry.goodToKnow.length?entry.goodToKnow:null;
     return Object.freeze({
       title:entry.title,
       emoji:entry.presentation.emoji,
@@ -26,8 +49,11 @@
       price:entry.priceText,
       transport:entry.presentation.transport,
       audit:entry.presentation.audit,
-      highlights:Object.freeze((frozen.highlights||entry.highlights||[]).slice()),
-      tips:Object.freeze((frozen.tips||entry.goodToKnow||[]).slice()),
+      highlights:Object.freeze((canonicalHighlights||frozen.highlights||[]).slice()),
+      tips:Object.freeze((canonicalGoodToKnow||frozen.tips||[]).slice()),
+      /* website has no canonical Place field populated for Vietnam today,
+         so this remains a legitimate fallback (canonical data is absent),
+         not an override of a present canonical value. */
       ...(frozen.website?{website:frozen.website}:{})
     });
   }
@@ -40,12 +66,15 @@
     collection.title,
     Object.freeze(collection.items.map(item=>{
       const entry=model.guideEntries[item.ref.id];
+      /* Stage 2.6: canonical entry values are authoritative; the legacy
+         CATEGORIES row is read only as a fallback when a canonical value
+         is missing (nullish), never as an override of a present one. */
       const frozen=(CATEGORIES[collection.title]||[]).find(value=>value.key===entry.presentation.legacyPlaceId)||{};
       return Object.freeze({
         key:entry.presentation.legacyPlaceId,
-        emoji:frozen.emoji??entry.presentation.emoji,
-        title:frozen.title??entry.title,
-        sub:frozen.sub??entry.subtitle
+        emoji:entry.presentation.emoji??frozen.emoji,
+        title:entry.title??frozen.title,
+        sub:entry.subtitle??frozen.sub
       });
     }))
   ])));
@@ -176,6 +205,7 @@
     days:Object.freeze(TRIP_CONFIG.days.map(day=>Object.freeze({...day}))),
     places,
     categories,
+    directoryCategories,
     dayLinks:Object.freeze(dayLinks),
     guideOrder,
     tripData:TRIP_DATA,

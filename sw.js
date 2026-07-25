@@ -1,4 +1,4 @@
-const CACHE_NAME='ccmv-vn-rc4-4';
+const CACHE_NAME='ccmv-vn-rc4-4-stage26';
 const ASSETS = [
   './',
   './index.html',
