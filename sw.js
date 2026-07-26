@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ccmv-vn-stage3-2h-r4';
+const CACHE_NAME='ccmv-vn-c1-4';
 const ASSETS = [
   './',
   './index.html',
@@ -18,18 +18,12 @@ const ASSETS = [
   './moments-runtime.js',
   './expense-canonical-bootstrap.js',
   './expense-calculator.js',
-  './money.js',
-  './money-config.js',
-  './formatter.js',
-  './locale-config.js',
-  './admin.js',
-  './complete-runtime.js',
-  './reset-runtime.js',
   './legacy-expense-adapter.js',
   './canonical-expense-repository.js',
   './canonical-expense-core.js',
   './canonical-expense-local-provider.js',
   './expense-dual-write.js',
+  './expense-read-shadow.js',
   './expenses-runtime.js',
   './app-runtime.js',
   './pwa.js',
