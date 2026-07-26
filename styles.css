@@ -2208,3 +2208,80 @@ body.currency-keyboard-open{
  .expense-party-choices{grid-template-columns:1fr 1fr}
 }
 .expense-post-save-note{margin:0;text-align:center;font-size:12px;color:var(--muted)}
+
+/* VN-C1.2 — mobile expense layout correction */
+.expense-type-btn.active,.split-mode-btn.active{
+  background:#6f9878!important;
+  color:#fff!important;
+  box-shadow:0 3px 10px rgba(55,96,67,.22)!important;
+}
+.expense-entry-sheet .tool-transaction-history{
+  order:99;
+  margin-top:16px!important;
+  padding-top:14px!important;
+  border-top:1px solid var(--line)!important;
+  max-height:none!important;
+  overflow:visible!important;
+}
+.expense-post-save-note{display:none!important}
+
+@media(max-width:520px){
+  .expense-entry-modal{padding:6px!important;align-items:flex-start!important}
+  .expense-entry-sheet{
+    width:100%!important;
+    max-height:calc(100dvh - 12px)!important;
+    padding:18px 12px 16px!important;
+    border-radius:24px!important;
+  }
+  .expense-entry-sheet .expense-form{gap:10px!important;margin-top:12px!important}
+  .expense-entry-sheet .kicker{margin-bottom:4px!important}
+  .expense-entry-sheet h2{font-size:34px!important;line-height:1.05!important;margin:4px 0 10px!important}
+  .expense-type-btn,.split-mode-btn{min-height:48px!important}
+  .expense-field-label,.expense-control-group>label{font-size:16px!important}
+  .expense-entry-sheet input:not([type=checkbox]),.expense-select,.expense-split-summary{min-height:50px!important;padding:10px 12px!important}
+  .expense-amount-row{grid-template-columns:minmax(0,1fr) 64px 52px!important;gap:6px!important}
+  .expense-field-clear,.expense-calculator-btn,.custom-clear-btn,.custom-remainder-btn{
+    min-width:0!important;
+    min-height:50px!important;
+    padding:0 6px!important;
+    border-radius:14px!important;
+    font-size:14px!important;
+  }
+  .expense-calculator-btn,.custom-remainder-btn{font-size:20px!important}
+  .expense-shared-controls{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:8px!important}
+  .expense-control-group{min-width:0!important;gap:6px!important}
+  .expense-select,.expense-split-summary{font-size:15px!important;min-width:0!important}
+  .expense-party-choices{padding:9px!important;gap:6px!important}
+  .expense-split-mode{margin-top:0!important}
+  .custom-split-panel{padding:10px 8px!important;gap:8px!important;border-radius:16px!important}
+  .custom-split-row{
+    grid-template-columns:76px minmax(0,1fr)!important;
+    gap:6px!important;
+    min-width:0!important;
+  }
+  .custom-party-label{gap:4px!important;font-size:14px!important;white-space:nowrap!important;overflow:visible!important}
+  .custom-party-label .party-emoji{font-size:14px!important}
+  .custom-split-field{
+    grid-template-columns:minmax(58px,1fr) 66px 52px!important;
+    gap:5px!important;
+    min-width:0!important;
+  }
+  .custom-split-field input{font-size:17px!important;padding:8px 10px!important;min-width:0!important}
+  .custom-split-status{font-size:13px!important}
+  .expense-save-button{
+    position:static!important;
+    min-height:56px!important;
+    margin-top:2px!important;
+    box-shadow:none!important;
+  }
+  .expense-entry-sheet .tool-transaction-history{margin-top:12px!important;padding-top:12px!important}
+}
+
+@media(max-width:390px){
+  .expense-shared-controls{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}
+  .custom-split-row{grid-template-columns:72px minmax(0,1fr)!important}
+  .custom-split-field{grid-template-columns:minmax(52px,1fr) 62px 48px!important;gap:4px!important}
+  .custom-party-label{font-size:13px!important}
+  .custom-party-label .party-emoji{font-size:13px!important}
+  .expense-field-clear,.custom-clear-btn{font-size:13px!important}
+}
