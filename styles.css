@@ -2454,3 +2454,55 @@ body.currency-keyboard-open{
   #expenseModal .custom-remainder-btn{width:40px!important;min-width:40px!important}
   #expenseModal .calculator-icon{width:20px!important;height:20px!important}
 }
+
+/* VN-C1.6 — keep party identity fully outside custom amount controls on mobile */
+@media(max-width:520px){
+  #expenseModal .custom-split-row{
+    grid-template-columns:132px minmax(0,1fr)!important;
+    column-gap:6px!important;
+  }
+  #expenseModal .custom-party-label{
+    padding-right:6px!important;
+    box-sizing:border-box!important;
+    overflow:hidden!important;
+  }
+  #expenseModal .custom-party-label>span:last-child{
+    overflow:hidden!important;
+    text-overflow:clip!important;
+  }
+  #expenseModal .custom-split-field{
+    grid-template-columns:minmax(38px,1fr) 50px 40px!important;
+    gap:3px!important;
+  }
+  #expenseModal .custom-clear-btn{
+    width:50px!important;
+    min-width:50px!important;
+    font-size:11.5px!important;
+  }
+  #expenseModal .custom-remainder-btn{
+    width:40px!important;
+    min-width:40px!important;
+  }
+}
+@media(max-width:390px){
+  #expenseModal .custom-split-row{
+    grid-template-columns:124px minmax(0,1fr)!important;
+  }
+  #expenseModal .custom-party-label{
+    font-size:11.5px!important;
+    padding-right:5px!important;
+  }
+  #expenseModal .custom-split-field{
+    grid-template-columns:minmax(34px,1fr) 47px 38px!important;
+    gap:3px!important;
+  }
+  #expenseModal .custom-clear-btn{
+    width:47px!important;
+    min-width:47px!important;
+    font-size:11px!important;
+  }
+  #expenseModal .custom-remainder-btn{
+    width:38px!important;
+    min-width:38px!important;
+  }
+}
