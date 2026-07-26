@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ccmv-vietnam-vn-c2b1-1';
+const CACHE_NAME='ccmv-vn-3-0-production-frozen';
 const ASSETS = [
   './',
   './index.html',
@@ -98,7 +98,8 @@ self.addEventListener('fetch', event => {
   if (url.origin !== self.location.origin) return;
 
   const acceptsHtml = event.request.headers.get('accept')?.includes('text/html');
-  if (event.request.mode === 'navigate' || acceptsHtml) {
+  const criticalUiAsset = /\/(styles\.css|admin\.js)$/.test(url.pathname);
+  if (event.request.mode === 'navigate' || acceptsHtml || criticalUiAsset) {
     event.respondWith(networkFirst(event.request));
   } else {
     event.respondWith(staleWhileRevalidate(event.request));

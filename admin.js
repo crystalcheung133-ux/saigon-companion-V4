@@ -1,11 +1,10 @@
-/* admin.js — VN-C2B.1 Crystal-only Trip Studio + Export Centre entry. */
+/* admin.js — VN 3.0 Production: Crystal-only Trip Studio. */
 (function(root){
   'use strict';
   const ADMIN_PARTY='crystal';
   const ADMIN_PIN='260922';
   const SESSION_KEY='ccmv_vietnam_admin_unlocked_v1';
   const MODE_KEY=(root.STORAGE_CONFIG&&root.STORAGE_CONFIG.keys.adminMode)||'ccmv_vietnam_admin_mode_v1';
-  const state={open:false};
 
   function isCrystal(){ return typeof root.getFriend==='function' && root.getFriend()===ADMIN_PARTY; }
   function isUnlocked(){ try{return sessionStorage.getItem(SESSION_KEY)==='1';}catch(_){return false;} }
@@ -16,14 +15,11 @@
   function removeAdminDom(){
     ['vnTripStudioEntry','vnTripStudioModal','vnAdminPinModal','vnStudioBanner'].forEach(id=>document.getElementById(id)?.remove());
     document.body.classList.remove('vn-studio-mode','vn-studio-open','vn-admin-pin-open');
-    state.open=false;
   }
 
   function syncModeUi(){
     const on=readMode();
     document.body.classList.toggle('vn-studio-mode',on);
-    const toggle=document.getElementById('vnStudioModeToggle');
-    if(toggle) toggle.checked=on;
     const banner=document.getElementById('vnStudioBanner');
     if(banner) banner.hidden=!on;
   }
@@ -32,7 +28,6 @@
     const modal=document.getElementById('vnTripStudioModal');
     if(modal){modal.classList.remove('show');modal.setAttribute('aria-hidden','true');}
     document.body.classList.remove('vn-studio-open');
-    state.open=false;
   }
 
   function openStudio(){
@@ -42,28 +37,54 @@
     modal.classList.add('show');
     modal.setAttribute('aria-hidden','false');
     document.body.classList.add('vn-studio-open');
-    state.open=true;
     modal.querySelector('.vn-trip-studio-scroll')?.scrollTo(0,0);
     syncModeUi();
+    syncLifecycleUi();
+  }
+
+  function syncPinViewport(){
+    const modal=document.getElementById('vnAdminPinModal');
+    if(!modal||modal.hidden) return;
+    const viewport=root.visualViewport;
+    if(viewport){
+      modal.style.top=`${viewport.offsetTop}px`;
+      modal.style.left=`${viewport.offsetLeft}px`;
+      modal.style.width=`${viewport.width}px`;
+      modal.style.height=`${viewport.height}px`;
+    }
+  }
+
+  function resetPinViewport(){
+    const modal=document.getElementById('vnAdminPinModal');
+    if(!modal) return;
+    modal.style.top='';modal.style.left='';modal.style.width='';modal.style.height='';
+  }
+
+  function focusPinInput(input){
+    const focus=()=>{try{input.focus({preventScroll:true});input.setSelectionRange(input.value.length,input.value.length);}catch(_){}};
+    focus();requestAnimationFrame(focus);setTimeout(focus,80);setTimeout(focus,220);
   }
 
   function openPin(){
     if(!isCrystal()) return;
-    if(isUnlocked()){openStudio();return;}
+    if(isUnlocked()){writeMode(true);openStudio();return;}
     buildPin();
     const modal=document.getElementById('vnAdminPinModal');
     modal.hidden=false;
     document.body.classList.add('vn-admin-pin-open');
+    syncPinViewport();
     const input=modal.querySelector('#vnAdminPinInput');
     input.value='';
     modal.querySelector('#vnAdminPinError').hidden=true;
-    setTimeout(()=>input.focus(),80);
+    focusPinInput(input);
   }
 
   function closePin(){
     const modal=document.getElementById('vnAdminPinModal');
     if(modal) modal.hidden=true;
+    resetPinViewport();
     document.body.classList.remove('vn-admin-pin-open');
+    if(!isUnlocked()){writeMode(false);syncModeUi();}
   }
 
   function buildPin(){
@@ -86,9 +107,20 @@
     input.addEventListener('input',()=>{input.value=input.value.replace(/\D/g,'').slice(0,6);modal.querySelector('#vnAdminPinError').hidden=true;});
     modal.querySelector('#vnAdminPinForm').addEventListener('submit',e=>{
       e.preventDefault();
-      if(input.value===ADMIN_PIN){setUnlocked(true);closePin();openStudio();}
+      if(input.value===ADMIN_PIN){setUnlocked(true);writeMode(true);closePin();openStudio();}
       else{const error=modal.querySelector('#vnAdminPinError');error.hidden=false;input.classList.remove('shake');void input.offsetWidth;input.classList.add('shake');input.select();}
     });
+  }
+
+
+  function syncLifecycleUi(){
+    const done=!!root.VN_LIFECYCLE?.isComplete?.();
+    const heading=document.getElementById('vnCompleteHeading');
+    const help=document.getElementById('vnCompleteHelp');
+    const button=document.getElementById('vnCompleteTrip');
+    if(heading)heading.textContent=done?'Reopen Trip':'Complete Trip';
+    if(help)help.textContent=done?'Restore editing and lock post-trip outputs again.':'Lock editing and unlock post-trip outputs.';
+    if(button)button.textContent=done?'Reopen Trip':'Complete Trip';
   }
 
   function disabledAction(label){
@@ -108,13 +140,13 @@
       <div class="vn-trip-studio-scroll">
         <div class="vn-trip-studio-card">
           <header class="vn-trip-studio-head"><div><p class="vn-trip-studio-kicker">CREATOR WORKSPACE</p><h2 id="vnTripStudioTitle">Trip Studio</h2><p>Create, refine and manage this companion.</p></div><button type="button" class="vn-trip-studio-close" aria-label="Close Trip Studio">×</button></header>
-          <label class="vn-studio-mode-row"><span><strong>Studio Mode</strong><small>Turn on editing tools for itinerary and trip data.</small></span><input id="vnStudioModeToggle" type="checkbox" aria-label="Studio Mode"><i aria-hidden="true"></i></label>
-          <div class="vn-studio-section"><p class="vn-studio-label">TRIP MANAGEMENT</p>
+          <div class="vn-studio-session-row"><span><strong>Crystal Studio session</strong><small>Exit clears authentication and requires the PIN next time.</small></span><button type="button" id="vnExitStudio" class="vn-studio-exit">Exit Studio</button></div>
+          <div class="vn-studio-section vn-studio-management-section"><p class="vn-studio-label">TRIP MANAGEMENT</p>
             <button type="button" class="vn-studio-action is-disabled" id="vnPublishTrip"><span><strong>Publish Latest Trip</strong><small>Publish the saved trip directly to every Companion.</small></span><b aria-hidden="true">☁️</b></button>
-            <div class="vn-studio-complete is-disabled"><strong>Complete Trip</strong><small>Lock editing and unlock post-trip outputs.</small><button type="button" id="vnCompleteTrip">Complete Trip</button></div>
+            <div class="vn-studio-complete"><strong id="vnCompleteHeading">Complete Trip</strong><small id="vnCompleteHelp">Lock editing and unlock post-trip outputs.</small><button type="button" id="vnCompleteTrip">Complete Trip</button></div>
           </div>
-          <div class="vn-studio-section"><p class="vn-studio-label">EXPORT CENTRE</p><button type="button" class="vn-studio-action" id="vnOpenExport"><span><strong>Open Export Centre</strong><small>Itinerary and expenses are available anytime.</small></span><b aria-hidden="true">›</b></button></div>
-          <div class="vn-studio-section vn-studio-danger-section"><p class="vn-studio-label">DATA CONTROL</p><button type="button" class="vn-studio-action vn-studio-danger is-disabled" id="vnResetTrip"><span><strong>Reset Trip Data</strong><small>Restore the original trip and remove all saved progress.</small></span><b aria-hidden="true">↺</b></button></div>
+          <div class="vn-studio-section vn-studio-export-section"><p class="vn-studio-label">EXPORT CENTRE</p><button type="button" class="vn-studio-action" id="vnOpenExport"><span><strong>Open Export Centre</strong><small>Itinerary and expenses are available anytime.</small></span><b aria-hidden="true">›</b></button></div>
+          <div class="vn-studio-section vn-studio-danger-section"><p class="vn-studio-label">DATA CONTROL</p><button type="button" class="vn-studio-action vn-studio-danger" id="vnResetTrip"><span><strong>Reset Trip Data</strong><small>Restore the original trip and remove all saved progress.</small></span><b aria-hidden="true">↺</b></button></div>
           <p id="vnStudioStageNote" class="vn-studio-stage-note" hidden></p>
         </div>
       </div>
@@ -122,14 +154,15 @@
     document.body.appendChild(modal);
     modal.querySelector('.vn-trip-studio-close').addEventListener('click',closeStudio);
     modal.addEventListener('click',e=>{if(e.target===modal)closeStudio();});
-    modal.querySelector('#vnStudioModeToggle').addEventListener('change',e=>{
-      if(!isCrystal()){e.target.checked=false;return;}
-      writeMode(e.target.checked);syncModeUi();
+    modal.querySelector('#vnExitStudio').addEventListener('click',()=>{
+      writeMode(false);setUnlocked(false);syncModeUi();
+      root.VN_EXPORT_CENTRE?.close?.();
+      closeStudio();
     });
     modal.querySelector('#vnPublishTrip').addEventListener('click',disabledAction('Publish Latest Trip'));
-    modal.querySelector('#vnCompleteTrip').addEventListener('click',disabledAction('Complete Trip'));
+    modal.querySelector('#vnCompleteTrip').addEventListener('click',()=>{const done=root.VN_LIFECYCLE?.isComplete?.();done?root.VN_LIFECYCLE?.reopenTrip?.():root.VN_LIFECYCLE?.completeTrip?.();syncLifecycleUi();});
     modal.querySelector('#vnOpenExport').addEventListener('click',()=>{ if(root.VN_EXPORT_CENTRE) root.VN_EXPORT_CENTRE.open(); });
-    modal.querySelector('#vnResetTrip').addEventListener('click',disabledAction('Reset Trip Data'));
+    modal.querySelector('#vnResetTrip').addEventListener('click',()=>root.VN_LIFECYCLE?.resetTripData?.());
   }
 
   function buildEntry(){
@@ -146,14 +179,15 @@
   }
 
   function buildBanner(){
-    if(!isCrystal()||document.getElementById('vnStudioBanner')) return;
-    const banner=document.createElement('button');
+    if(!isCrystal()) return;
+    if(document.getElementById('vnStudioBanner')) return;
+    const banner=document.createElement('div');
     banner.id='vnStudioBanner';
-    banner.className='vn-studio-banner';
-    banner.type='button';
+    banner.className='vn-studio-status-band';
+    banner.setAttribute('role','status');
+    banner.setAttribute('aria-live','polite');
     banner.hidden=true;
-    banner.innerHTML='<strong>TRIP STUDIO</strong><span>Studio Mode On</span>';
-    banner.addEventListener('click',openStudio);
+    banner.innerHTML='<strong>TRIP STUDIO</strong><span>All changes saved</span>';
     document.body.appendChild(banner);
   }
 
@@ -165,6 +199,8 @@
   }
 
   root.VN_ADMIN={refresh,onIdentityChanged:refresh,open:openPin,close:closeStudio,isCrystal,readMode};
-  document.addEventListener('DOMContentLoaded',refresh);
+  document.addEventListener('DOMContentLoaded',()=>{refresh();syncLifecycleUi();});
+  document.addEventListener('ccmv:tripcompletionchange',syncLifecycleUi);
+  if(root.visualViewport){root.visualViewport.addEventListener('resize',syncPinViewport);root.visualViewport.addEventListener('scroll',syncPinViewport);}
   document.addEventListener('keydown',e=>{if(e.key==='Escape'){closePin();closeStudio();}});
 })(globalThis);
