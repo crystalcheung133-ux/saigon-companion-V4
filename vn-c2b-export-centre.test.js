@@ -1,0 +1,20 @@
+'use strict';
+const fs=require('fs');
+const assert=require('assert');
+const admin=fs.readFileSync('admin.js','utf8');
+const runtime=fs.readFileSync('export-runtime.js','utf8');
+const css=fs.readFileSync('styles.css','utf8');
+const sw=fs.readFileSync('sw.js','utf8');
+const htmlFiles=['index.html','itinerary.html','expenses.html','day.html','guide.html','place.html','memory.html','moments.html','trip.html','offline.html'];
+const checks=[];
+function check(name,fn){try{fn();checks.push([name,true]);console.log('PASS',name);}catch(error){checks.push([name,false]);console.error('FAIL',name,'-',error.message);}}
+check('Export Centre entry is connected and no longer wired to the disabled-stage handler',()=>{assert(admin.includes("root.VN_EXPORT_CENTRE?.open?.()"));assert(!admin.includes("disabledAction('Export Centre')"));});
+check('Export Centre requires Crystal and active Studio Mode',()=>{assert(runtime.includes("root.VN_ADMIN?.isCrystal?.() && root.VN_ADMIN?.readMode?.()"));assert(admin.includes("Turn on Studio Mode to open Export Centre."));});
+check('Itinerary and Expenses PDF actions are present',()=>{assert(runtime.includes('Itinerary PDF'));assert(runtime.includes('Expenses PDF'));assert(runtime.includes('exportItinerary'));assert(runtime.includes('exportExpenses'));assert(runtime.includes('window.print()'));});
+check('Memory Book and Trip Review are locked',()=>{assert(runtime.includes('<strong>Memory Book</strong>'));assert(runtime.includes('<strong>Trip Review</strong>'));assert((runtime.match(/class=\\"vn-export-card is-locked\\" disabled/g)||[]).length===2);});
+check('Export does not close Export Centre or Studio',()=>{const itinerary=runtime.slice(runtime.indexOf('function exportItinerary'),runtime.indexOf('function calculateExpenses'));const expenses=runtime.slice(runtime.indexOf('function exportExpenses'),runtime.indexOf('function build'));assert(!/close\s*\(/.test(itinerary));assert(!/close\s*\(/.test(expenses));assert(!/VN_ADMIN.*close/.test(runtime));});
+check('Every shipped page loads Export Centre before admin.js',()=>{htmlFiles.forEach(file=>{const text=fs.readFileSync(file,'utf8');assert(text.indexOf('export-runtime.js')>=0,`${file} missing export runtime`);assert(text.indexOf('export-runtime.js')<text.indexOf('admin.js'),`${file} has wrong script order`);});});
+check('Service worker caches the new runtime with a new release cache',()=>{assert(sw.includes("ccmv-vietnam-vn-c2b-1"));assert(sw.includes("'./export-runtime.js'"));});
+check('Export Centre production CSS is present',()=>{assert(css.includes('VN-C2B.1 — Crystal-only Export Centre'));assert(css.includes('.vn-export-centre-modal'));assert(css.includes('.vn-export-card.is-locked'));});
+if(checks.some(([,ok])=>!ok))process.exit(1);
+console.log(`VN-C2B.1 Export Centre: ${checks.length}/${checks.length}`);
