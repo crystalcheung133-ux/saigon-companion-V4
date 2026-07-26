@@ -1,0 +1,36 @@
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const files=['index.html','trip.html','guide.html','itinerary.html','day.html','place.html','memory.html','moments.html','expenses.html'];
+for(const file of files){
+  const html=fs.readFileSync(file,'utf8');
+  assert(html.includes('id="expenseModal"'),`${file}: expense modal`);
+  assert(html.includes('expenses-runtime.js?v=stage3-2h-vn-r5'),`${file}: expense runtime`);
+  assert(html.includes('admin.js?v=stage3-2h-vn-r5'),`${file}: admin runtime`);
+  assert(html.includes('export-runtime.js?v=stage3-2h-vn-r5'),`${file}: export runtime`);
+  const ids=[...html.matchAll(/\bid="([^"]+)"/g)].map(m=>m[1]);
+  assert.equal(ids.length,new Set(ids).size,`${file}: duplicate ids`);
+}
+const expenseHtml=fs.readFileSync('expenses.html','utf8');
+assert.match(expenseHtml,/onclick="openExpenseModal\(\)"/);
+assert.match(expenseHtml,/id="expenseExportButton"[^>]*hidden/);
+const exp=fs.readFileSync('expenses-runtime.js','utf8');
+for(const symbol of ['openExpenseModal','saveExpense','setExpenseSplitMode','calculateCustomRemainder','openExpenseCalculator','clearExpenseField']) assert(exp.includes(symbol),symbol);
+assert(exp.includes("modal.classList.add('show')"));
+assert(exp.includes("MONEY.amountsMatch(allocated,total)"));
+const admin=fs.readFileSync('admin.js','utf8');
+assert(admin.includes("ADMIN_USER='crystal'"));
+assert(admin.includes("ADMIN_PIN='260922'"));
+assert(!admin.includes('adminSaveBtn'));
+assert(!admin.includes('adminDiscardBtn'));
+const ex=fs.readFileSync('export-runtime.js','utf8');
+assert(ex.includes('Open Export Centre'));
+assert(ex.includes('Expense Summary'));
+const complete=fs.readFileSync('complete-runtime.js','utf8');
+assert(complete.includes('Complete Trip'));
+assert(complete.includes('Reopen Trip'));
+const reset=fs.readFileSync('reset-runtime.js','utf8');
+assert(reset.includes('Reset Trip Data'));
+const css=fs.readFileSync('styles.css','utf8');
+assert(css.includes('.tools-modal,.calculator-modal{position:fixed!important'));
+assert(css.includes('.trip-studio .trip-export-launch'));
+console.log('PASS VN Stage 3.2H R5 integration contract: 9 entry points and Studio/Expense capabilities');
