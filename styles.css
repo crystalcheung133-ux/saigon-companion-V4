@@ -2506,3 +2506,39 @@ body.currency-keyboard-open{
     min-width:38px!important;
   }
 }
+
+
+/* VN-C1.7 — full party names + aligned Paid by/For controls */
+#expenseModal .expense-shared-controls{align-items:end!important}
+#expenseModal .expense-control-group{display:grid!important;grid-template-rows:auto 1fr!important;align-content:end!important}
+#expenseModal .expense-control-group>label{display:flex!important;align-items:flex-end!important;min-height:1.35em!important;margin-bottom:5px!important}
+#expenseModal .expense-control-group>.expense-select,
+#expenseModal .expense-control-group>.expense-split-summary{height:100%!important;min-height:46px!important;margin:0!important}
+#expenseModal #expenseConsumedBy[hidden],#expenseModal #splitBySummary[hidden]{display:none!important}
+
+@media(max-width:520px){
+  #expenseModal .custom-split-row{
+    display:grid!important;
+    grid-template-columns:112px minmax(54px,1fr) 50px 40px!important;
+    gap:4px!important;
+    align-items:center!important;
+    width:100%!important;
+    box-sizing:border-box!important;
+  }
+  #expenseModal .custom-party-label{
+    width:auto!important;min-width:0!important;max-width:none!important;
+    padding:0!important;overflow:visible!important;white-space:nowrap!important;
+    font-size:13px!important;line-height:1.1!important;
+  }
+  #expenseModal .custom-party-label>span:last-child{overflow:visible!important;white-space:nowrap!important;text-overflow:clip!important}
+  #expenseModal .custom-split-field{display:contents!important}
+  #expenseModal .custom-split-field input{grid-column:2!important;width:100%!important;min-width:0!important}
+  #expenseModal .custom-clear-btn{grid-column:3!important;width:50px!important;min-width:50px!important}
+  #expenseModal .custom-remainder-btn{grid-column:4!important;width:40px!important;min-width:40px!important}
+}
+@media(max-width:390px){
+  #expenseModal .custom-split-row{grid-template-columns:106px minmax(48px,1fr) 47px 38px!important;gap:3px!important}
+  #expenseModal .custom-party-label{font-size:12.5px!important}
+  #expenseModal .custom-clear-btn{width:47px!important;min-width:47px!important;font-size:11px!important}
+  #expenseModal .custom-remainder-btn{width:38px!important;min-width:38px!important}
+}

@@ -6,11 +6,15 @@ function updateExpenseMode(){
   const splitBlock = document.getElementById('splitBetweenBlock');
   const sharedControls = document.getElementById('sharedControls');
   const splitChoices = document.getElementById('splitPartyChoices');
-  const consumedBlock = document.getElementById('consumedByBlock');
+  const splitSummary = document.getElementById('splitBySummary');
+  const consumed = document.getElementById('expenseConsumedBy');
+  const secondLabel = document.getElementById('expenseSecondControlLabel');
   if(splitBlock) splitBlock.hidden = !!personal;
-  if(sharedControls) sharedControls.hidden = !!personal;
+  if(sharedControls) sharedControls.hidden = false;
   if(splitChoices && personal) splitChoices.hidden = true;
-  if(consumedBlock) consumedBlock.hidden = !personal;
+  if(splitSummary) splitSummary.hidden = !!personal;
+  if(consumed) consumed.hidden = !personal;
+  if(secondLabel) secondLabel.textContent = personal ? 'For' : 'Split by';
   document.querySelectorAll('[data-expense-type]').forEach(btn=>btn.classList.toggle('active',btn.dataset.expenseType===(personal?'personal':'shared')));
   if(personal) syncConsumedIfAuto();
 }
