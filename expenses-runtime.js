@@ -47,7 +47,9 @@ function clearAllSplit() {
 let expenseCalculatorTarget='expenseTotal';
 let expenseCalculatorExpression='';
 function setExpenseType(type){const box=document.getElementById('expensePersonal');if(box){box.checked=type==='personal';updateExpenseMode();}}
-function clearExpenseField(id){const input=document.getElementById(id);if(input){input.value='';input.focus();try{input.dispatchEvent(new Event('input',{bubbles:true}));}catch(e){}}}
+function clearExpenseValidation(id){const input=document.getElementById(id);const error=document.getElementById(id+'Error');if(input)input.classList.remove('expense-field-invalid');if(error)error.hidden=true;}
+function showExpenseValidation(id,message){const input=document.getElementById(id);const error=document.getElementById(id+'Error');if(input)input.classList.add('expense-field-invalid');if(error){error.textContent=message;error.hidden=false;}}
+function clearExpenseField(id){const input=document.getElementById(id);if(input){input.value='';clearExpenseValidation(id);input.focus();try{input.dispatchEvent(new Event('input',{bubbles:true}));}catch(e){}}}
 function toggleSplitChoices(){const panel=document.getElementById('splitPartyChoices');if(panel) panel.hidden=!panel.hidden;}
 function updateSplitSummary(){const selected=[...document.querySelectorAll('#expenseModal input[data-split]:checked')];const all=document.querySelectorAll('#expenseModal input[data-split]').length;const button=document.getElementById('splitBySummary');if(button){const text=selected.length===all?'All':selected.length?`${selected.length} selected`:'None';button.innerHTML=`${text} <span>⌄</span>`;}}
 function openExpenseCalculator(targetId){expenseCalculatorTarget=targetId||'expenseTotal';const target=document.getElementById(expenseCalculatorTarget);expenseCalculatorExpression=String(target?.value||'').replace(/[^0-9.+\-*/()]/g,'');const display=document.getElementById('expenseCalculatorDisplay');if(display)display.textContent=expenseCalculatorExpression||'0';document.getElementById('expenseCalculatorModal')?.classList.add('show');}
@@ -105,7 +107,7 @@ function useExpenseCalculatorResult(){try{const value=Math.round(safeExpenseCalc
     const total=MONEY.normalizeAmount(document.getElementById('expenseTotal')?.value);
     const used=selectedSplit().filter(k=>k!==target).map(k=>document.querySelector(`[data-custom-party="${k}"]`)?.value);
     const remainder=MONEY.automaticRemainder(total,used);
-    if(remainder<0) return alert(`Other amounts exceed total by ${Math.abs(remainder).toLocaleString()} VND.`);
+    if(remainder<0){const status=document.getElementById('customSplitStatus');if(status){status.className='custom-split-status invalid';status.textContent=`Over-allocated by ${Math.abs(remainder).toLocaleString()} VND.`;}return;}
     const input=document.querySelector(`[data-custom-party="${target}"]`); if(input){input.value=String(remainder);recalculateCustomSplit();}
   };
   window.autofillCustomRemainderOnExit=function(){
@@ -203,6 +205,7 @@ function useExpenseCalculatorResult(){try{const value=Math.round(safeExpenseCalc
     const user=currentUser();
     const item=document.getElementById('expenseItem'); if(item) item.value='';
     const total=document.getElementById('expenseTotal'); if(total) total.value='';
+    clearExpenseValidation('expenseItem');clearExpenseValidation('expenseTotal');
     setSelectValue('expensePaidBy',user);
     const personal=document.getElementById('expensePersonal'); if(personal) personal.checked=false;
     const consumed=document.getElementById('expenseConsumedBy');
@@ -251,13 +254,18 @@ function useExpenseCalculatorResult(){try{const value=Math.round(safeExpenseCalc
     const personal=!!document.getElementById('expensePersonal')?.checked;
     const split=selectedSplit();
     const consumedBy=document.getElementById('expenseConsumedBy')?.value || paidBy;
-    if(!total) return alert('Please enter the total amount.');
+    let hasFieldError=false;
+    clearExpenseValidation('expenseItem');
+    clearExpenseValidation('expenseTotal');
+    if(!item){showExpenseValidation('expenseItem','Please enter details.');hasFieldError=true;}
+    if(!total){showExpenseValidation('expenseTotal','Please enter an amount.');hasFieldError=true;}
+    if(hasFieldError){document.getElementById(!item?'expenseItem':'expenseTotal')?.focus();return;}
     if(!personal && !split.length) return alert('Please choose who to split between.');
     const splitMode=personal?'personal':expenseSplitMode;
     const shares=(!personal&&splitMode==='custom')?customShares():null;
     if(shares){
       const check=MONEY.validateCustomAllocations(total,Object.entries(shares).map(([partyId,amount])=>({partyId,amount})),0.01);
-      if(!check.valid) return alert(check.difference<0?`Custom split is over-allocated by ${Math.abs(check.difference).toLocaleString()} VND.`:`Custom split is under-allocated by ${check.difference.toLocaleString()} VND.`);
+      if(!check.valid){recalculateCustomSplit();document.getElementById('customSplitPanel')?.scrollIntoView({block:'nearest'});return;}
     }
 
     const arr=readExpenses();
@@ -446,7 +454,8 @@ function useExpenseCalculatorResult(){try{const value=Math.round(safeExpenseCalc
     ensurePaidByUI();
     updatePaidByDisplay();
     document.querySelectorAll('#expenseModal input[data-split]').forEach(x=>x.addEventListener('change',()=>{updateSplitSummary();if(expenseSplitMode==='custom')renderCustomSplitPanel();}));
-    document.getElementById('expenseTotal')?.addEventListener('input',recalculateCustomSplit);
+    document.getElementById('expenseTotal')?.addEventListener('input',()=>{clearExpenseValidation('expenseTotal');recalculateCustomSplit();});
+    document.getElementById('expenseItem')?.addEventListener('input',()=>clearExpenseValidation('expenseItem'));
     window.renderExpenses();
   });
 })();

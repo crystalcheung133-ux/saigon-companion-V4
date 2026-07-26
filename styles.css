@@ -2542,3 +2542,9 @@ body.currency-keyboard-open{
   #expenseModal .custom-clear-btn{width:47px!important;min-width:47px!important;font-size:11px!important}
   #expenseModal .custom-remainder-btn{width:38px!important;min-width:38px!important}
 }
+
+
+/* VN-C1.8 — inline validation, no blocking custom-split alerts */
+#expenseModal .expense-field-error{margin:5px 0 0;color:#b42318;font-size:13px;font-weight:700;line-height:1.25}
+#expenseModal .expense-field-error[hidden]{display:none!important}
+#expenseModal input.expense-field-invalid{border-color:#d92d20!important;box-shadow:0 0 0 1px #d92d20 inset!important}
