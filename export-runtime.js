@@ -1,115 +1,50 @@
-/* export-runtime.js — VN-C2B.1 Crystal-only Export Centre.
-   Presentation/export owner only. Does not write trip, expense, moment, or canonical state. */
+/* VN-C2B.1 — Crystal-only Export Centre. Additive to VN-C2A. */
 (function(root){
   'use strict';
-
-  const FRIEND_ORDER=['christal','crystal','mero','vivian'];
-  const FRIEND_FALLBACK={christal:'🧸 Christal',crystal:'👓 Crystal',mero:'✝️ Mero',vivian:'👟 Vivian'};
-
-  function escapeHtml(value){
-    return String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
-  }
-  function isAllowed(){
-    return !!(root.VN_ADMIN?.isCrystal?.() && root.VN_ADMIN?.readMode?.());
-  }
-  function friendLabel(key){
-    return root.VN_PRESENTATION?.friends?.[key] || FRIEND_FALLBACK[key] || key || 'Unknown';
-  }
-  function readExpenses(){
-    try{
-      const key=root.STORAGE_CONFIG?.keys?.expenses||'expenses';
-      const value=JSON.parse(localStorage.getItem(key)||'[]');
-      return Array.isArray(value)?value:[];
-    }catch(_){return [];}
-  }
-  function money(value){return `${Math.round(Number(value)||0).toLocaleString('en-AU')} VND`;}
-  function plainText(value){return String(value??'').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();}
-
-  function printDocument(title,bodyHtml){
-    const win=root.open('','_blank');
-    if(!win){alert('Please allow pop-ups to export this PDF.');return false;}
-    const logo=new URL('logo-monogram-transparent.png',root.location.href).href;
-    win.document.open();
-    win.document.write(`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(title)}</title><style>
-      @page{size:A4;margin:14mm}*{box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:#2c211d;margin:0;font-size:11pt;line-height:1.45}header{display:flex;align-items:center;gap:14px;border-bottom:2px solid #9b6b49;padding-bottom:10px;margin-bottom:18px}header img{width:54px;height:54px;object-fit:contain}h1{font-size:23px;margin:0;color:#6f3f28}h2{font-size:17px;color:#6f3f28;margin:0 0 9px}h3{font-size:13px;margin:13px 0 5px}.muted{color:#766860;font-size:9.5pt}.day{break-after:page}.day:last-child{break-after:auto}.event{display:grid;grid-template-columns:78px 1fr;gap:10px;padding:8px 0;border-bottom:1px solid #e4d7ce}.time{font-weight:700;color:#7a4a30}.title{font-weight:700}.detail,.route{font-size:9.5pt;color:#5e514b;margin-top:3px}.route{font-style:italic}.summary-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px}.summary-card{border:1px solid #dccac0;border-radius:10px;padding:11px;background:#fffaf6}.summary-card strong{font-size:14px;color:#6f3f28}table{width:100%;border-collapse:collapse;font-size:9pt}th,td{text-align:left;vertical-align:top;border-bottom:1px solid #ded3cc;padding:7px 5px}th{background:#f7eee8;color:#5b3828}.locked{opacity:.55}.no-print{position:fixed;right:16px;top:16px}@media print{.no-print{display:none}}
-    </style></head><body><button class="no-print" onclick="window.print()">Print / Save PDF</button><header><img src="${logo}" alt=""><div><h1>${escapeHtml(title)}</h1><div class="muted">CCMV Vietnam Companion · Generated ${escapeHtml(new Date().toLocaleString('en-AU'))}</div></div></header>${bodyHtml}<script>window.addEventListener('load',()=>setTimeout(()=>window.print(),250));<\/script></body></html>`);
-    win.document.close();
-    return true;
-  }
-
-  function exportItinerary(){
-    if(!isAllowed())return;
-    const days=root.ITINERARY_PRESENTATION?.views?.()||[];
-    const itinerary=root.VN_PRESENTATION?.itineraryData||{};
-    if(!days.length){alert('No itinerary data is available.');return;}
-    const html=days.map(day=>{
-      const data=itinerary[String(day.number)]||{};
-      const events=(data.items||[]).map(item=>`<div class="event"><div class="time">${escapeHtml(item.time||'')}</div><div><div class="title">${escapeHtml(item.title||'')}</div>${item.details?`<div class="detail">${escapeHtml(plainText(item.details))}</div>`:''}${item.route?`<div class="route">Next: ${escapeHtml(plainText(item.route))}</div>`:''}</div></div>`).join('');
-      return `<section class="day"><h2>${escapeHtml(day.emoji)} Day ${day.number} · ${escapeHtml(day.heading)}</h2><div class="muted">${escapeHtml(day.date)} · ${escapeHtml(day.weekday)}</div>${events||'<p>No itinerary items.</p>'}</section>`;
-    }).join('');
-    printDocument('Saigon 2026 · Itinerary',html);
-  }
-
-  function calculateExpenses(records){
-    const spend=Object.fromEntries(FRIEND_ORDER.map(key=>[key,0]));
-    const balance=Object.fromEntries(FRIEND_ORDER.map(key=>[key,0]));
-    let total=0;
-    records.forEach(record=>{
-      const amount=Number(record.total)||0; total+=amount;
-      if(!(record.paidBy in balance))balance[record.paidBy]=0;
-      balance[record.paidBy]+=amount;
-      if(record.type==='personal'){
-        const consumer=record.consumedBy||record.split?.[0]||record.paidBy;
-        spend[consumer]=(spend[consumer]||0)+amount;
-        balance[consumer]=(balance[consumer]||0)-amount;
-      }else{
-        const split=record.split?.length?record.split:[record.paidBy];
-        split.forEach(key=>{
-          const share=record.splitMode==='custom'&&record.shares ? Number(record.shares[key])||0 : amount/split.length;
-          spend[key]=(spend[key]||0)+share;
-          balance[key]=(balance[key]||0)-share;
-        });
-      }
-    });
-    return {total,spend,balance};
-  }
-
-  function exportExpenses(){
-    if(!isAllowed())return;
-    const records=readExpenses();
-    const summary=calculateExpenses(records);
-    const cards=`<div class="summary-grid"><div class="summary-card"><div class="muted">TRIP TOTAL</div><strong>${money(summary.total)}</strong></div><div class="summary-card"><div class="muted">TRANSACTIONS</div><strong>${records.length}</strong></div></div>`;
-    const personalRows=FRIEND_ORDER.map(key=>`<tr><td>${escapeHtml(friendLabel(key))}</td><td>${money(summary.spend[key])}</td><td>${summary.balance[key]>=0?'Receive':'Owes'} ${money(Math.abs(summary.balance[key]))}</td></tr>`).join('');
-    const txRows=records.slice().sort((a,b)=>String(a.createdAt||'').localeCompare(String(b.createdAt||''))).map(record=>`<tr><td>${escapeHtml(record.createdAt?new Date(record.createdAt).toLocaleString('en-AU'):'')}</td><td>${escapeHtml(record.item||'')}</td><td>${money(record.total)}</td><td>${escapeHtml(friendLabel(record.paidBy))}</td><td>${record.type==='personal'?'Personal':'Shared'}</td><td>${escapeHtml((record.split||[]).map(friendLabel).join(', ') || friendLabel(record.consumedBy||record.paidBy))}</td></tr>`).join('');
-    const html=`${cards}<h2>Personal Spend & Settlement</h2><table><thead><tr><th>Friend</th><th>Personal Spend</th><th>Settlement</th></tr></thead><tbody>${personalRows}</tbody></table><h2 style="margin-top:22px">Transaction History</h2>${records.length?`<table><thead><tr><th>Date</th><th>Item</th><th>Amount</th><th>Paid by</th><th>Type</th><th>Split / Consumed by</th></tr></thead><tbody>${txRows}</tbody></table>`:'<p>No expense transactions yet.</p>'}`;
-    printDocument('Saigon 2026 · Expenses',html);
-  }
-
+  function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+  function isAllowed(){return !!(root.VN_ADMIN&&root.VN_ADMIN.isCrystal&&root.VN_ADMIN.isCrystal()&&root.VN_ADMIN.readMode&&root.VN_ADMIN.readMode());}
+  function partyLabel(k){const p=root.TRIP_CONFIG?.participants?.identities?.[k];return p?`${p.emoji||''} ${p.name||k}`.trim():k;}
+  function close(){const m=document.getElementById('vnExportCentreModal');if(!m)return;m.classList.remove('show');m.setAttribute('aria-hidden','true');document.body.classList.remove('vn-export-open');}
   function build(){
     if(document.getElementById('vnExportCentreModal'))return;
-    const modal=document.createElement('div');
-    modal.id='vnExportCentreModal';
-    modal.className='vn-export-centre-modal';
-    modal.setAttribute('aria-hidden','true');
-    modal.innerHTML=`<section class="vn-export-centre-sheet" role="dialog" aria-modal="true" aria-labelledby="vnExportCentreTitle"><header class="vn-export-centre-head"><div><p class="vn-trip-studio-kicker">TRIP STUDIO</p><h2 id="vnExportCentreTitle">Export Centre</h2><p>Create trip documents without leaving Studio Mode.</p></div><button type="button" class="vn-export-centre-close" aria-label="Close Export Centre">×</button></header><div class="vn-export-centre-grid"><button type="button" class="vn-export-card" id="vnExportItinerary"><span class="vn-export-icon">🗓️</span><span><strong>Itinerary PDF</strong><small>Full day-by-day trip itinerary.</small></span><b>Export</b></button><button type="button" class="vn-export-card" id="vnExportExpenses"><span class="vn-export-icon">💸</span><span><strong>Expenses PDF</strong><small>Trip total, personal spend, settlement and transactions.</small></span><b>Export</b></button><button type="button" class="vn-export-card is-locked" disabled><span class="vn-export-icon">📖</span><span><strong>Memory Book</strong><small>Available after Complete Trip.</small></span><b>Locked</b></button><button type="button" class="vn-export-card is-locked" disabled><span class="vn-export-icon">✨</span><span><strong>Trip Review</strong><small>Available after Complete Trip.</small></span><b>Locked</b></button></div></section>`;
-    document.body.appendChild(modal);
-    modal.querySelector('.vn-export-centre-close').addEventListener('click',close);
-    modal.addEventListener('click',event=>{if(event.target===modal)close();});
-    modal.querySelector('#vnExportItinerary').addEventListener('click',exportItinerary);
-    modal.querySelector('#vnExportExpenses').addEventListener('click',exportExpenses);
+    const m=document.createElement('div');m.id='vnExportCentreModal';m.className='vn-export-centre-modal';m.setAttribute('aria-hidden','true');
+    m.innerHTML=`<section class="vn-export-centre-sheet" role="dialog" aria-modal="true" aria-labelledby="vnExportCentreTitle">
+      <header class="vn-export-centre-head"><div><p class="vn-export-kicker">TRIP OUTPUTS</p><h2 id="vnExportCentreTitle">Export Centre</h2><p>Create a printable copy and save it as PDF.</p></div><button type="button" class="vn-export-close" aria-label="Close Export Centre">×</button></header>
+      <div class="vn-export-list">
+        <button type="button" id="vnExportItinerary"><span class="vn-export-icon">📄</span><span><strong>Itinerary PDF</strong><small>Open a clean printable itinerary.</small></span><b>›</b></button>
+        <button type="button" id="vnExportExpenses"><span class="vn-export-icon">💰</span><span><strong>Expenses PDF</strong><small>Open expense history and settlement.</small></span><b>›</b></button>
+        <button type="button" class="is-locked" disabled><span class="vn-export-icon">📖</span><span><strong>Memory Book</strong><small>Locked until Complete Trip.</small></span><em>LOCKED</em></button>
+        <button type="button" class="is-locked" disabled><span class="vn-export-icon">⭐</span><span><strong>Trip Review</strong><small>Locked until Complete Trip.</small></span><em>LOCKED</em></button>
+      </div>
+    </section>`;
+    m.addEventListener('click',e=>{if(e.target===m)close();});
+    m.querySelector('.vn-export-close').addEventListener('click',close);
+    m.querySelector('#vnExportItinerary').addEventListener('click',exportItinerary);
+    m.querySelector('#vnExportExpenses').addEventListener('click',exportExpenses);
+    document.body.appendChild(m);
   }
-  function open(){
+  function open(){if(!isAllowed())return;build();const m=document.getElementById('vnExportCentreModal');m.classList.add('show');m.setAttribute('aria-hidden','false');document.body.classList.add('vn-export-open');}
+  function popupDoc(title,body){
+    const w=root.open('','_blank');if(!w){alert('Please allow pop-ups to create the PDF.');return null;}
+    w.document.write(`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title><style>@page{size:A4;margin:12mm}*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#24342c;background:#fff}.toolbar{position:sticky;top:0;z-index:5;display:flex;gap:10px;justify-content:center;padding:10px;background:#eef2ee;border-bottom:1px solid #d8dfda}.toolbar button{border:1px solid #bcc9c1;border-radius:999px;background:#fff;padding:9px 14px;font:600 14px inherit;color:#24342c}.toolbar .primary{background:#285844;color:#fff;border-color:#285844}main{max-width:820px;margin:auto;padding:18px}.cover{padding:6px 0 15px;border-bottom:2px solid #285844}.cover p,.section-kicker{margin:0 0 4px;font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:#68756f}.cover h1{margin:0;font-size:27px}.cover small{display:block;margin-top:6px;color:#68756f}.day{padding:18px 0 4px;break-before:page}.day:first-of-type{break-before:auto}.day h2{margin:0 0 10px;font-size:21px}.item{display:grid;grid-template-columns:72px 1fr;gap:10px;padding:8px 0;border-bottom:1px solid #e4e9e5;break-inside:avoid}.time{font-weight:750;color:#55705f;font-size:12px}.item h3{margin:0 0 3px;font-size:14px}.item p{margin:2px 0;font-size:11px;line-height:1.35}.summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:16px 0}.card{border:1px solid #dce5df;border-radius:14px;padding:13px}.card h3{margin:0 0 8px;font-size:14px}.card p{display:flex;justify-content:space-between;gap:10px;margin:5px 0;font-size:11px}.total{font-size:20px;font-weight:800;color:#285844}table{width:100%;border-collapse:collapse;font-size:10px}th,td{text-align:left;vertical-align:top;padding:6px;border-bottom:1px solid #e4e9e5}th{background:#f4f7f5}@media print{.toolbar{display:none}main{padding:0}}@media(max-width:560px){.summary{grid-template-columns:1fr}}</style></head><body><div class="toolbar"><button onclick="window.close()">← Back to Export Centre</button><button class="primary" onclick="window.print()">Save as PDF</button></div><main>${body}</main></body></html>`);
+    w.document.close();return w;
+  }
+  function exportItinerary(){
     if(!isAllowed())return;
-    build();
-    const modal=document.getElementById('vnExportCentreModal');
-    modal.classList.add('show');modal.setAttribute('aria-hidden','false');
-    document.body.classList.add('vn-export-centre-open');
+    const source=(typeof ITINERARY_DATA!=='undefined'&&ITINERARY_DATA)||{};const keys=Object.keys(source).sort((a,b)=>Number(a)-Number(b));if(!keys.length)return alert('No itinerary data is available.');
+    const trip=root.TRIP_CONFIG?.name||'Saigon Companion';
+    const days=keys.map(k=>{const d=source[k]||{};const items=(d.items||[]).map(i=>`<article class="item"><div class="time">${esc(i.time||'')}</div><div><h3>${esc(i.title||'')}</h3>${(i.details||[]).map(x=>`<p>${esc(x)}</p>`).join('')}</div></article>`).join('');return `<section class="day"><p class="section-kicker">${esc(d.kicker||`Day ${k}`)}</p><h2>${esc(d.heading||d.title||'')}</h2>${items}</section>`;}).join('');
+    popupDoc(`${trip} — Itinerary`,`<div class="cover"><p>CCMV VIETNAM COMPANION</p><h1>${esc(trip)}</h1><small>Itinerary · Generated ${esc(new Date().toLocaleDateString())}</small></div>${days}`);
   }
-  function close(){
-    const modal=document.getElementById('vnExportCentreModal');
-    if(modal){modal.classList.remove('show');modal.setAttribute('aria-hidden','true');}
-    document.body.classList.remove('vn-export-centre-open');
+  function readExpenses(){try{return JSON.parse(localStorage.getItem(root.STORAGE_CONFIG?.keys?.expenses||'ccmv_vietnam_expenses')||'[]')||[];}catch(_){return [];}}
+  function exportExpenses(){
+    if(!isAllowed())return;const arr=readExpenses();if(!arr.length)return alert('No expense data to export yet.');
+    const order=root.TRIP_CONFIG?.participants?.order||['christal','crystal','mero','vivian'];const spend=Object.fromEntries(order.map(k=>[k,0]));const balance=Object.fromEntries(order.map(k=>[k,0]));let total=0;
+    arr.forEach(e=>{const amount=Number(e.total||0);total+=amount;balance[e.paidBy]=(balance[e.paidBy]||0)+amount;if(e.type==='personal'){const who=e.consumedBy||(e.split||[])[0]||e.paidBy;spend[who]=(spend[who]||0)+amount;balance[who]=(balance[who]||0)-amount;}else{const split=(e.split&&e.split.length)?e.split:[e.paidBy];split.forEach(k=>{const share=e.splitMode==='custom'&&e.shares?Number(e.shares[k]||0):amount/split.length;spend[k]=(spend[k]||0)+share;balance[k]=(balance[k]||0)-share;});}});
+    const summary=`<div class="cover"><p>CCMV VIETNAM COMPANION</p><h1>Expense Summary</h1><small>Generated ${esc(new Date().toLocaleDateString())}</small></div><div class="summary"><div class="card"><h3>Trip Total</h3><div class="total">${Math.round(total).toLocaleString()} VND</div></div><div class="card"><h3>Personal Spend</h3>${order.map(k=>`<p><span>${esc(partyLabel(k))}</span><strong>${Math.round(spend[k]||0).toLocaleString()} VND</strong></p>`).join('')}</div><div class="card"><h3>Settlement</h3>${order.map(k=>{const v=balance[k]||0;return `<p><span>${esc(partyLabel(k))}</span><strong>${v>=0?'Receive':'Owes'} ${Math.abs(Math.round(v)).toLocaleString()} VND</strong></p>`}).join('')}</div></div>`;
+    const rows=arr.slice().sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||''))).map(e=>`<tr><td>${esc(e.createdAt?new Date(e.createdAt).toLocaleString():'')}</td><td>${esc(e.item||'')}</td><td>${Math.round(Number(e.total||0)).toLocaleString()} VND</td><td>${esc(partyLabel(e.paidBy))}</td><td>${esc(e.type||'shared')}</td><td>${esc((e.split||[]).map(partyLabel).join(', '))}</td></tr>`).join('');
+    popupDoc('Saigon Companion — Expenses',`${summary}<h2>Transaction History</h2><table><thead><tr><th>Date</th><th>Details</th><th>Total</th><th>Paid by</th><th>Type</th><th>Split / For</th></tr></thead><tbody>${rows}</tbody></table>`);
   }
-
-  root.VN_EXPORT_CENTRE=Object.freeze({open,close,exportItinerary,exportExpenses,isAllowed});
+  root.VN_EXPORT_CENTRE={open,close,exportItinerary,exportExpenses};
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
 })(globalThis);

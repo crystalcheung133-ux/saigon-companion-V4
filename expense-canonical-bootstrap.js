@@ -1,14 +1,16 @@
-/* Stage 3.2D Vietnam production wiring.
-   Loads the validation-only canonical path before expenses-runtime.js. */
+/* Stage 3.2D/3.2E Vietnam conditional canonical Expense validation wiring. */
 (function(root){
   'use strict';
-  if(root.TRIP_CONFIG?.features?.expenseCanonicalDualWrite!==true||root.CCMV_EXPENSE_DUAL_WRITE)return;
-  document.write([
-    'expense-calculator.js',
-    'legacy-expense-adapter.js',
-    'canonical-expense-repository.js',
-    'canonical-expense-core.js',
-    'canonical-expense-local-provider.js',
-    'expense-dual-write.js'
-  ].map(file=>`<script src="${file}?v=stage3-2d-vn-wiring-1"><\/script>`).join(''));
+  const config=root.TRIP_CONFIG||{};
+  const dual=config.features?.expenseCanonicalDualWrite===true;
+  const shadow=config.features?.expenseCanonicalReadShadow===true;
+  if(!dual&&!shadow)return;
+  const files=[
+    'expense-calculator.js','legacy-expense-adapter.js',
+    'canonical-expense-repository.js','canonical-expense-core.js',
+    'canonical-expense-local-provider.js'
+  ];
+  if(dual)files.push('expense-dual-write.js');
+  if(shadow)files.push('expense-read-shadow.js');
+  document.write(files.map(file=>`<script src="${file}?v=stage3-2e-1"><\/script>`).join(''));
 })(globalThis);

@@ -1,6 +1,4 @@
-/* admin.js — VN-C2B.1 Crystal-only Trip Studio foundation.
-   Owns access, PIN gate, Studio shell, mode persistence and Export Centre entry.
-   Publish, Complete and Reset remain intentionally unconnected. */
+/* admin.js — VN-C2B.1 Crystal-only Trip Studio + Export Centre entry. */
 (function(root){
   'use strict';
   const ADMIN_PARTY='crystal';
@@ -28,8 +26,6 @@
     if(toggle) toggle.checked=on;
     const banner=document.getElementById('vnStudioBanner');
     if(banner) banner.hidden=!on;
-    const exportButton=document.getElementById('vnOpenExport');
-    if(exportButton){exportButton.disabled=!on;exportButton.classList.toggle('is-disabled',!on);exportButton.setAttribute('aria-disabled',String(!on));}
   }
 
   function closeStudio(){
@@ -117,7 +113,7 @@
             <button type="button" class="vn-studio-action is-disabled" id="vnPublishTrip"><span><strong>Publish Latest Trip</strong><small>Publish the saved trip directly to every Companion.</small></span><b aria-hidden="true">☁️</b></button>
             <div class="vn-studio-complete is-disabled"><strong>Complete Trip</strong><small>Lock editing and unlock post-trip outputs.</small><button type="button" id="vnCompleteTrip">Complete Trip</button></div>
           </div>
-          <div class="vn-studio-section"><p class="vn-studio-label">EXPORT CENTRE</p><button type="button" class="vn-studio-action" id="vnOpenExport"><span><strong>Open Export Centre</strong><small>Itinerary and expenses will be available here.</small></span><b aria-hidden="true">›</b></button></div>
+          <div class="vn-studio-section"><p class="vn-studio-label">EXPORT CENTRE</p><button type="button" class="vn-studio-action" id="vnOpenExport"><span><strong>Open Export Centre</strong><small>Itinerary and expenses are available anytime.</small></span><b aria-hidden="true">›</b></button></div>
           <div class="vn-studio-section vn-studio-danger-section"><p class="vn-studio-label">DATA CONTROL</p><button type="button" class="vn-studio-action vn-studio-danger is-disabled" id="vnResetTrip"><span><strong>Reset Trip Data</strong><small>Restore the original trip and remove all saved progress.</small></span><b aria-hidden="true">↺</b></button></div>
           <p id="vnStudioStageNote" class="vn-studio-stage-note" hidden></p>
         </div>
@@ -132,10 +128,7 @@
     });
     modal.querySelector('#vnPublishTrip').addEventListener('click',disabledAction('Publish Latest Trip'));
     modal.querySelector('#vnCompleteTrip').addEventListener('click',disabledAction('Complete Trip'));
-    modal.querySelector('#vnOpenExport').addEventListener('click',()=>{
-      if(!readMode()){const note=document.getElementById('vnStudioStageNote');if(note){note.textContent='Turn on Studio Mode to open Export Centre.';note.hidden=false;}return;}
-      root.VN_EXPORT_CENTRE?.open?.();
-    });
+    modal.querySelector('#vnOpenExport').addEventListener('click',()=>{ if(root.VN_EXPORT_CENTRE) root.VN_EXPORT_CENTRE.open(); });
     modal.querySelector('#vnResetTrip').addEventListener('click',disabledAction('Reset Trip Data'));
   }
 

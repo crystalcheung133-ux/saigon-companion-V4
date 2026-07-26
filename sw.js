@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ccmv-vietnam-vn-c2b-1';
+const CACHE_NAME = 'ccmv-vietnam-vn-c2b1-1';
 const ASSETS = [
   './',
   './index.html',
