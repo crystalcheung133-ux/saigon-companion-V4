@@ -35,6 +35,7 @@ function setFriend(k){
   updateFriendLabels();
   if(document.getElementById('expenseModal')?.classList.contains('show')&&typeof window.resetExpenseForm==='function')window.resetExpenseForm();
   if(document.getElementById('momentsModal')?.classList.contains('show')&&typeof window.simplifyMomentsAuthor==='function')window.simplifyMomentsAuthor();
+  if(window.VN_ADMIN&&typeof window.VN_ADMIN.onIdentityChanged==='function')window.VN_ADMIN.onIdentityChanged(k);
 }
 function participantLabel(key){
   const identity=VN_PRESENTATION.participants.identities[key]||VN_PRESENTATION.participants.identities[VN_PRESENTATION.participants.defaultKey];

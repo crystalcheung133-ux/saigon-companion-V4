@@ -1,267 +1,172 @@
-/* ============================================================================
-   TRAVEL ENGINE — ADMIN MODE RUNTIME
-   Stage 7K-2C: extracted from script.js without changing behaviour.
-   Load after script.js because this module wraps the shared setFriend() API.
-   ============================================================================ */
-
-/* ============================================================================
-   STAGE 6A-2 — ADMIN MODE + TIMELINE EDITING
-   Shared Admin shell with Day timeline editing support.
-   ============================================================================ */
-(function(){
-  const MODE_KEY=STORAGE_CONFIG.keys.adminMode;
-    const ADMIN_USER='crystal';
+/* admin.js — VN-C2A Crystal-only Trip Studio foundation.
+   Owns access, PIN gate, Studio shell and mode persistence only.
+   Publish, Complete, Export and Reset remain intentionally unconnected. */
+(function(root){
+  'use strict';
+  const ADMIN_PARTY='crystal';
   const ADMIN_PIN='260922';
-  const SESSION_KEY='travel_engine_admin_unlocked_v1';
-  const state={mode:false};
+  const SESSION_KEY='ccmv_vietnam_admin_unlocked_v1';
+  const MODE_KEY=(root.STORAGE_CONFIG&&root.STORAGE_CONFIG.keys.adminMode)||'ccmv_vietnam_admin_mode_v1';
+  const state={open:false};
 
-  function isAdminUser(){ return getFriend()===ADMIN_USER; }
-  function isUnlocked(){ return sessionStorage.getItem(SESSION_KEY)==='1'; }
-  function lockAdminSession(){ sessionStorage.removeItem(SESSION_KEY); }
-  function scrollTripStudioToBottom(){
-    const modal=document.getElementById('mamaModal');
-    const sheet=modal&&modal.querySelector('.guide-sheet');
-    const studio=document.getElementById('adminModeControl');
-    if(!modal||!sheet||!studio) return;
-    window.requestAnimationFrame(()=>window.requestAnimationFrame(()=>{
-      sheet.scrollTop=0;
-      modal.scrollTop=0;
-      studio.scrollIntoView({block:'start'});
-    }));
+  function isCrystal(){ return typeof root.getFriend==='function' && root.getFriend()===ADMIN_PARTY; }
+  function isUnlocked(){ try{return sessionStorage.getItem(SESSION_KEY)==='1';}catch(_){return false;} }
+  function setUnlocked(on){ try{on?sessionStorage.setItem(SESSION_KEY,'1'):sessionStorage.removeItem(SESSION_KEY);}catch(_){} }
+  function readMode(){ return isCrystal() && isUnlocked() && localStorage.getItem(MODE_KEY)==='studio'; }
+  function writeMode(on){ on?localStorage.setItem(MODE_KEY,'studio'):localStorage.removeItem(MODE_KEY); }
+
+  function removeAdminDom(){
+    ['vnTripStudioEntry','vnTripStudioModal','vnAdminPinModal','vnStudioBanner'].forEach(id=>document.getElementById(id)?.remove());
+    document.body.classList.remove('vn-studio-mode','vn-studio-open','vn-admin-pin-open');
+    state.open=false;
   }
-  function closeTripStudioPanel(){
-    const modal=document.getElementById('mamaModal');
-    const studio=document.getElementById('adminModeControl');
-    if(studio) studio.hidden=true;
-    if(modal){
-      modal.classList.remove('studio-view');
-      modal.classList.remove('show');
-    }
+
+  function syncModeUi(){
+    const on=readMode();
+    document.body.classList.toggle('vn-studio-mode',on);
+    const toggle=document.getElementById('vnStudioModeToggle');
+    if(toggle) toggle.checked=on;
+    const banner=document.getElementById('vnStudioBanner');
+    if(banner) banner.hidden=!on;
   }
-  function openTripStudioPanel(){
-    if(!isAdminUser()){ alert('Trip Studio is available to Crystal only.'); return false; }
-    if(typeof renderFriendChoices==='function') renderFriendChoices();
-    const modal=document.getElementById('mamaModal');
-    const studio=document.getElementById('adminModeControl');
-    if(!modal||!studio) return false;
-    studio.hidden=false;
-    modal.classList.add('studio-view');
+
+  function closeStudio(){
+    const modal=document.getElementById('vnTripStudioModal');
+    if(modal){modal.classList.remove('show');modal.setAttribute('aria-hidden','true');}
+    document.body.classList.remove('vn-studio-open');
+    state.open=false;
+  }
+
+  function openStudio(){
+    if(!isCrystal()) return;
+    buildStudio();
+    const modal=document.getElementById('vnTripStudioModal');
     modal.classList.add('show');
-    scrollTripStudioToBottom();
-    return true;
+    modal.setAttribute('aria-hidden','false');
+    document.body.classList.add('vn-studio-open');
+    state.open=true;
+    modal.querySelector('.vn-trip-studio-scroll')?.scrollTo(0,0);
+    syncModeUi();
   }
-  function syncPinModalToVisualViewport(modal){
-    if(!modal) return;
-    const viewport=window.visualViewport;
-    const top=viewport?Math.max(0,viewport.offsetTop):0;
-    const height=viewport?viewport.height:window.innerHeight;
-    modal.style.setProperty('--admin-pin-vv-top',`${Math.round(top)}px`);
-    modal.style.setProperty('--admin-pin-vv-height',`${Math.round(height)}px`);
-  }
-  function ensurePinModal(){
-    let modal=document.getElementById('adminPinModal');
-    if(modal) return modal;
-    modal=document.createElement('div');
-    modal.id='adminPinModal';
-    modal.className='admin-pin-modal';
-    modal.hidden=true;
-    modal.innerHTML=`<div class="admin-pin-sheet" role="dialog" aria-modal="true" aria-labelledby="adminPinTitle"><button type="button" class="admin-pin-close" aria-label="Close">×</button><p class="kicker">TRIP STUDIO ACCESS</p><h2 id="adminPinTitle">Enter Studio PIN</h2><p class="admin-pin-help">Enter the 6-digit PIN to open Trip Studio.</p><form id="adminPinForm"><input id="adminPinInput" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="one-time-code" aria-label="6-digit Trip Studio PIN" placeholder="••••••"><p id="adminPinError" class="admin-pin-error" hidden>Incorrect PIN.</p><button type="submit" class="admin-pin-submit">Open Trip Studio</button></form></div>`;
-    document.body.appendChild(modal);
-    const syncViewport=()=>syncPinModalToVisualViewport(modal);
-    const close=()=>{
-      modal.hidden=true;
-      const input=modal.querySelector('#adminPinInput');
-      if(input) input.value='';
-      if(window.visualViewport){
-        window.visualViewport.removeEventListener('resize',syncViewport);
-        window.visualViewport.removeEventListener('scroll',syncViewport);
-      }
-    };
-    modal.querySelector('.admin-pin-close').addEventListener('click',close);
-    modal.addEventListener('click',event=>{ if(event.target===modal) close(); });
-    modal.querySelector('#adminPinInput').addEventListener('input',event=>{ event.target.value=event.target.value.replace(/\D/g,'').slice(0,6); const error=modal.querySelector('#adminPinError'); if(error) error.hidden=true; });
-    modal._syncAdminPinViewport=syncViewport;
-    modal.querySelector('#adminPinForm').addEventListener('submit',event=>{
-      event.preventDefault();
-      const input=modal.querySelector('#adminPinInput');
-      const value=input?input.value:'';
-      const error=modal.querySelector('#adminPinError');
-      if(value!==ADMIN_PIN){ if(error) error.hidden=false; if(input){ input.value=''; input.focus(); } return; }
-      sessionStorage.setItem(SESSION_KEY,'1');
-      close();
-      window.setAdminMode(true);
-      if(typeof window.openFriendModal==='function') window.openFriendModal();
-    });
-    return modal;
-  }
-  function requestUnlock(){
-    if(typeof window.closeFriendModal==='function') window.closeFriendModal();
-    const modal=ensurePinModal();
+
+  function openPin(){
+    if(!isCrystal()) return;
+    if(isUnlocked()){openStudio();return;}
+    buildPin();
+    const modal=document.getElementById('vnAdminPinModal');
     modal.hidden=false;
-    if(typeof modal._syncAdminPinViewport==='function') modal._syncAdminPinViewport();
-    if(window.visualViewport && typeof modal._syncAdminPinViewport==='function'){
-      window.visualViewport.addEventListener('resize',modal._syncAdminPinViewport);
-      window.visualViewport.addEventListener('scroll',modal._syncAdminPinViewport);
-    }
-    const input=modal.querySelector('#adminPinInput');
-    if(input){
-      try{ input.focus({preventScroll:true}); }catch(e){ input.focus(); }
-      window.requestAnimationFrame(()=>{
-        if(typeof modal._syncAdminPinViewport==='function') modal._syncAdminPinViewport();
-        if(document.activeElement!==input){
-          try{ input.focus({preventScroll:true}); }catch(e){ input.focus(); }
-        }
-        window.setTimeout(()=>{
-          if(typeof modal._syncAdminPinViewport==='function') modal._syncAdminPinViewport();
-        },120);
-      });
-    }
-    return false;
+    document.body.classList.add('vn-admin-pin-open');
+    const input=modal.querySelector('#vnAdminPinInput');
+    input.value='';
+    modal.querySelector('#vnAdminPinError').hidden=true;
+    setTimeout(()=>input.focus(),80);
   }
-  function readMode(){ return isAdminUser() && isUnlocked() && STORAGE.local.get(MODE_KEY)==='admin'; }
-  function setStoredMode(enabled){
-    if(enabled) STORAGE.local.set(MODE_KEY,'admin');
-    else STORAGE.local.remove(MODE_KEY);
+
+  function closePin(){
+    const modal=document.getElementById('vnAdminPinModal');
+    if(modal) modal.hidden=true;
+    document.body.classList.remove('vn-admin-pin-open');
   }
-  function updateUI(){
-    document.body.classList.toggle('admin-mode',state.mode);
-    const control=document.getElementById('adminModeControl');
-    if(control) control.hidden=!(isAdminUser() && state.mode);
-    [document.getElementById('studioSelectorToggleInput'),document.getElementById('adminModeToggle')].filter(Boolean).forEach(toggle=>{
-      toggle.checked=state.mode;
-      toggle.setAttribute('aria-checked',String(state.mode));
-    });
-    const banner=document.getElementById('adminModeBanner');
-    if(banner) banner.hidden=!state.mode;
-    const exportButton=document.getElementById('expenseExportButton');
-    if(exportButton){
-      const showExport=state.mode && isUnlocked() && isAdminUser();
-      exportButton.hidden=!showExport;
-      exportButton.setAttribute('aria-hidden',String(!showExport));
-      exportButton.style.display=showExport?'inline-flex':'none';
-    }
-    ['tripStudioManagement','tripStudioExports','tripStudioDanger'].forEach(id=>{
-      const group=document.getElementById(id);
-      if(group) group.hidden=!state.mode;
+
+  function buildPin(){
+    if(document.getElementById('vnAdminPinModal')) return;
+    const modal=document.createElement('div');
+    modal.id='vnAdminPinModal';
+    modal.className='vn-admin-pin-modal';
+    modal.hidden=true;
+    modal.innerHTML=`<div class="vn-admin-pin-sheet" role="dialog" aria-modal="true" aria-labelledby="vnAdminPinTitle">
+      <button type="button" class="vn-admin-pin-close" aria-label="Close">×</button>
+      <p class="kicker">TRIP STUDIO ACCESS</p><h2 id="vnAdminPinTitle">Enter Studio PIN</h2>
+      <p class="vn-admin-pin-help">Enter the 6-digit PIN to open Crystal's creator workspace.</p>
+      <form id="vnAdminPinForm"><input id="vnAdminPinInput" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="one-time-code" aria-label="6-digit Trip Studio PIN" placeholder="••••••">
+      <p id="vnAdminPinError" class="vn-admin-pin-error" hidden>Incorrect PIN.</p>
+      <button type="submit" class="vn-admin-pin-submit">Open Trip Studio</button></form></div>`;
+    document.body.appendChild(modal);
+    modal.querySelector('.vn-admin-pin-close').addEventListener('click',closePin);
+    modal.addEventListener('click',e=>{if(e.target===modal)closePin();});
+    const input=modal.querySelector('#vnAdminPinInput');
+    input.addEventListener('input',()=>{input.value=input.value.replace(/\D/g,'').slice(0,6);modal.querySelector('#vnAdminPinError').hidden=true;});
+    modal.querySelector('#vnAdminPinForm').addEventListener('submit',e=>{
+      e.preventDefault();
+      if(input.value===ADMIN_PIN){setUnlocked(true);closePin();openStudio();}
+      else{const error=modal.querySelector('#vnAdminPinError');error.hidden=false;input.classList.remove('shake');void input.offsetWidth;input.classList.add('shake');input.select();}
     });
   }
-  function buildShell(){
-    const familySheet=document.querySelector('#mamaModal .guide-sheet');
-    const familyList=familySheet&&familySheet.querySelector('.friend-choice-list');
-    if(familySheet && familyList && !document.getElementById('tripStudioSelectorToggle')){
-      const selectorToggle=document.createElement('div');
-      selectorToggle.id='tripStudioSelectorToggle';
-      selectorToggle.className='trip-studio-selector-toggle';
-      selectorToggle.innerHTML=`<span><strong>⚙ Studio Mode</strong><small>Complete Trip, Export Centre and trip controls</small></span><label class="admin-switch"><input id="studioSelectorToggleInput" type="checkbox" role="switch" aria-label="Toggle Studio Mode"><span></span></label>`;
-      familyList.insertAdjacentElement('afterend',selectorToggle);
-      selectorToggle.querySelector('#studioSelectorToggleInput').addEventListener('change',event=>{
-        const enabled=event.target.checked;
-        const changed=window.setAdminMode(enabled);
-        if(changed===false) event.target.checked=state.mode;
-      });
-    }
-    if(familySheet && !document.getElementById('adminModeControl')){
-      const block=document.createElement('section');
-      block.id='adminModeControl';
-      block.className='admin-mode-control trip-studio';
-      block.hidden=true;
-      block.innerHTML=`
-        <header class="trip-studio-head">
-          <div>
-            <p class="trip-studio-kicker">CREATOR WORKSPACE</p>
-            <h3>Trip Studio</h3>
-            <small>Manage exports and trip lifecycle controls.</small>
+
+  function disabledAction(label){
+    return function(){
+      const note=document.getElementById('vnStudioStageNote');
+      if(note){note.textContent=`${label} will be connected in a later VN Admin stage.`;note.hidden=false;}
+    };
+  }
+
+  function buildStudio(){
+    if(document.getElementById('vnTripStudioModal')) return;
+    const modal=document.createElement('div');
+    modal.id='vnTripStudioModal';
+    modal.className='vn-trip-studio-modal';
+    modal.setAttribute('aria-hidden','true');
+    modal.innerHTML=`<section class="vn-trip-studio-sheet" role="dialog" aria-modal="true" aria-labelledby="vnTripStudioTitle">
+      <div class="vn-trip-studio-scroll">
+        <div class="vn-trip-studio-card">
+          <header class="vn-trip-studio-head"><div><p class="vn-trip-studio-kicker">CREATOR WORKSPACE</p><h2 id="vnTripStudioTitle">Trip Studio</h2><p>Create, refine and manage this companion.</p></div><button type="button" class="vn-trip-studio-close" aria-label="Close Trip Studio">×</button></header>
+          <label class="vn-studio-mode-row"><span><strong>Studio Mode</strong><small>Turn on editing tools for itinerary and trip data.</small></span><input id="vnStudioModeToggle" type="checkbox" aria-label="Studio Mode"><i aria-hidden="true"></i></label>
+          <div class="vn-studio-section"><p class="vn-studio-label">TRIP MANAGEMENT</p>
+            <button type="button" class="vn-studio-action is-disabled" id="vnPublishTrip"><span><strong>Publish Latest Trip</strong><small>Publish the saved trip directly to every Companion.</small></span><b aria-hidden="true">☁️</b></button>
+            <div class="vn-studio-complete is-disabled"><strong>Complete Trip</strong><small>Lock editing and unlock post-trip outputs.</small><button type="button" id="vnCompleteTrip">Complete Trip</button></div>
           </div>
-          <button type="button" class="trip-studio-close" aria-label="Close Trip Studio">×</button>
-        </header>
-        <div id="tripStudioManagement" class="trip-studio-group" hidden>
-          <p class="trip-studio-label">MODE</p>
-          <button type="button" class="trip-studio-action" onclick="setAdminMode(false)"><span><strong>Read Mode</strong><small>Return to normal companion use.</small></span><span>›</span></button>
+          <div class="vn-studio-section"><p class="vn-studio-label">EXPORT CENTRE</p><button type="button" class="vn-studio-action is-disabled" id="vnOpenExport"><span><strong>Open Export Centre</strong><small>Itinerary and expenses will be available here.</small></span><b aria-hidden="true">›</b></button></div>
+          <div class="vn-studio-section vn-studio-danger-section"><p class="vn-studio-label">DATA CONTROL</p><button type="button" class="vn-studio-action vn-studio-danger is-disabled" id="vnResetTrip"><span><strong>Reset Trip Data</strong><small>Restore the original trip and remove all saved progress.</small></span><b aria-hidden="true">↺</b></button></div>
+          <p id="vnStudioStageNote" class="vn-studio-stage-note" hidden></p>
         </div>
-        <div id="tripStudioExports" class="trip-studio-group" hidden>
-          <p class="trip-studio-label">EXPORT CENTRE</p>
-          
-        </div>
-        <div id="tripStudioDanger" class="trip-studio-group trip-studio-danger" hidden>
-          <p class="trip-studio-label">TRIP DATA</p>
-          <button id="resetTripDataButton" class="reset-trip-data-btn" type="button"><span><strong>Reset Trip Data</strong><small>Delete saved expenses, moments and progress for this Vietnam trip.</small></span><span>›</span></button>
-        </div>`;
-      familySheet.appendChild(block);
-      block.querySelector('.trip-studio-close').addEventListener('click',closeTripStudioPanel);
-      block.querySelector('#resetTripDataButton').addEventListener('click',()=>window.resetTripData?.());
-
-    }
-    if(!document.getElementById('adminModeBanner')){
-      const banner=document.createElement('div');
-      banner.id='adminModeBanner';
-      banner.className='admin-mode-banner';
-      banner.setAttribute('role','status');
-      banner.hidden=true;
-      banner.innerHTML='<strong>TRIP STUDIO</strong><span>Management Mode</span>';
-      document.body.prepend(banner);
-    }
+      </div>
+    </section>`;
+    document.body.appendChild(modal);
+    modal.querySelector('.vn-trip-studio-close').addEventListener('click',closeStudio);
+    modal.addEventListener('click',e=>{if(e.target===modal)closeStudio();});
+    modal.querySelector('#vnStudioModeToggle').addEventListener('change',e=>{
+      if(!isCrystal()){e.target.checked=false;return;}
+      writeMode(e.target.checked);syncModeUi();
+    });
+    modal.querySelector('#vnPublishTrip').addEventListener('click',disabledAction('Publish Latest Trip'));
+    modal.querySelector('#vnCompleteTrip').addEventListener('click',disabledAction('Complete Trip'));
+    modal.querySelector('#vnOpenExport').addEventListener('click',disabledAction('Export Centre'));
+    modal.querySelector('#vnResetTrip').addEventListener('click',disabledAction('Reset Trip Data'));
   }
 
-  /* window.resetTripData is defined in reset-runtime.js (RC11R4), which
-     owns the whole reset transaction — RPC, storage, and every local store
-     that needs clearing. admin.js only builds the button and wires the
-     click; it doesn't know how a reset works, on purpose, so there's one
-     place (reset-runtime.js) that does. */
+  function buildEntry(){
+    if(!isCrystal()) return;
+    const list=document.querySelector('#mamaModal .friend-choice-list');
+    if(!list||document.getElementById('vnTripStudioEntry')) return;
+    const button=document.createElement('button');
+    button.id='vnTripStudioEntry';
+    button.className='vn-trip-studio-entry';
+    button.type='button';
+    button.innerHTML='<span><strong>⚙️ Trip Studio</strong><small>Crystal creator workspace</small></span><b aria-hidden="true">›</b>';
+    button.addEventListener('click',()=>{root.closeFriendModal?.();openPin();});
+    list.insertAdjacentElement('afterend',button);
+  }
 
-  window.setAdminMode=function(enabled){
-    enabled=!!enabled;
-    if(enabled && !isAdminUser()){
-      alert('Trip Studio is available to Crystal only.');
-      updateUI();
-      return false;
+  function buildBanner(){
+    if(!isCrystal()||document.getElementById('vnStudioBanner')) return;
+    const banner=document.createElement('button');
+    banner.id='vnStudioBanner';
+    banner.className='vn-studio-banner';
+    banner.type='button';
+    banner.hidden=true;
+    banner.innerHTML='<strong>TRIP STUDIO</strong><span>Studio Mode On</span>';
+    banner.addEventListener('click',openStudio);
+    document.body.appendChild(banner);
+  }
+
+  function refresh(){
+    if(!isCrystal()){
+      writeMode(false);setUnlocked(false);removeAdminDom();return;
     }
-    if(enabled && !isUnlocked() && !requestUnlock()){
-      updateUI();
-      return false;
-    }
-    state.mode=enabled;
-    setStoredMode(enabled);
-    if(!enabled) lockAdminSession();
-    updateUI();
-    if(typeof window.refreshExpenseAdminUI==='function') window.refreshExpenseAdminUI();
-    document.dispatchEvent(new CustomEvent('travelengine:adminmodechange',{detail:{enabled:state.mode}}));
-    return true;
-  };
+    buildEntry();buildBanner();syncModeUi();
+  }
 
-  window.isAdminMode=function(){ return state.mode && isUnlocked() && isAdminUser(); };
-  window.isAdminUnlocked=function(){ return isUnlocked() && isAdminUser(); };
-  window.hasUnsavedAdminChanges=function(){ return false; };
-
-  window.openTripStudioPanel=openTripStudioPanel;
-  window.closeTripStudioPanel=closeTripStudioPanel;
-  window.scrollTripStudioToBottom=scrollTripStudioToBottom;
-
-  const originalOpenFriendModal=window.openFriendModal||openFriendModal;
-  window.openFriendModal=function(){
-    const modal=document.getElementById('mamaModal');
-    if(modal) modal.classList.remove('studio-view');
-    originalOpenFriendModal();
-    updateUI();
-    if(state.mode && isAdminUser()){
-      const sheet=modal&&modal.querySelector('.guide-sheet');
-      if(sheet) window.requestAnimationFrame(()=>{ sheet.scrollTop=sheet.scrollHeight; });
-    }
-  };
-
-  const originalSetFriend=window.setFriend||setFriend;
-  window.setFriend=function(key){
-    if(key!==ADMIN_USER){ state.mode=false; setStoredMode(false); lockAdminSession(); }
-    originalSetFriend(key);
-    state.mode=readMode();
-    updateUI();
-    if(typeof window.refreshExpenseAdminUI==='function') window.refreshExpenseAdminUI();
-    document.dispatchEvent(new CustomEvent('travelengine:adminmodechange',{detail:{enabled:state.mode}}));
-  };
-
-  document.addEventListener('DOMContentLoaded',function(){
-    buildShell();
-    state.mode=readMode();
-    if(STORAGE.local.get(MODE_KEY)==='admin' && !state.mode) setStoredMode(false);
-    updateUI();
-  });
-})();
+  root.VN_ADMIN={refresh,onIdentityChanged:refresh,open:openPin,close:closeStudio,isCrystal,readMode};
+  document.addEventListener('DOMContentLoaded',refresh);
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'){closePin();closeStudio();}});
+})(globalThis);

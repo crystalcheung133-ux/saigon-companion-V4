@@ -12,7 +12,8 @@
     momentPrefix:'moment_',
     latestMomentPrefix:'moment_latest_',
     guideNavContext:'ccmv_guide_nav_context',
-    guideNavReopen:'ccmv_guide_nav_reopen'
+    guideNavReopen:'ccmv_guide_nav_reopen',
+    adminMode:'ccmv_vietnam_admin_mode_v1'
   });
   root.STORAGE_CONFIG=Object.freeze({
     namespace:root.TRIP_CONFIG.storageNamespace,
@@ -25,7 +26,8 @@
       canonicalExpenses:Object.freeze({state:keys.canonicalExpenseState}),
       expenseReadShadow:Object.freeze({state:keys.expenseReadShadowState}),
       moments:Object.freeze({records:keys.momentsList,freeform:keys.momentsFreeform,legacyPrefix:keys.momentPrefix,latestPrefix:keys.latestMomentPrefix}),
-      guide:Object.freeze({context:keys.guideNavContext,reopen:keys.guideNavReopen})
+      guide:Object.freeze({context:keys.guideNavContext,reopen:keys.guideNavReopen}),
+      admin:Object.freeze({mode:keys.adminMode})
     })
   });
 })(globalThis);

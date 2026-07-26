@@ -1,4 +1,4 @@
-const CACHE_NAME='ccmv-vn-c1-8';
+const CACHE_NAME = 'ccmv-vietnam-vn-c2a-1';
 const ASSETS = [
   './',
   './index.html',
@@ -26,6 +26,7 @@ const ASSETS = [
   './expense-read-shadow.js',
   './expenses-runtime.js',
   './app-runtime.js',
+  './admin.js',
   './pwa.js',
   './data.js',
   './canonical-core.js',
