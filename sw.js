@@ -1,4 +1,4 @@
-const CACHE_NAME='ccmv-vn-3-0-production-frozen-content2-guide-audit1';
+const CACHE_NAME='ccmv-vn-3-0-production-frozen-content2-guide-audit1-tinh-thuc-guide';
 const ASSETS = [
   './',
   './index.html',
