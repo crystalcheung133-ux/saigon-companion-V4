@@ -149,7 +149,7 @@
     [3,"bakes","bakes",null,[],false],
     [3,"ohquao","ohquao",null,[],false],
     [3,"moc-huong","moc-huong",null,[],false],
-    [3,"louh","ohquao",null,[],false],
+    [3,"louh",null,null,[],false],
     [3,"little-bear","little-bear",null,[],false],
     [3,"marou","marou",null,[],false],
     [4,"running-bean","running-bean",null,[],false],
