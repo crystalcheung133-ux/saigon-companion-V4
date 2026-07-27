@@ -72,6 +72,16 @@ function applyGuideHashView(){
  if(!directory||!main)return;
  groupShoppingDirectory();
  const directoryOnly=location.hash==='#shopping-directory';
+  const requestedDay=new URLSearchParams(location.search).get('day');
+  const groups=Array.from(directory.querySelectorAll('.directory-route-group'));
+  groups.forEach(group=>{
+    const title=group.querySelector('h3')?.textContent||'';
+    group.hidden=!!requestedDay && !new RegExp(`^Day ${requestedDay}\\b`,'i').test(title);
+  });
+  const titleNode=directory.querySelector('h2');
+  const leadNode=directory.querySelector('.lead');
+  if(requestedDay&&titleNode)titleNode.textContent=`🛍 Day ${requestedDay} Shopping Directory`;
+  if(requestedDay&&leadNode)leadNode.textContent=`只顯示 Day ${requestedDay} 當日順路店舖；按體力取捨，不需要逐間完成。`;
  Array.from(main.children).forEach(el=>{el.hidden=directoryOnly&&el!==directory;});
  document.body.classList.toggle('shopping-directory-view',directoryOnly);
  if(directoryOnly)requestAnimationFrame(()=>window.scrollTo({top:0,left:0,behavior:'auto'}));
@@ -94,7 +104,7 @@ document.addEventListener('DOMContentLoaded',()=>{reconcileGuideDirectory();appl
 
 
 function bookingStatusForPlace(placeId){
- try{const rows=globalThis.CCMV_BOOKINGS?.getForPlace(placeId)||[];if(!rows.length)return '';const confirmed=rows.some(x=>x.status==='confirmed');const pending=rows.some(x=>x.status==='pending');const status=confirmed?'confirmed':pending?'pending':'cancelled';const text=confirmed?'✓ Confirmed':pending?'Booking pending':'Unavailable';return `<a class="guide-booking-badge ${status}" href="bookings.html">${text}</a>`;}catch(e){return '';}
+ try{const rows=globalThis.CCMV_BOOKINGS?.getForPlace(placeId)||[];if(!rows.length)return '';const confirmed=rows.some(x=>x.status==='confirmed');const pending=rows.some(x=>x.status==='pending');const status=confirmed?'confirmed':pending?'pending':'cancelled';const text=confirmed?'✓ Confirmed':pending?'Booking pending':'Unavailable';return `<a class="timeline-action guide-booking-badge guide-booking-button ${status}" href="bookings.html">📋 ${text}</a>`;}catch(e){return '';}
 }
 
 function openGuideCategory(cat){

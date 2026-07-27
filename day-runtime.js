@@ -68,7 +68,7 @@
     const inferredGuideIds = (!operationalTypes.has(item.type) && item.placeId && VN_PRESENTATION.places[item.placeId]) ? [item.placeId] : [];
     const guideIds = [...new Set(explicitGuideIds.length ? explicitGuideIds : inferredGuideIds)].filter(key=>VN_PRESENTATION.places[key]);
     const directoryHtml = item.showShoppingDirectory
-      ? `<button class="timeline-action timeline-action--directory" onclick="location.href='guide.html?return=${encodeURIComponent(sourceUrl)}#shopping-directory'">🛍 Shopping Directory</button>`
+      ? `<button class="timeline-action timeline-action--directory" onclick="location.href='guide.html?day=${encodeURIComponent(String(item.dayId||'').replace('day',''))}&return=${encodeURIComponent(sourceUrl)}#shopping-directory'">🛍 Shopping Directory</button>`
       : '';
     const routeGuideHtml = item.showShoppingDirectory && guideIds.length > 1
       ? `<details class="meal-alternatives shopping-route-options"><summary>🛍 Route stops</summary><div class="alternative-list">${guideIds.map(key=>{

@@ -11,19 +11,19 @@ PLACES['man-moi']={
   title:'Mặn Mòi – Bến Nghé',
   emoji:'🍲',
   cat:'RESTAURANTS',
-  sub:'Day 5 Alternative · Vietnamese Home Dining',
+  sub:'Day 5 備選 · 越南家常菜',
   hours:'10:00–22:00 daily',
   maps:'https://www.google.com/maps/search/?api=1&query=M%E1%BA%B7n%20M%C3%B2i%20B%E1%BA%BFn%20Ngh%C3%A9%20VNPT%20Building%20Gate%206%20Nguy%E1%BB%85n%20V%C4%83n%20B%C3%ACnh%20Ho%20Chi%20Minh%20City',
   address:'Level 3, VNPT Building, Gate 6, Nguyễn Văn Bình Street, Ho Chi Minh City, Vietnam',
-  desc:'Mặn Mòi – Bến Nghé is the Day 5 alternative to Bếp Mẹ Ỉn. The central Bến Nghé branch serves Vietnamese home-style dining from Level 3 of the VNPT Building beside Nguyễn Văn Bình Book Street.',
-  signature:['Official Bến Nghé branch in the VNPT Building','Vietnamese home-style dishes suited to sharing','Central alternative near the heritage district'],
-  worth:['Day 5 alternative only; Bếp Mẹ Ỉn remains the primary lunch.','Confirm the table and current operating hours before the trip.','Use Gate 6 and continue to Level 3.'],
+  desc:'藏在書街旁 VNPT 大樓三樓，Mặn Mòi 把越南家常味放進帶點舊西貢氣息的空間。菜式適合四人分享，不靠浮誇擺盤，勝在香料、火候與一桌熱鬧。',
+  signature:['南部家常菜，味道細緻而不過重','木質與綠意交疊的老西貢氛圍','多人分享最有感覺'],
+  worth:['Day 5 備選；Bếp Mẹ Ỉn 仍是原定午餐。','由 Gate 6 入內，再上 Level 3。','出發前再確認訂位與即日營業時間。'],
   categoryLabel:'🍽 Restaurant',
   price:'$$',
   transport:'Walk / short Grab from the heritage district',
   audit:'Official Mặn Mòi website verifies the Bến Nghé branch, Level 3 Gate 6 address and 10:00–22:00 published hours',
-  highlights:['Official Bến Nghé branch in the VNPT Building','Vietnamese home-style dishes suited to sharing','Central alternative near the heritage district'],
-  tips:['Day 5 alternative only; Bếp Mẹ Ỉn remains the primary lunch.','Confirm the table and current operating hours before the trip.','Use Gate 6 and continue to Level 3.']
+  highlights:['南部家常菜，味道細緻而不過重','木質與綠意交疊的老西貢氛圍','多人分享最有感覺'],
+  tips:['Day 5 備選；Bếp Mẹ Ỉn 仍是原定午餐。','由 Gate 6 入內，再上 Level 3。','出發前再確認訂位與即日營業時間。']
 };
 CATEGORIES.SPA.find(place=>place.key==='ha-spa').sub=PLACES['ha-spa'].sub;
 CATEGORIES.RESTAURANTS.push({key:'man-moi',title:PLACES['man-moi'].title,emoji:PLACES['man-moi'].emoji,sub:PLACES['man-moi'].sub});
