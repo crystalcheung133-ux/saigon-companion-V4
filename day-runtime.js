@@ -20,33 +20,10 @@
     return;
   }
   document.title = data.title;
-  function routeLocation(item){
-    if(!item || !item.map) return '';
-    try{
-      const url = new URL(item.map, location.href);
-      return url.searchParams.get('q') || url.searchParams.get('query') || '';
-    }catch(error){
-      return '';
-    }
-  }
-  function buildTodayRoute(dayData){
-    const stops = (dayData.items || []).map(routeLocation).filter(Boolean);
-    if(stops.length < 2) return '';
-    const params = new URLSearchParams({
-      api:'1',
-      origin:stops[0],
-      destination:stops[stops.length - 1],
-      travelmode:'driving'
-    });
-    if(stops.length > 2) params.set('waypoints', stops.slice(1,-1).join('|'));
-    const href = `https://www.google.com/maps/dir/?${params.toString()}`;
-    return `<a class="day-route-action" href="${esc(href)}" target="_blank" rel="noopener"><span>View Today’s Route</span><b aria-hidden="true">›</b></a>`;
-  }
   const visibleItems=(data.items||[]).filter(item=>{
     const type=String(item.type||'').trim().toLowerCase();
     return type!=='transport' && !(/\bgrab\b/i.test(String(item.title||'')));
   });
-  const todayRoute = buildTodayRoute({...data,items:visibleItems});
   const items = visibleItems.map(item => {
     const detailHtml = (item.details || []).map(text => `<p>${esc(text)}</p>`).join('');
     const routeText = String(item.route||'').replace(/^\s*(?:🚕|🚗|🚶|✈️?|🛫)?\s*To next stop\s*[:：-]?\s*/i,'').trim();
@@ -97,7 +74,7 @@
       </div>
     </div>`;
   }).join('');
-  root.innerHTML = `<div class="page-hero day-page-hero"><p class="kicker">${esc(data.kicker)}</p><h1>${esc(data.heading)}</h1>${todayRoute}</div><section class="timeline">${items}</section>`;
+  root.innerHTML = `<div class="page-hero day-page-hero"><p class="kicker">${esc(data.kicker)}</p><h1>${esc(data.heading)}</h1></div><section class="timeline">${items}</section>`;
 
   // Stage 4F-L: native hash scrolling can run before dynamic cards exist.
   // Re-resolve the requested card after render and offset the sticky top bar.
