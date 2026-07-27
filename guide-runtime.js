@@ -8,7 +8,10 @@ function visitDayHTML(key){
   const unique=[]; const seen=new Set();
   days.forEach(([label,href])=>{const token=String(label)+'|'+String(href);if(!seen.has(token)){seen.add(token);unique.push([label,href]);}});
   if(!unique.length) return '';
-  const buttons=unique.map(([label,href])=>`<a class="day-jump-button" href="${href}">${label} →</a>`).join('');
+  const subtitle=String(place.sub||'');
+  const visible=unique.filter(([label])=>!subtitle.toLowerCase().includes(String(label).toLowerCase()));
+  if(!visible.length) return '';
+  const buttons=visible.map(([label,href])=>`<a class="day-jump-button" href="${href}">${label} →</a>`).join('');
   return `<div class="quick-info-row visit-row"><span class="quick-info-icon">📅</span><span><span class="quick-info-label">Visit Day</span><span class="quick-info-value day-link-row">${buttons}</span></span></div>`;
 }
 
@@ -44,6 +47,25 @@ function groupShoppingDirectory(){
  });
  grid.dataset.grouped='true';
 }
+function reconcileGuideDirectory(){
+ const main=document.querySelector('main');
+ if(!main)return;
+ const restaurantSection=Array.from(main.querySelectorAll(':scope > section')).find(section=>/RESTAURANTS/i.test(section.querySelector('h2')?.textContent||''));
+ const restaurantList=restaurantSection?.querySelector('.category-pop-list');
+ const manMoi=VN_PRESENTATION.places['man-moi'];
+ if(restaurantList&&manMoi&&!restaurantList.querySelector('[data-guide-place="man-moi"]')&&!restaurantList.querySelector('[onclick*="id=man-moi"]')){
+  const button=document.createElement('button');
+  button.dataset.guidePlace='man-moi';
+  button.type='button';
+  button.innerHTML=`<span><span class="guide-list-title">${manMoi.emoji} ${manMoi.title}</span><span class="guide-list-sub">${manMoi.sub||''}</span></span><span>›</span>`;
+  button.addEventListener('click',()=>{location.href='place.html?id=man-moi';});
+  const lune=restaurantList.querySelector('[onclick*="id=lune"]');
+  if(lune)lune.insertAdjacentElement('afterend',button);else restaurantList.appendChild(button);
+ }
+ const haButton=main.querySelector('[onclick*="id=ha-spa"]');
+ const haSubtitle=haButton?.querySelector('.guide-list-sub');
+ if(haSubtitle&&VN_PRESENTATION.places['ha-spa'])haSubtitle.textContent=VN_PRESENTATION.places['ha-spa'].sub||'';
+}
 function applyGuideHashView(){
  const directory=document.getElementById('shopping-directory');
  const main=directory?.closest('main');
@@ -68,7 +90,7 @@ function openShoppingDirectoryView(){
  else location.hash='shopping-directory';
 }
 window.addEventListener('hashchange',applyGuideHashView);
-document.addEventListener('DOMContentLoaded',applyGuideHashView);
+document.addEventListener('DOMContentLoaded',()=>{reconcileGuideDirectory();applyGuideHashView();});
 
 
 function bookingStatusForPlace(placeId){

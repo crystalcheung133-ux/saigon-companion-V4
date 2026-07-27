@@ -1,4 +1,4 @@
-const CACHE_NAME='ccmv-saigon-v4-bookings-ux-v2';
+const CACHE_NAME='ccmv-saigon-v4-structural-ux-guide-v3';
 const ASSETS = [
   './',
   './index.html',

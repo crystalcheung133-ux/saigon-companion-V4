@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="zh-Hant"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><title>Home · Saigon Companion</title><link href="manifest.json" rel="manifest"/><meta content="#8A4F2D" name="theme-color"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="Saigon" name="apple-mobile-web-app-title"/><link href="icon-192.png" rel="apple-touch-icon"/><link href="styles.css?v=vn-bookings-2" rel="stylesheet"/></head><body class="home-bg"><div aria-hidden="true" id="ccmvSplash" role="presentation"><div class="splash-paper"></div><div class="splash-glow"></div><div class="splash-content"><img alt="" class="splash-logo" src="ccmv-logo-calibrated.png"/><h1 class="splash-line">TRAVEL TOGETHER,<br/>CAPTURE TOGETHER</h1><div class="splash-destination">VIETNAM 2026</div></div><div class="splash-fadeout"></div></div><script>(function(){
+<html lang="zh-Hant"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><title>Home · Saigon Companion</title><link href="manifest.json" rel="manifest"/><meta content="#8A4F2D" name="theme-color"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="Saigon" name="apple-mobile-web-app-title"/><link href="icon-192.png" rel="apple-touch-icon"/><link href="styles.css?v=vn-structural-ux-1" rel="stylesheet"/></head><body class="home-bg"><div aria-hidden="true" id="ccmvSplash" role="presentation"><div class="splash-paper"></div><div class="splash-glow"></div><div class="splash-content"><img alt="" class="splash-logo" src="ccmv-logo-calibrated.png"/><h1 class="splash-line">TRAVEL TOGETHER,<br/>CAPTURE TOGETHER</h1><div class="splash-destination">VIETNAM 2026</div></div><div class="splash-fadeout"></div></div><script>(function(){
   var splash=document.getElementById('ccmvSplash');
   if(!splash) return;
 
@@ -50,8 +50,8 @@
 <p class="home-tagline">Guide · Itinerary · Memory Book</p>
 <div class="home-trip-line"><span>30 Oct — 3 Nov 2026</span><span>Ho Chi Minh City</span></div>
 <div aria-label="Live travel dashboard" class="home-live-grid">
-<div class="live-card live-countdown"><span class="live-icon">⏳</span><small>Countdown</small><strong id="countdownText">Counting down...</strong></div>
-<div class="live-card live-time"><span class="live-icon">🕒</span><small>Ho Chi Minh</small><strong id="hcmTime">--:--</strong></div>
+<div class="live-card live-countdown"><span class="live-icon">⏳</span><small>Countdown</small><strong id="countdownText">Counting down...</strong><em>Trip starts 30 Oct 2026</em></div>
+<div class="live-card live-time"><span class="live-icon">🕒</span><small>Ho Chi Minh</small><strong id="hcmTime">--:--</strong><em id="hcmDate">Local time · ICT</em></div>
 <div class="live-card live-weather" aria-live="polite"><span class="live-icon" id="weatherIcon">☀️</span><small>Ho Chi Minh Weather</small><strong id="weatherNow">Loading…</strong><em id="weatherDetail">Live forecast</em></div>
 <div class="live-card live-rate"><span class="live-icon">💱</span><div class="currency-heading"><small id="currencyDirection">VND → AUD</small><button class="currency-swap" id="currencySwap" type="button" aria-label="Swap currencies">⇄</button></div><label class="currency-converter"><span id="currencyInputCode">VND</span><input id="currencyAmount" type="number" inputmode="decimal" min="0" step="1" value="1000000" aria-label="Currency amount"/></label><strong id="currencyResult">Loading…</strong><em id="rateUpdated">Live rate</em></div>
 </div>
@@ -66,6 +66,8 @@
   if(c){ if(diff>7)c.textContent=`${diff} days to go`; else if(diff>1)c.textContent='One week to go'; else if(diff===1)c.textContent='Pack your bags'; else if(diff===0)c.textContent='Welcome to Saigon'; else c.textContent='Thanks for the moments'; }
   const t=document.getElementById('hcmTime');
   if(t){ t.textContent=new Intl.DateTimeFormat('en-AU',{timeZone:'Asia/Ho_Chi_Minh',hour:'2-digit',minute:'2-digit',hour12:false}).format(now)+' ICT'; }
+  const localDate=document.getElementById('hcmDate');
+  if(localDate){ localDate.textContent=new Intl.DateTimeFormat('en-AU',{timeZone:'Asia/Ho_Chi_Minh',weekday:'short',day:'numeric',month:'short'}).format(now); }
  }
 
  const weatherCodes={0:['☀️','Clear'],1:['🌤️','Mostly clear'],2:['⛅','Partly cloudy'],3:['☁️','Cloudy'],45:['🌫️','Fog'],48:['🌫️','Fog'],51:['🌦️','Light drizzle'],53:['🌦️','Drizzle'],55:['🌧️','Heavy drizzle'],61:['🌦️','Light rain'],63:['🌧️','Rain'],65:['🌧️','Heavy rain'],80:['🌦️','Showers'],81:['🌧️','Showers'],82:['⛈️','Heavy showers'],95:['⛈️','Thunderstorm'],96:['⛈️','Thunderstorm'],99:['⛈️','Thunderstorm']};

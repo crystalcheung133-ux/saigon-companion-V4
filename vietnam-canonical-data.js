@@ -59,7 +59,7 @@
 
   const guidePlaceIds=Object.freeze([
     'fusion','bakes','cong','marou','cafe-apartments','workshop-coffee','running-bean',
-    'bep-me-in','com-tam-moc','little-bear','lune','omakase-tiger','pho-sol',
+    'bep-me-in','com-tam-moc','little-bear','lune','man-moi','omakase-tiger','pho-sol',
     'pho-vietnam','pizza4ps','quince','quan-thuy','garmentory','dauple','libe',
     'nosbyn','ohquao','push-push','saigon-concept','new-playground','ha-spa',
     'moc-huong','moc-kim','nha-suga','tinh-thuc','fine-arts','book-street',
@@ -68,7 +68,7 @@
   const categoryMembers=Object.freeze({
     STAY:Object.freeze(['fusion']),
     'CAFÉS':Object.freeze(['bakes','cong','marou','cafe-apartments','workshop-coffee','running-bean']),
-    RESTAURANTS:Object.freeze(['bep-me-in','com-tam-moc','little-bear','lune','omakase-tiger','pho-sol','pho-vietnam','pizza4ps','quince','quan-thuy']),
+    RESTAURANTS:Object.freeze(['bep-me-in','com-tam-moc','little-bear','lune','man-moi','omakase-tiger','pho-sol','pho-vietnam','pizza4ps','quince','quan-thuy']),
     SHOP:Object.freeze(['garmentory','dauple','libe','nosbyn','ohquao','push-push','saigon-concept','new-playground']),
     SPA:Object.freeze(['ha-spa','moc-huong','moc-kim','nha-suga','tinh-thuc']),
     ATTRACTIONS:Object.freeze(['fine-arts','book-street','notre-dame','post-office','pink-church','war-museum']),
@@ -122,7 +122,7 @@
     'day4:pizza4ps':Object.freeze(['bep-me-in','com-tam-moc']),
     'day4:quince':Object.freeze(['lune','little-bear']),
     'day5:pho-vietnam':Object.freeze(['pho-sol','com-tam-moc']),
-    'day5:bep-me-in':Object.freeze(['pizza4ps','quince'])
+    'day5:bep-me-in':Object.freeze(['man-moi'])
   });
   const eventSpecs=Object.freeze([
     [1,"airport-atm",null,null,[],false],
@@ -213,6 +213,7 @@
     nosbyn:Object.freeze([['day2','libe']]),
     'new-playground':Object.freeze([['day2','libe']]),
     marou:Object.freeze([['day5','takashimaya']]),
+    'man-moi':Object.freeze([['day5','bep-me-in']]),
     'workshop-coffee':Object.freeze([['day1','nha-suga']])
   });
   const guideEntries=guidePlaceIds.map(placeId=>{
@@ -340,7 +341,7 @@
     ...canonical,
     ids:Object.freeze({partyId,eventId,guideId}),
     reconciliation:Object.freeze({
-      legacyPlaces:37,
+      legacyPlaces:38,
       presentationOnlyPlaces:Object.freeze(['general']),
       canonicalPlaces:places.length,
       canonicalOnlyPlaces:Object.freeze(['tan-son-nhat-airport']),
