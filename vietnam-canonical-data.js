@@ -62,7 +62,7 @@
     'bep-me-in','com-tam-moc','little-bear','lune','omakase-tiger','pho-sol',
     'pho-vietnam','pizza4ps','quince','quan-thuy','garmentory','dauple','libe',
     'nosbyn','ohquao','push-push','saigon-concept','new-playground','ha-spa',
-    'moc-huong','moc-kim','nha-suga','temple-leaf','fine-arts','book-street',
+    'moc-huong','moc-kim','nha-suga','tinh-thuc','fine-arts','book-street',
     'notre-dame','post-office','pink-church','war-museum','cooking'
   ]);
   const categoryMembers=Object.freeze({
@@ -70,7 +70,7 @@
     'CAFÉS':Object.freeze(['bakes','cong','marou','cafe-apartments','workshop-coffee','running-bean']),
     RESTAURANTS:Object.freeze(['bep-me-in','com-tam-moc','little-bear','lune','omakase-tiger','pho-sol','pho-vietnam','pizza4ps','quince','quan-thuy']),
     SHOP:Object.freeze(['garmentory','dauple','libe','nosbyn','ohquao','push-push','saigon-concept','new-playground']),
-    SPA:Object.freeze(['ha-spa','moc-huong','moc-kim','nha-suga','temple-leaf']),
+    SPA:Object.freeze(['ha-spa','moc-huong','moc-kim','nha-suga','tinh-thuc']),
     ATTRACTIONS:Object.freeze(['fine-arts','book-street','notre-dame','post-office','pink-church','war-museum']),
     EXPERIENCE:Object.freeze(['cooking'])
   });
@@ -156,7 +156,7 @@
     [4,"war-museum","war-museum",null,[],false],
     [4,"pizza4ps","pizza4ps",null,[],false],
     [4,"garmentory","garmentory",null,[],true],
-    [4,"tinh-thuc","temple-leaf",null,[],false],
+    [4,"tinh-thuc","tinh-thuc",null,[],false],
     [4,"shopping-round2","garmentory",null,[],true],
     [4,"grab-quince","quince",null,[],false],
     [4,"quince","quince",null,[],false],
