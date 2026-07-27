@@ -1,4 +1,4 @@
-const CACHE_NAME='ccmv-saigon-v4-guide-ui-directory-v4-home-booking-v1';
+const CACHE_NAME='ccmv-saigon-v4-home-booking-readonly-v2';
 const ASSETS = [
   './',
   './index.html',
