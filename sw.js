@@ -1,4 +1,4 @@
-const CACHE_NAME='ccmv-vn-3-0-production-guide-audit-tinh-thuc-full-v1';
+const CACHE_NAME='ccmv-vn-4-0-production-guide-audit-v2';
 const ASSETS = [
   './',
   './index.html',
