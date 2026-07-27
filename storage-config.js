@@ -14,7 +14,8 @@
     guideNavContext:'ccmv_guide_nav_context',
     guideNavReopen:'ccmv_guide_nav_reopen',
     adminMode:'ccmv_vietnam_admin_mode_v1',
-    tripCompletion:'ccmv_vietnam_trip_completion_v1'
+    tripCompletion:'ccmv_vietnam_trip_completion_v1',
+    bookings:'ccmv_vietnam_bookings_v1'
   });
   root.STORAGE_CONFIG=Object.freeze({
     namespace:root.TRIP_CONFIG.storageNamespace,
@@ -29,7 +30,8 @@
       moments:Object.freeze({records:keys.momentsList,freeform:keys.momentsFreeform,legacyPrefix:keys.momentPrefix,latestPrefix:keys.latestMomentPrefix}),
       guide:Object.freeze({context:keys.guideNavContext,reopen:keys.guideNavReopen}),
       admin:Object.freeze({mode:keys.adminMode}),
-      lifecycle:Object.freeze({completion:keys.tripCompletion})
+      lifecycle:Object.freeze({completion:keys.tripCompletion}),
+      bookings:Object.freeze({records:keys.bookings})
     })
   });
 })(globalThis);

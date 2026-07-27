@@ -1,4 +1,4 @@
-const CACHE_NAME='ccmv-vn-4-0-production-guide-audit-v2';
+const CACHE_NAME='saigon-companion-vn-bookings-1';
 const ASSETS = [
   './',
   './index.html',

@@ -70,24 +70,29 @@ function openShoppingDirectoryView(){
 window.addEventListener('hashchange',applyGuideHashView);
 document.addEventListener('DOMContentLoaded',applyGuideHashView);
 
+
+function bookingStatusForPlace(placeId){
+ try{const rows=globalThis.CCMV_BOOKINGS?.getForPlace(placeId)||[];if(!rows.length)return '';const confirmed=rows.some(x=>x.status==='confirmed');const pending=rows.some(x=>x.status==='pending');const status=confirmed?'confirmed':pending?'pending':'cancelled';const text=confirmed?'✓ Confirmed':pending?'Booking pending':'Unavailable';return `<a class="guide-booking-badge ${status}" href="bookings.html">${text}</a>`;}catch(e){return '';}
+}
+
 function openGuideCategory(cat){
  saveGuideNavigationContext(cat);
  const list=(VN_PRESENTATION.categories[cat]||[]).slice().sort((a,b)=>String(a.title||'').localeCompare(String(b.title||'')));
  const directoryId=(VN_PRESENTATION.directoryCategories||{})[cat];
  if(directoryId){
   const directoryRow=`<button data-action="shopping-directory"><span><span class="guide-list-title">🛍 Shopping Directory</span><span class="guide-list-sub">Optional shops · Near · Best with Day</span></span><span>↓</span></button>`;
-  const rows=directoryRow+list.map(i=>`<button data-action="place" data-place-id="${i.key}"><span><span class="guide-list-title">${i.emoji} ${i.title}</span><span class="guide-list-sub">${i.sub||''}</span></span><span>›</span></button>`).join('');
+  const rows=directoryRow+list.map(i=>`<button data-action="place" data-place-id="${i.key}"><span><span class="guide-list-title">${i.emoji} ${i.title}</span><span class="guide-list-sub">${i.sub||''}</span>${bookingStatusForPlace(i.key)}</span><span>›</span></button>`).join('');
   $('guideModalContent').innerHTML=`<p class="kicker">Guide</p><h2>${cat}</h2><div class="category-pop-list">${rows}</div>`;
   closeMiniMenus();$('guideModal').classList.add('show');return;
  }
  if(list.length===1){closeMiniMenus();openGuideModal(list[0].key);return;}
- const rows=list.map(i=>`<button data-action="place" data-place-id="${i.key}"><span><span class="guide-list-title">${i.emoji} ${i.title}</span><span class="guide-list-sub">${i.sub||''}</span></span><span>›</span></button>`).join('');
+ const rows=list.map(i=>`<button data-action="place" data-place-id="${i.key}"><span><span class="guide-list-title">${i.emoji} ${i.title}</span><span class="guide-list-sub">${i.sub||''}</span>${bookingStatusForPlace(i.key)}</span><span>›</span></button>`).join('');
  $('guideModalContent').innerHTML=`<p class="kicker">Guide</p><h2>${cat}</h2><div class="category-pop-list">${rows}</div>`;
  closeMiniMenus();$('guideModal').classList.add('show');
 }
 
 function quickInfoInnerHTML(g,key){
- return `<div class="quick-info-top"><span class="category-tag">${g.categoryLabel||g.cat||'Guide'}</span></div><div class="quick-info-grid"><div class="quick-info-row"><span class="quick-info-icon">📍</span><span><span class="quick-info-label">Address</span><span class="quick-info-value">${g.address||'Check before visit'}</span></span></div><div class="quick-info-row"><span class="quick-info-icon">🕘</span><span><span class="quick-info-label">Hours</span><span class="quick-info-value">${g.hours||'Check before visit'}</span></span></div><div class="quick-info-row"><span class="quick-info-icon">💰</span><span><span class="quick-info-label">Price</span><span class="quick-info-value">${g.price||'Varies'}</span></span></div>${visitDayHTML(key)}</div><div class="quick-info-actions"><a class="timeline-action timeline-action--map guide-navigate-button" href="${g.maps}" target="_blank" rel="noopener">🧭 Navigate</a></div>`;
+ return `<div class="quick-info-top"><span class="category-tag">${g.categoryLabel||g.cat||'Guide'}</span></div><div class="quick-info-grid"><div class="quick-info-row"><span class="quick-info-icon">📍</span><span><span class="quick-info-label">Address</span><span class="quick-info-value">${g.address||'Check before visit'}</span></span></div><div class="quick-info-row"><span class="quick-info-icon">🕘</span><span><span class="quick-info-label">Hours</span><span class="quick-info-value">${g.hours||'Check before visit'}</span></span></div><div class="quick-info-row"><span class="quick-info-icon">💰</span><span><span class="quick-info-label">Price</span><span class="quick-info-value">${g.price||'Varies'}</span></span></div>${visitDayHTML(key)}</div><div class="quick-info-actions">${bookingStatusForPlace(key)}<a class="timeline-action timeline-action--map guide-navigate-button" href="${g.maps}" target="_blank" rel="noopener">🧭 Navigate</a></div>`;
 }
 function quickInfoHTML(g,key){
  return `<div class="quick-info-card">${quickInfoInnerHTML(g,key)}</div>`;
