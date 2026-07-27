@@ -156,7 +156,7 @@
     [4,"war-museum","war-museum",null,[],false],
     [4,"pizza4ps","pizza4ps",null,[],false],
     [4,"garmentory","garmentory",null,[],true],
-    [4,"tinh-thuc","tinh-thuc",null,[],false],
+    [4,"tinh-thuc","temple-leaf",null,[],false],
     [4,"shopping-round2","garmentory",null,[],true],
     [4,"grab-quince","quince",null,[],false],
     [4,"quince","quince",null,[],false],
