@@ -1,4 +1,4 @@
-const CACHE_NAME='saigon-companion-vn-bookings-1';
+const CACHE_NAME='ccmv-saigon-v4-bookings-ux-v2';
 const ASSETS = [
   './',
   './index.html',
