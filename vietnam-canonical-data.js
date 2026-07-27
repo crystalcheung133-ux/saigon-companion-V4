@@ -60,7 +60,7 @@
   const guidePlaceIds=Object.freeze([
     'fusion','bakes','cong','marou','cafe-apartments','workshop-coffee','running-bean',
     'bep-me-in','com-tam-moc','little-bear','lune','omakase-tiger','pho-sol',
-    'pho-vietnam','pizza4ps','quince','mien-cua-94','garmentory','dauple','libe',
+    'pho-vietnam','pizza4ps','quince','quan-thuy','garmentory','dauple','libe',
     'nosbyn','ohquao','push-push','saigon-concept','new-playground','ha-spa',
     'moc-huong','moc-kim','nha-suga','temple-leaf','fine-arts','book-street',
     'notre-dame','post-office','pink-church','war-museum','cooking'
@@ -68,7 +68,7 @@
   const categoryMembers=Object.freeze({
     STAY:Object.freeze(['fusion']),
     'CAFÉS':Object.freeze(['bakes','cong','marou','cafe-apartments','workshop-coffee','running-bean']),
-    RESTAURANTS:Object.freeze(['bep-me-in','com-tam-moc','little-bear','lune','omakase-tiger','pho-sol','pho-vietnam','pizza4ps','quince','mien-cua-94']),
+    RESTAURANTS:Object.freeze(['bep-me-in','com-tam-moc','little-bear','lune','omakase-tiger','pho-sol','pho-vietnam','pizza4ps','quince','quan-thuy']),
     SHOP:Object.freeze(['garmentory','dauple','libe','nosbyn','ohquao','push-push','saigon-concept','new-playground']),
     SPA:Object.freeze(['ha-spa','moc-huong','moc-kim','nha-suga','temple-leaf']),
     ATTRACTIONS:Object.freeze(['fine-arts','book-street','notre-dame','post-office','pink-church','war-museum']),
@@ -117,7 +117,7 @@
     'day1:omakase-tiger':Object.freeze(['quince','lune']),
     'day2:com-tam-moc':Object.freeze(['pho-sol','pho-vietnam']),
     'day2:lune':Object.freeze(['quince','little-bear']),
-    'day3:mien-cua-94':Object.freeze(['pho-sol','com-tam-moc']),
+    'day3:quan-thuy':Object.freeze(['pho-sol','com-tam-moc']),
     'day3:little-bear':Object.freeze(['quince','lune']),
     'day4:pizza4ps':Object.freeze(['bep-me-in','com-tam-moc']),
     'day4:quince':Object.freeze(['lune','little-bear']),
@@ -141,7 +141,7 @@
     [2,"libe","libe",null,["libe","dauple","nosbyn"],true],
     [2,"grab-lune","lune",null,[],false],
     [2,"lune","lune",null,[],false],
-    [3,"mien-cua-94","mien-cua-94",null,[],false],
+    [3,"quan-thuy","quan-thuy",null,[],false],
     [3,"pink-church","pink-church",null,[],false],
     [3,"push-push","push-push",null,[],false],
     [3,"grab-thao-dien","saigon-concept",null,[],false],

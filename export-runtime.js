@@ -29,10 +29,20 @@
       <button type="button" class="vn-export-close" aria-label="Close Export Centre">×</button>
       <div class="vn-export-centre-head"><p class="vn-export-kicker">TRIP OUTPUTS</p><h2 id="vnExportCentreTitle">Export Trip</h2><p>Share through the iPhone or Android share sheet, or create a printable copy.</p></div>
       <div class="vn-export-list">
-        <button type="button" id="vnShareItinerary"><span class="vn-export-icon">📤</span><span><strong>Share Itinerary</strong><small>Share the production itinerary through installed apps.</small></span><b aria-hidden="true">›</b></button>
-        <button type="button" id="vnExportItinerary"><span class="vn-export-icon">📄</span><span><strong>Printable Itinerary</strong><small>Open a clean printable copy using the existing itinerary data.</small></span><b aria-hidden="true">›</b></button>
-        <button type="button" id="vnShareExpenses"><span class="vn-export-icon">📤</span><span><strong>Share Expenses</strong><small>Share the current trip and settlement summary.</small></span><b aria-hidden="true">›</b></button>
-        <button type="button" id="vnExportExpenses"><span class="vn-export-icon">🧾</span><span><strong>Printable Expense Summary</strong><small>Open the full transaction, party and settlement report.</small></span><b aria-hidden="true">›</b></button>
+        <section class="vn-export-group" aria-labelledby="vnExportItineraryTitle">
+          <div class="vn-export-group-head"><span class="vn-export-icon">🗓️</span><span><strong id="vnExportItineraryTitle">Itinerary</strong><small>Trip schedule, addresses and notes.</small></span></div>
+          <div class="vn-export-group-actions">
+            <button type="button" id="vnShareItinerary"><span aria-hidden="true">📤</span><strong>Share</strong></button>
+            <button type="button" id="vnExportItinerary"><span aria-hidden="true">📄</span><strong>Printable</strong></button>
+          </div>
+        </section>
+        <section class="vn-export-group" aria-labelledby="vnExportExpensesTitle">
+          <div class="vn-export-group-head"><span class="vn-export-icon">🧾</span><span><strong id="vnExportExpensesTitle">Expenses</strong><small>Transactions, party totals and settlements.</small></span></div>
+          <div class="vn-export-group-actions">
+            <button type="button" id="vnShareExpenses"><span aria-hidden="true">📤</span><strong>Share</strong></button>
+            <button type="button" id="vnExportExpenses"><span aria-hidden="true">📄</span><strong>Printable</strong></button>
+          </div>
+        </section>
         <button type="button" id="vnExportMemory" class="is-coming-soon" disabled><span class="vn-export-icon">📖</span><span><strong>Memory Book</strong><small>Coming Soon</small></span><em>SOON</em></button>
         <button type="button" id="vnExportReview" class="is-coming-soon" disabled><span class="vn-export-icon">⭐</span><span><strong>Trip Review</strong><small>Coming Soon</small></span><em>SOON</em></button>
       </div>

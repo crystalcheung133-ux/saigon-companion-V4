@@ -2714,15 +2714,29 @@ body:not(.vn-studio-mode) .site-nav{top:0!important;margin-top:0!important}
 .vn-export-centre-head h2{margin:0;color:#173c58;font-family:var(--font-serif);font-size:47px;font-weight:500;line-height:1.05}
 .vn-export-centre-head p:last-child{margin:24px 0 0;color:#56738d;font-size:18px;font-weight:650;line-height:1.55}
 .vn-export-list{display:grid;gap:12px;padding:0}
-.vn-export-list button{
+.vn-export-group{
+  display:grid;gap:14px;width:100%;box-sizing:border-box;border:1px solid #cfdae3;border-radius:22px;
+  background:#fff;padding:18px 20px;
+}
+.vn-export-group-head{display:grid;grid-template-columns:54px minmax(0,1fr);align-items:center;gap:15px}
+.vn-export-group-head>span:last-child{min-width:0}
+.vn-export-group-head strong{display:block;color:#153650;font-size:19px;font-weight:900;line-height:1.2}
+.vn-export-group-head small{display:block;margin-top:5px;color:#56738d;font-size:14px;font-weight:650;line-height:1.35}
+.vn-export-group-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.vn-export-group-actions button{
+  display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;border:1px solid #b9ccd8;
+  border-radius:14px;background:#f8fbfd;color:#153650;padding:10px 12px;font:inherit;cursor:pointer;
+}
+.vn-export-group-actions button strong{font-size:14px;font-weight:900}
+.vn-export-list>button{
   display:grid;grid-template-columns:54px minmax(0,1fr) 20px;align-items:center;gap:15px;
   width:100%;min-height:92px;box-sizing:border-box;border:1px solid #cfdae3;border-radius:22px;
   background:#fff;padding:16px 20px;text-align:left;font:inherit;cursor:pointer;
 }
-.vn-export-list button>span:nth-child(2){min-width:0}
-.vn-export-list strong{display:block;color:#153650;font-size:18px;font-weight:900;line-height:1.2}
-.vn-export-list small{display:block;margin-top:5px;color:#56738d;font-size:14px;font-weight:650;line-height:1.35}
-.vn-export-list b{justify-self:end;color:#153650;font-size:21px;font-weight:900}
+.vn-export-list>button>span:nth-child(2){min-width:0}
+.vn-export-list>button strong{display:block;color:#153650;font-size:18px;font-weight:900;line-height:1.2}
+.vn-export-list>button small{display:block;margin-top:5px;color:#56738d;font-size:14px;font-weight:650;line-height:1.35}
+.vn-export-list>button b{justify-self:end;color:#153650;font-size:21px;font-weight:900}
 .vn-export-icon{display:grid;place-items:center;width:42px;height:42px;font-size:24px}
 .vn-export-list .is-locked,.vn-export-list .is-coming-soon{
   cursor:not-allowed;border-color:#e1ded8;background:#fffdf9;opacity:.54;
@@ -2763,7 +2777,8 @@ body:not(.vn-studio-mode) .site-nav{top:0!important;margin-top:0!important}
 
   .vn-export-centre-sheet{width:min(94vw,920px);max-height:85vh;padding:22px}
   .vn-export-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-  .vn-export-list button{min-height:76px}
+  .vn-export-group{min-height:172px}
+  .vn-export-list>button{min-height:76px}
 }
 
 @media(max-width:520px){
@@ -2801,14 +2816,21 @@ body:not(.vn-studio-mode) .site-nav{top:0!important;margin-top:0!important}
   .vn-export-centre-head h2{font-size:27px;line-height:1}
   .vn-export-centre-head p:last-child{margin:8px 0 0;font-size:11px;line-height:1.3}
   .vn-export-list{gap:4px}
-  .vn-export-list button{
+  .vn-export-group{gap:7px;padding:8px 9px;border-radius:15px}
+  .vn-export-group-head{grid-template-columns:34px minmax(0,1fr);gap:8px}
+  .vn-export-group-head strong{font-size:13px;line-height:1.1}
+  .vn-export-group-head small{margin-top:2px;font-size:8.8px;line-height:1.15}
+  .vn-export-group-actions{gap:6px}
+  .vn-export-group-actions button{min-height:34px;padding:5px 7px;border-radius:10px}
+  .vn-export-group-actions button strong{font-size:10px}
+  .vn-export-list>button{
     grid-template-columns:34px minmax(0,1fr) 14px;gap:8px;min-height:48px;
     padding:6px 8px;border-radius:15px;
   }
   .vn-export-icon{width:30px;height:30px;font-size:18px}
-  .vn-export-list strong{font-size:13px;line-height:1.1}
-  .vn-export-list small{margin-top:2px;font-size:8.8px;line-height:1.15}
-  .vn-export-list b{font-size:17px}
+  .vn-export-list>button strong{font-size:13px;line-height:1.1}
+  .vn-export-list>button small{margin-top:2px;font-size:8.8px;line-height:1.15}
+  .vn-export-list>button b{font-size:17px}
   .vn-export-list em{font-size:8px}
 }
 
@@ -2816,6 +2838,8 @@ body:not(.vn-studio-mode) .site-nav{top:0!important;margin-top:0!important}
   .vn-export-centre-head p:last-child{display:none}
   .vn-export-centre-head{padding-bottom:7px}
   .vn-export-list{gap:4px}
-  .vn-export-list button{min-height:49px;padding:6px 9px}
-  .vn-export-list small{font-size:9px}
+  .vn-export-list>button{min-height:49px;padding:6px 9px}
+  .vn-export-list>button small{font-size:9px}
+  .vn-export-group{padding:7px 8px}
+  .vn-export-group-actions button{min-height:32px}
 }
