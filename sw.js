@@ -1,4 +1,4 @@
-const CACHE_NAME='ccmv-vn-3-0-production-guide-audit-tinh-thuc-full-v1-guide-qa1-sushi-koji';
+const CACHE_NAME='ccmv-vn-3-0-production-guide-audit-tinh-thuc-full-v1-guideqa2';
 const ASSETS = [
   './',
   './index.html',
