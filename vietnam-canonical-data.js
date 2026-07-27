@@ -59,7 +59,7 @@
 
   const guidePlaceIds=Object.freeze([
     'fusion','bakes','cong','marou','cafe-apartments','workshop-coffee','running-bean',
-    'bep-me-in','com-tam-moc','little-bear','lune','omakase-tiger','pho-sol',
+    'bep-me-in','com-tam-moc','little-bear','lune','sushi-koji','pho-sol',
     'pho-vietnam','pizza4ps','quince','quan-thuy','garmentory','dauple','libe',
     'nosbyn','ohquao','push-push','saigon-concept','new-playground','ha-spa',
     'moc-huong','moc-kim','nha-suga','tinh-thuc','fine-arts','book-street',
@@ -68,7 +68,7 @@
   const categoryMembers=Object.freeze({
     STAY:Object.freeze(['fusion']),
     'CAFÉS':Object.freeze(['bakes','cong','marou','cafe-apartments','workshop-coffee','running-bean']),
-    RESTAURANTS:Object.freeze(['bep-me-in','com-tam-moc','little-bear','lune','omakase-tiger','pho-sol','pho-vietnam','pizza4ps','quince','quan-thuy']),
+    RESTAURANTS:Object.freeze(['bep-me-in','com-tam-moc','little-bear','lune','sushi-koji','pho-sol','pho-vietnam','pizza4ps','quince','quan-thuy']),
     SHOP:Object.freeze(['garmentory','dauple','libe','nosbyn','ohquao','push-push','saigon-concept','new-playground']),
     SPA:Object.freeze(['ha-spa','moc-huong','moc-kim','nha-suga','tinh-thuc']),
     ATTRACTIONS:Object.freeze(['fine-arts','book-street','notre-dame','post-office','pink-church','war-museum']),
@@ -114,7 +114,7 @@
   });
   const mealAlternativeMap=Object.freeze({
     'day1:pho-sol':Object.freeze(['com-tam-moc','pho-vietnam']),
-    'day1:omakase-tiger':Object.freeze(['quince','lune']),
+    'day1:sushi-koji':Object.freeze(['quince','lune']),
     'day2:com-tam-moc':Object.freeze(['pho-sol','pho-vietnam']),
     'day2:lune':Object.freeze(['quince','little-bear']),
     'day3:quan-thuy':Object.freeze(['pho-sol','com-tam-moc']),
@@ -131,7 +131,7 @@
     [1,"pho-sol","pho-sol",null,[],false],
     [1,"post-office","post-office",null,[],false],
     [1,"nha-suga","nha-suga",null,[],false],
-    [1,"omakase-tiger","omakase-tiger","omakase-tiger-booking",[],false],
+    [1,"sushi-koji","sushi-koji","sushi-koji-booking",[],false],
     [1,"cafe-apartments","cafe-apartments",null,[],false],
     [1,"return-hotel","fusion",null,[],false],
     [2,"com-tam-moc","com-tam-moc",null,[],false],
@@ -271,11 +271,11 @@
   });
 
   const bookingEventMap={
-    'omakase-tiger-booking':'event-day1-omakase-tiger',
+    'sushi-koji-booking':'event-day1-sushi-koji',
     'cooking-class-booking':'event-day2-cooking'
   };
   const bookingTargetMap={
-    'omakase-tiger-booking':'omakase-tiger',
+    'sushi-koji-booking':'sushi-koji',
     'cooking-class-booking':'cooking',
     'airport-transfer-booking':'tan-son-nhat-airport'
   };
