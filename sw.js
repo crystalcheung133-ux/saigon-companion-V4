@@ -1,4 +1,4 @@
-const CACHE_NAME='ccmv-vn-3-0-production-frozen';
+const CACHE_NAME='ccmv-vn-3-0-production-frozen-content1';
 const ASSETS = [
   './',
   './index.html',

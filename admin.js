@@ -198,7 +198,16 @@
     buildEntry();buildBanner();syncModeUi();
   }
 
+  function routeActiveSelectorToStudio(event){
+    const trigger=event.target?.closest?.('[data-action="friend-open"]');
+    if(!trigger||!readMode()) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    openStudio();
+  }
+
   root.VN_ADMIN={refresh,onIdentityChanged:refresh,open:openPin,close:closeStudio,isCrystal,readMode};
+  document.addEventListener('click',routeActiveSelectorToStudio,true);
   document.addEventListener('DOMContentLoaded',()=>{refresh();syncLifecycleUi();});
   document.addEventListener('ccmv:tripcompletionchange',syncLifecycleUi);
   if(root.visualViewport){root.visualViewport.addEventListener('resize',syncPinViewport);root.visualViewport.addEventListener('scroll',syncPinViewport);}
