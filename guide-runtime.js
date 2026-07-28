@@ -3,14 +3,18 @@
    Vietnam-specific values are supplied by config/data modules. */
 function visitDayHTML(key){
   const place=VN_PRESENTATION.places[key];
-  if(!place || place.cat==='STAY' || key==='workshop-coffee') return '';
+  if(!place) return '';
   const days=VN_PRESENTATION.dayLinks[key]||[];
-  const unique=[]; const seen=new Set();
-  days.forEach(([label,href])=>{const token=String(label)+'|'+String(href);if(!seen.has(token)){seen.add(token);unique.push([label,href]);}});
+  const byDay=new Map();
+  days.forEach(([label,href])=>{
+    const dayLabel=String(label);
+    const current=byDay.get(dayLabel);
+    const targetsPlace=String(href).split('#')[1]===key;
+    if(!current||targetsPlace)byDay.set(dayLabel,[label,href]);
+  });
+  const unique=[...byDay.values()];
   if(!unique.length) return '';
-  const subtitle=String(place.sub||'');
-  const visible=unique.filter(([label])=>!subtitle.toLowerCase().includes(String(label).toLowerCase()));
-  if(!visible.length) return '';
+  const visible=unique;
   const buttons=visible.map(([label,href])=>`<a class="day-jump-button" href="${href}">${label} →</a>`).join('');
   return `<div class="quick-info-row visit-row"><span class="quick-info-icon">📅</span><span><span class="quick-info-label">Visit Day</span><span class="quick-info-value day-link-row">${buttons}</span></span></div>`;
 }

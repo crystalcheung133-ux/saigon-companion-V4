@@ -1,4 +1,4 @@
-const CACHE_NAME='ccmv-saigon-v4-booking-info-home-cards-v3';
+const CACHE_NAME='ccmv-saigon-v4-vn-final-2';
 const ASSETS = [
   './',
   './index.html',
@@ -14,6 +14,8 @@ const ASSETS = [
   './trip-runtime.js',
   './guide-runtime.js',
   './day-runtime.js',
+  './bookings-runtime.js',
+  './lifecycle-runtime.js',
   './itinerary-runtime.js',
   './moments-runtime.js',
   './expense-canonical-bootstrap.js',
@@ -43,6 +45,7 @@ const ASSETS = [
   './logo-monogram-transparent.png',
   './ccmv-logo-calibrated.png',
   './guide.html',
+  './bookings.html',
   './itinerary.html',
   './memory.html',
   './moments.html',

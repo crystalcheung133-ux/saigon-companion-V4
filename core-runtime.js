@@ -45,6 +45,7 @@ function updateFriendLabels(){const label=participantLabel(getFriend());document
 function openFriendModal(){$('mamaModal').classList.add('show')} function closeFriendModal(){$('mamaModal').classList.remove('show')}
 
 document.addEventListener('click',event=>{
+  if(event.target.closest('a[href="bookings.html"]'))closeMiniMenus();
   const control=event.target.closest('[data-action]');
   if(!control)return;
   const action=control.dataset.action;
@@ -67,13 +68,13 @@ document.addEventListener('click',event=>{
 
 /* v2.1.11 safe modal close fallback */
 document.addEventListener('click', function(e){
-  const modal = e.target.closest('.guide-modal,.moments-modal,.unexpected-modal,.tools-modal,.mama-modal,.trip-modal');
+  const modal = e.target.closest('.guide-modal,.moments-modal,.unexpected-modal,.tools-modal,.mama-modal,.trip-modal,.booking-modal');
   if(modal && e.target === modal){
     modal.classList.remove('show');
   }
 });
 document.addEventListener('keydown', function(e){
   if(e.key === 'Escape'){
-    document.querySelectorAll('.guide-modal,.moments-modal,.unexpected-modal,.tools-modal,.mama-modal,.trip-modal').forEach(m=>m.classList.remove('show'));
+    document.querySelectorAll('.guide-modal,.moments-modal,.unexpected-modal,.tools-modal,.mama-modal,.trip-modal,.booking-modal').forEach(m=>m.classList.remove('show'));
   }
 });
