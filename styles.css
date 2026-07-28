@@ -3406,3 +3406,109 @@ html,body{max-width:100%;overflow-x:hidden}
   .booking-header-action{font-size:14px;padding-inline:6px}
   .booking-readonly-field strong{font-size:17px!important}
 }
+
+/* ===== VN final-6: desktop homepage clearance and complete currency card ===== */
+@media (min-width:721px){
+  body.home-bg main.dashboard.home-premium.home-v37{
+    min-height:calc(100dvh - 66px)!important;
+    height:auto!important;
+    max-height:none!important;
+    padding:8px 16px calc(112px + env(safe-area-inset-bottom))!important;
+    align-items:flex-start!important;
+    justify-content:center!important;
+    overflow:visible!important;
+  }
+  body.home-bg section.home-brand-card.v37-dashboard-home{
+    width:min(970px,calc(100vw - 32px))!important;
+    max-height:none!important;
+    overflow:visible!important;
+    padding:24px 30px 22px!important;
+    margin:0 auto 22px!important;
+  }
+  body.home-bg .home-brand-card.v37-dashboard-home .home-since{
+    margin-bottom:5px!important;
+  }
+  body.home-bg .home-brand-card.v37-dashboard-home h1{
+    font-size:clamp(58px,7.1vw,76px)!important;
+    line-height:.84!important;
+    margin-bottom:6px!important;
+  }
+  body.home-bg .home-brand-card.v37-dashboard-home .home-tagline{
+    margin-bottom:8px!important;
+  }
+  body.home-bg .home-brand-card.v37-dashboard-home .home-trip-line{
+    margin:3px 0 12px!important;
+  }
+  body.home-bg .home-live-grid{
+    width:min(650px,100%)!important;
+    max-width:650px!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    grid-template-areas:"countdown time" "weather currency"!important;
+    gap:12px!important;
+    margin:0 auto 14px!important;
+  }
+  body.home-bg .home-live-grid .live-card,
+  body.home-bg .live-rate{
+    height:118px!important;
+    min-height:118px!important;
+    box-sizing:border-box!important;
+    overflow:hidden!important;
+    padding:14px 18px!important;
+  }
+  body.home-bg .live-rate{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    grid-template-rows:auto auto auto auto!important;
+    align-content:center!important;
+    align-items:stretch!important;
+    gap:3px!important;
+  }
+  body.home-bg .live-rate::after,
+  body.home-bg .live-rate::before{
+    display:none!important;
+  }
+  body.home-bg .live-rate .currency-heading{
+    width:100%!important;
+    min-width:0!important;
+  }
+  body.home-bg .live-rate .currency-converter{
+    width:100%!important;
+    display:grid!important;
+    grid-template-columns:auto minmax(0,1fr)!important;
+    align-items:center!important;
+    gap:8px!important;
+    margin:1px 0!important;
+  }
+  body.home-bg .live-rate .currency-converter input{
+    width:100%!important;
+    min-width:0!important;
+    min-height:36px!important;
+    box-sizing:border-box!important;
+    padding:6px 10px!important;
+    font-size:17px!important;
+  }
+  body.home-bg .live-rate strong{
+    display:block!important;
+    min-height:20px!important;
+    margin:0!important;
+    font-size:16px!important;
+    line-height:1.15!important;
+    white-space:nowrap!important;
+    overflow:visible!important;
+  }
+  body.home-bg .live-rate em{
+    display:block!important;
+    min-height:14px!important;
+    margin:0!important;
+    font-size:11px!important;
+    line-height:1.15!important;
+    white-space:nowrap!important;
+    overflow:visible!important;
+  }
+  body.home-bg .home-day-button{
+    min-height:48px!important;
+    padding:10px 34px!important;
+    margin:0 auto 4px!important;
+    font-size:18px!important;
+  }
+}
