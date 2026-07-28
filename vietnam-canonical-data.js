@@ -59,20 +59,20 @@
 
   const guidePlaceIds=Object.freeze([
     'fusion','bakes','cong','marou','cafe-apartments','workshop-coffee','running-bean',
-    'bep-me-in','com-tam-moc','little-bear','lune','man-moi','omakase-tiger','pho-sol',
+    'bep-me-in','late-night-supper','com-tam-moc','little-bear','lune','man-moi','omakase-tiger','pho-sol',
     'pho-vietnam','pizza4ps','quince','quan-thuy','garmentory','dauple','libe',
     'nosbyn','ohquao','push-push','saigon-concept','new-playground','ha-spa',
     'moc-huong','moc-kim','nha-suga','tinh-thuc','fine-arts','book-street',
-    'notre-dame','post-office','pink-church','war-museum','cooking'
+    'notre-dame','post-office','pink-church','war-museum','cooking','cash-backup'
   ]);
   const categoryMembers=Object.freeze({
     STAY:Object.freeze(['fusion']),
     'CAFÉS':Object.freeze(['bakes','cong','marou','cafe-apartments','workshop-coffee','running-bean']),
-    RESTAURANTS:Object.freeze(['bep-me-in','com-tam-moc','little-bear','lune','man-moi','omakase-tiger','pho-sol','pho-vietnam','pizza4ps','quince','quan-thuy']),
+    RESTAURANTS:Object.freeze(['bep-me-in','late-night-supper','com-tam-moc','little-bear','lune','man-moi','omakase-tiger','pho-sol','pho-vietnam','pizza4ps','quince','quan-thuy']),
     SHOP:Object.freeze(['garmentory','dauple','libe','nosbyn','ohquao','push-push','saigon-concept','new-playground']),
     SPA:Object.freeze(['ha-spa','moc-huong','moc-kim','nha-suga','tinh-thuc']),
     ATTRACTIONS:Object.freeze(['fine-arts','book-street','notre-dame','post-office','pink-church','war-museum']),
-    EXPERIENCE:Object.freeze(['cooking'])
+    EXPERIENCE:Object.freeze(['cooking','cash-backup'])
   });
 
   /* Stage 2.6: which categories behave as a route-first "directory" view
@@ -127,13 +127,14 @@
   const eventSpecs=Object.freeze([
     [1,"airport-atm",null,null,[],false],
     [1,"airport-transfer","fusion",null,[],false],
-    [1,"ha-tam",null,null,[],false],
+    [1,"cash-backup","cash-backup",null,[],false],
     [1,"pho-sol","pho-sol",null,[],false],
     [1,"post-office","post-office",null,[],false],
     [1,"nha-suga","nha-suga",null,[],false],
     [1,"omakase-tiger","omakase-tiger","omakase-tiger-booking",[],false],
     [1,"cafe-apartments","cafe-apartments",null,[],false],
     [1,"return-hotel","fusion",null,[],false],
+    [1,"late-night-supper","late-night-supper",null,[],false],
     [2,"com-tam-moc","com-tam-moc",null,[],false],
     [2,"cooking","cooking","cooking-class-booking",[],false],
     [2,"grab-moc-kim","moc-kim",null,[],false],
@@ -141,6 +142,7 @@
     [2,"libe","libe",null,["libe","dauple","nosbyn"],true],
     [2,"grab-lune","lune",null,[],false],
     [2,"lune","lune",null,[],false],
+    [2,"late-night-supper","late-night-supper",null,[],false],
     [3,"quan-thuy","quan-thuy",null,[],false],
     [3,"pink-church","pink-church",null,[],false],
     [3,"push-push","push-push",null,[],false],
@@ -152,6 +154,7 @@
     [3,"louh","ohquao",null,[],false],
     [3,"little-bear","little-bear",null,[],false],
     [3,"marou","marou",null,[],false],
+    [3,"late-night-supper","late-night-supper",null,[],false],
     [4,"running-bean","running-bean",null,[],false],
     [4,"war-museum","war-museum",null,[],false],
     [4,"pizza4ps","pizza4ps",null,[],false],
@@ -161,6 +164,7 @@
     [4,"grab-quince","quince",null,[],false],
     [4,"quince","quince",null,[],false],
     [4,"social-club",null,null,[],false],
+    [4,"late-night-supper","late-night-supper",null,[],false],
     [5,"pho-vietnam","pho-vietnam",null,[],false],
     [5,"fine-arts","fine-arts",null,[],false],
     [5,"bep-me-in","bep-me-in",null,[],false],
@@ -214,7 +218,9 @@
     'new-playground':Object.freeze([['day2','libe']]),
     marou:Object.freeze([['day5','takashimaya']]),
     'man-moi':Object.freeze([['day5','bep-me-in']]),
-    'workshop-coffee':Object.freeze([['day1','nha-suga']])
+    'workshop-coffee':Object.freeze([['day1','nha-suga']]),
+    'cash-backup':Object.freeze([['day1','cash-backup']]),
+    'late-night-supper':Object.freeze([['day1','late-night-supper'],['day2','late-night-supper'],['day3','late-night-supper'],['day4','late-night-supper']])
   });
   const guideEntries=guidePlaceIds.map(placeId=>{
     const value=legacyContent.place(placeId);
