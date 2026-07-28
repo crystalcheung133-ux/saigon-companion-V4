@@ -1,4 +1,4 @@
-const CACHE_NAME='ccmv-saigon-v4-vn-final-2';
+const CACHE_NAME='ccmv-saigon-v4-vn-final-3';
 const ASSETS = [
   './',
   './index.html',

@@ -3111,3 +3111,85 @@ body.home-bg .home-live-grid .live-card{height:auto!important;min-height:96px!im
   body.home-bg .live-rate .currency-converter input{min-height:32px!important;font-size:15px!important}
   body.home-bg .live-rate strong{font-size:12px!important}
 }
+\n\n/* ===== VN final-3: visible currency result, compact booking sheet, unified Guide actions ===== */
+.quick-info-actions .timeline-action,
+.quick-info-actions .guide-booking-badge,
+.quick-info-actions .guide-booking-badge.confirmed,
+.quick-info-actions .guide-booking-badge.pending,
+.quick-info-actions .guide-booking-badge.cancelled{
+  min-height:42px!important;
+  padding:9px 14px!important;
+  border:1px solid var(--line)!important;
+  border-radius:999px!important;
+  background:rgba(255,250,243,.92)!important;
+  color:var(--ink)!important;
+  font-size:13px!important;
+  font-weight:800!important;
+  line-height:1.1!important;
+  box-shadow:none!important;
+  text-decoration:none!important;
+}
+.quick-info-actions .guide-booking-badge{margin:0!important}
+
+@media(max-width:720px){
+  body.home-bg .home-live-grid{gap:6px!important;margin-bottom:7px!important}
+  body.home-bg .home-live-grid .live-card,
+  body.home-bg .live-rate{
+    height:100px!important;
+    min-height:100px!important;
+    padding:7px 9px!important;
+    overflow:visible!important;
+  }
+  body.home-bg .live-rate{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    grid-template-rows:auto auto auto auto!important;
+    align-content:center!important;
+    gap:1px!important;
+  }
+  body.home-bg .live-rate .live-icon{display:none!important}
+  body.home-bg .live-rate .currency-heading{min-height:20px!important}
+  body.home-bg .live-rate .currency-converter{margin:1px 0!important;gap:5px!important}
+  body.home-bg .live-rate .currency-converter input{
+    width:100%!important;min-width:0!important;min-height:32px!important;
+    padding:5px 7px!important;font-size:15px!important
+  }
+  body.home-bg .live-rate strong{
+    display:block!important;min-height:15px!important;margin:0!important;
+    font-size:12px!important;line-height:1.1!important;color:var(--ink)!important;
+    white-space:nowrap!important;overflow:visible!important
+  }
+  body.home-bg .live-rate em{
+    display:block!important;margin:0!important;font-size:8px!important;line-height:1.05!important;
+    white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important
+  }
+
+  .booking-sheet{
+    --booking-nav-clearance:calc(12px + env(safe-area-inset-bottom))!important;
+    inset:0!important;max-height:100svh!important;border-radius:0!important;
+    padding:10px 12px var(--booking-nav-clearance)!important
+  }
+  .booking-close{top:8px!important;right:8px!important;width:38px!important;height:38px!important}
+  .booking-editor-head{padding-right:42px!important}
+  .booking-editor-head .kicker{margin:0 0 2px!important;font-size:10px!important}
+  .booking-sheet h2{margin:0 0 2px!important;font-size:23px!important;line-height:1.05!important}
+  .booking-place-link{margin:1px 0 3px!important}
+  .booking-day-button--detail{margin:2px 0 1px!important;padding:5px 9px!important;min-height:30px!important}
+  .booking-readonly-grid{gap:5px!important;margin:5px 0 7px!important}
+  .booking-readonly-field{padding:6px 8px!important;border-radius:11px!important}
+  .booking-readonly-field small{margin-bottom:1px!important;font-size:8px!important;line-height:1.05!important}
+  .booking-readonly-field strong{font-size:11px!important;line-height:1.18!important}
+  .booking-copy-control{padding:3px 7px!important;font-size:9px!important}
+  .booking-view-actions{margin-top:2px!important}
+  .booking-edit-btn{min-width:116px!important;min-height:38px!important;padding:7px 12px!important}
+  .booking-modal-spa .booking-readonly-field{padding:5px 7px!important}
+  .booking-modal-spa .booking-readonly-grid{gap:4px!important}
+}
+
+@media(max-width:390px),(max-height:730px){
+  body.home-bg .home-live-grid .live-card,
+  body.home-bg .live-rate{height:94px!important;min-height:94px!important}
+  body.home-bg .live-rate .currency-converter input{min-height:30px!important;font-size:14px!important}
+  .booking-sheet h2{font-size:21px!important}
+  .booking-readonly-field{padding:5px 7px!important}
+}
