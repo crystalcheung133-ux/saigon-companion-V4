@@ -3343,3 +3343,66 @@ html,body{max-width:100%;overflow-x:hidden}
   }
   body.home-bg .live-rate .currency-converter input{font-size:16px!important}
 }
+
+
+/* ===== VN final-5: readable booking details + paired header actions ===== */
+.booking-header-actions{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  margin:14px 0 16px;
+}
+.booking-header-action{
+  min-width:0;
+  min-height:48px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:10px 12px;
+  border:2px solid rgba(151,111,55,.34);
+  border-radius:999px;
+  background:#fffaf2;
+  color:var(--gold-deep);
+  font-size:16px;
+  font-weight:850;
+  line-height:1.15;
+  text-align:center;
+  text-decoration:none;
+  white-space:nowrap;
+}
+.booking-independent-note{margin:10px 0 14px;color:#795f46;font-size:16px;font-weight:750}
+.booking-sheet h2{font-size:36px;line-height:1.08}
+.booking-editor-head .kicker{font-size:14px;font-weight:900;letter-spacing:.16em}
+.booking-readonly-grid{gap:12px;margin:12px 0 18px}
+.booking-readonly-field{padding:16px 18px;border-radius:18px}
+.booking-readonly-field small{margin-bottom:5px;font-size:13px;line-height:1.15;letter-spacing:.10em}
+.booking-readonly-field strong{font-size:20px;line-height:1.28;font-weight:760}
+.booking-copy-control{min-height:40px;padding:8px 14px;font-size:15px;font-weight:800}
+.booking-edit-btn{min-height:52px;padding:12px 20px;font-size:19px;font-weight:850}
+.booking-view-actions{margin-top:8px}
+
+@media(max-width:700px){
+  .booking-sheet{
+    padding:18px 18px calc(22px + env(safe-area-inset-bottom))!important;
+  }
+  .booking-close{top:14px!important;right:14px!important;width:48px!important;height:48px!important}
+  .booking-editor-head{padding-right:56px!important}
+  .booking-editor-head .kicker{margin:0 0 8px!important;font-size:13px!important;line-height:1.1!important}
+  .booking-sheet h2{margin:0!important;font-size:32px!important;line-height:1.08!important}
+  .booking-header-actions{gap:10px;margin:14px 0 16px}
+  .booking-header-action{min-height:50px;padding:10px 8px;font-size:15.5px}
+  .booking-readonly-grid{gap:10px!important;margin:10px 0 16px!important}
+  .booking-readonly-field,
+  .booking-modal-spa .booking-readonly-field{padding:14px 16px!important;border-radius:17px!important}
+  .booking-readonly-field small{margin-bottom:4px!important;font-size:12px!important;line-height:1.15!important}
+  .booking-readonly-field strong{font-size:18px!important;line-height:1.25!important;font-weight:760!important}
+  .booking-copy-control{min-height:38px!important;padding:7px 13px!important;font-size:14px!important}
+  .booking-view-actions{margin-top:8px!important}
+  .booking-edit-btn{min-width:0!important;min-height:52px!important;padding:11px 18px!important;font-size:18px!important}
+}
+
+@media(max-width:390px){
+  .booking-sheet h2{font-size:29px!important}
+  .booking-header-action{font-size:14px;padding-inline:6px}
+  .booking-readonly-field strong{font-size:17px!important}
+}
