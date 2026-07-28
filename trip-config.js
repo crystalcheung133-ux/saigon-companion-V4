@@ -24,7 +24,9 @@
     features:Object.freeze({
       /* Stage 3.2D validation flag. Legacy remains authoritative. */
       expenseCanonicalDualWrite:false,
-      expenseCanonicalReadShadow:false
+      expenseCanonicalReadShadow:false,
+      bookingSupabaseFoundation:true,
+      bookingSupabaseSync:false
     }),
     participants
     ,parties:Object.freeze({

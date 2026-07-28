@@ -7,6 +7,7 @@
   const KEY=(root.STORAGE_CONFIG&&root.STORAGE_CONFIG.keys.bookings)||'ccmv_vietnam_bookings_v1';
   const EVENT_NAME='ccmv:bookings-changed';
   const SCHEMA_VERSION=1;
+  let remoteProvider=null;
 
   const SEEDS=Object.freeze([
     {bookingId:'bk-omakase-tiger',eventId:'omakase-tiger',day:1,placeId:'omakase-tiger',category:'Restaurant',title:'Omakase Tiger',date:'2026-10-30',time:'17:30',status:'pending',bookingName:'',depositPaid:false,depositAmount:'',notes:'Reservation time: 17:30. Exact reservation URL should be manually verified before payment.',bookingMethod:'WhatsApp / Zalo and official website',bookingContact:'+84 93 201 4124',bookingUrl:'https://omakasetiger.com/en'},
@@ -122,6 +123,15 @@
     return()=>{root.removeEventListener(EVENT_NAME,custom);root.removeEventListener('storage',storage);};
   }
 
+  function registerRemoteProvider(provider){
+    if(!provider||typeof provider.getStatus!=='function')throw new Error('Invalid Booking remote provider');
+    if(remoteProvider&&remoteProvider!==provider)throw new Error('Booking remote provider already registered');
+    remoteProvider=provider;
+    return remoteProvider.getStatus();
+  }
+  function getRemoteProvider(){return remoteProvider;}
+  function getRemoteStatus(){return remoteProvider?remoteProvider.getStatus():Object.freeze({provider:null,configured:false,authenticated:false,active:false,mode:'local-only'});}
+
   const repository=Object.freeze({
     key:KEY,
     schemaVersion:SCHEMA_VERSION,
@@ -135,6 +145,9 @@
     update,
     replaceAll,
     subscribe,
+    registerRemoteProvider,
+    getRemoteProvider,
+    getRemoteStatus,
     getSeeds(){return clone(SEEDS);}
   });
   root.CCMV_BOOKING_REPOSITORY=repository;
