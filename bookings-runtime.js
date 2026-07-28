@@ -9,7 +9,7 @@
   function label(status){return status==='confirmed'?'✓ Confirmed':status==='cancelled'?'Cancelled / unavailable':'Pending';}
   function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
   function user(){try{return getFriend();}catch(e){return STORAGE.local.get(STORAGE_CONFIG.keys.friend,'crystal');}}
-  function currentPartyId(){const alias=user();const parties=root.TRIP_CONFIG?.parties?.identities||{};for(const entry of Object.values(parties)){if((entry.legacyAliases||[]).includes(alias))return entry.partyId;}return `party-${alias}`;}
+  function currentPartyId(){const synced=root.CCMV_BOOKING_SYNC?.getStatus?.().membership?.party_id;if(synced)return synced;const alias=user();const parties=root.TRIP_CONFIG?.parties?.identities||{};for(const entry of Object.values(parties)){if((entry.legacyAliases||[]).includes(alias))return entry.partyId;}return `party-${alias}`;}
   function person(k){return (root.VN_PRESENTATION?.friends||{})[k]||k||'—';}
   function formatDate(v){if(!v)return'Date pending';const d=new Date(v+'T12:00:00');return new Intl.DateTimeFormat('en-AU',{weekday:'short',day:'numeric',month:'short'}).format(d);}
   function summary(rows){const c=rows.filter(x=>x.status==='confirmed').length,p=rows.filter(x=>x.status==='pending').length,u=rows.filter(x=>x.status==='cancelled').length;return `${c} confirmed · ${p} pending${u?` · ${u} unavailable`:''}`;}

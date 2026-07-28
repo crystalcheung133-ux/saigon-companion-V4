@@ -31,6 +31,7 @@ function getFriend(){return STORAGE.local.get(STORAGE_CONFIG.keys.friend,VN_PRES
 function setFriend(k){
   if(!VN_PRESENTATION.participants.identities[k])return;
   STORAGE.local.set(STORAGE_CONFIG.keys.friend,k);
+  window.dispatchEvent(new CustomEvent('ccmv:party-changed',{detail:{legacyKey:k}}));
   closeFriendModal();
   updateFriendLabels();
   if(document.getElementById('expenseModal')?.classList.contains('show')&&typeof window.resetExpenseForm==='function')window.resetExpenseForm();

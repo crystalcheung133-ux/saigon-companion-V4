@@ -3540,3 +3540,10 @@ html,body{max-width:100%;overflow-x:hidden}
     font-size:18px!important;
   }
 }
+
+
+/* VN S1C Booking Sync */
+.booking-sync-status{border:1px solid var(--line);border-radius:999px;background:#fffaf2;color:var(--gold-deep);font:800 13px/1 inherit;padding:9px 13px;white-space:nowrap;cursor:pointer}
+.booking-sync-status[data-state="synced"]{background:#eaf5ed;color:#275e3d;border-color:#b7d7c0}.booking-sync-status[data-state="syncing"]{background:#fff3d8}.booking-sync-status[data-state="error"]{background:#fff0ec;color:#8a3d2d}
+.booking-sync-modal{position:fixed;inset:0;background:rgba(35,27,20,.42);display:none;align-items:center;justify-content:center;padding:20px;z-index:1900}.booking-sync-modal.show{display:flex}.booking-sync-sheet{position:relative;width:min(520px,100%);background:#fffaf2;border:1px solid var(--line);border-radius:28px;padding:28px;box-shadow:0 24px 70px rgba(35,27,20,.24)}.booking-sync-close{position:absolute;right:16px;top:14px;border:0;background:transparent;font-size:34px;color:var(--ink);cursor:pointer}.booking-sync-sheet h2{margin:.2em 0 .5em;font-size:34px}.booking-sync-sheet label{display:grid;gap:8px;font-weight:800}.booking-sync-sheet input{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:14px;padding:14px;font:inherit;background:white}.booking-sync-readout{display:grid;gap:8px;padding:16px;border:1px solid var(--line);border-radius:18px;background:#f3eadc;margin:18px 0}.booking-sync-readout span{font-size:14px}.booking-sync-actions{display:flex;gap:10px;align-items:center}.booking-sync-actions .btn{margin:0}
+@media(max-width:520px){.bookings-header{padding-right:54px}.booking-sync-status{position:absolute;right:54px;top:7px;padding:8px 11px}.booking-sync-modal{padding:10px}.booking-sync-sheet{padding:26px 20px;border-radius:24px}.booking-sync-sheet h2{font-size:30px}}
