@@ -19,6 +19,7 @@
     startDate:'2026-10-30',
     endDate:'2026-11-03',
     storageNamespace:'ccmv-vietnam-2026',
+    tripGeneration:1,
     version:'stage1-refactored',
     features:Object.freeze({
       /* Stage 3.2D validation flag. Legacy remains authoritative. */

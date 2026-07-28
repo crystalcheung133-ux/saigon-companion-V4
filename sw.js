@@ -1,4 +1,4 @@
-const CACHE_NAME='ccmv-saigon-v4-vn-content-final-7';
+const CACHE_NAME='ccmv-saigon-v4-vn-s1a-booking-repository-1';
 const ASSETS = [
   './',
   './index.html',
@@ -14,6 +14,7 @@ const ASSETS = [
   './trip-runtime.js',
   './guide-runtime.js',
   './day-runtime.js',
+  './booking-repository.js',
   './bookings-runtime.js',
   './lifecycle-runtime.js',
   './itinerary-runtime.js',
