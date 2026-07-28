@@ -55,31 +55,35 @@
     host.innerHTML=categoryTabs(rows)+`<section class="booking-group booking-group-active">${group.map(card).join('')}</section>`;
     host.querySelectorAll('[data-booking-category]').forEach(btn=>btn.addEventListener('click',()=>{activeCategory=btn.dataset.bookingCategory;render();}));
   }
-  function bookingAction(b){
-    const method=String(b.bookingMethod||'').trim();
-    const contact=String(b.bookingContact||'').trim();
-    const url=String(b.bookingUrl||'').trim();
-    if(url)return `<a class="booking-quick-action" href="${esc(url)}" target="_blank" rel="noopener">Book online</a>`;
-    if(!contact)return '';
-    const digits=contact.replace(/[^0-9]/g,'');
-    if(/whatsapp/i.test(method))return `<a class="booking-quick-action" href="https://wa.me/${esc(digits)}" target="_blank" rel="noopener">WhatsApp</a>`;
-    if(/email/i.test(method)||/@/.test(contact))return `<a class="booking-quick-action" href="mailto:${esc(contact)}">Email</a>`;
-    return `<a class="booking-quick-action" href="tel:${esc(contact)}">Call</a>`;
+  function bookingInfoLink(kind,value){
+    const clean=String(value||'').trim();
+    if(!clean)return '—';
+    if(kind==='url'){
+      const href=/^https?:\/\//i.test(clean)?clean:`https://${clean}`;
+      return `<a class="booking-inline-link" href="${esc(href)}" target="_blank" rel="noopener">${esc(clean)}</a>`;
+    }
+    if(kind==='email'||/@/.test(clean))return `<a class="booking-inline-link" href="mailto:${esc(clean)}">${esc(clean)}</a>`;
+    const digits=clean.replace(/[^0-9]/g,'');
+    if(kind==='whatsapp'&&digits)return `<a class="booking-inline-link" href="https://wa.me/${esc(digits)}" target="_blank" rel="noopener">${esc(clean)}</a>`;
+    if(digits)return `<a class="booking-inline-link" href="tel:${esc(clean)}">${esc(clean)}</a>`;
+    return esc(clean);
   }
   function card(b){
     const meta=[formatDate(b.date),b.time].filter(Boolean).join(' · ');
-    const quick=bookingAction(b);
-    return `<article class="booking-card ${b.status}"><button type="button" class="booking-card-main" onclick="openBookingEditor('${esc(b.id)}')"><span><strong>${esc(b.title)}</strong><small>${esc(meta)}</small></span><span class="booking-status ${b.status}">${label(b.status)}</span></button>${quick?`<div class="booking-contact-row">${quick}</div>`:''}${b.updatedBy?`<p class="booking-updated">Updated by ${esc(person(b.updatedBy))}${b.updatedAt?` · ${new Date(b.updatedAt).toLocaleString()}`:''}</p>`:''}</article>`;
+    return `<article class="booking-card ${b.status}"><button type="button" class="booking-card-main" onclick="openBookingEditor('${esc(b.id)}')"><span><strong>${esc(b.title)}</strong><small>${esc(meta)}</small></span><span class="booking-status ${b.status}">${label(b.status)}</span></button>${b.updatedBy?`<p class="booking-updated">Updated by ${esc(person(b.updatedBy))}${b.updatedAt?` · ${new Date(b.updatedAt).toLocaleString()}`:''}</p>`:''}</article>`;
   }
   function valueOrDash(v){return String(v||'').trim()||'—';}
-  function readonlyField(labelText,value,wide){return `<div class="booking-readonly-field${wide?' booking-readonly-wide':''}"><small>${esc(labelText)}</small><strong>${esc(valueOrDash(value))}</strong></div>`;}
+  function readonlyField(labelText,value,wide,allowHtml){const shown=allowHtml?value:esc(valueOrDash(value));return `<div class="booking-readonly-field${wide?' booking-readonly-wide':''}"><small>${esc(labelText)}</small><strong>${shown||'—'}</strong></div>`;}
   root.toggleDepositAmount=function(input){const wrap=input.closest('form')?.querySelector('[data-deposit-amount]');if(wrap)wrap.hidden=!input.checked;};
   root.openBookingEditor=function(id){
     const b=load().find(x=>x.id===id);if(!b)return;
     const modal=document.getElementById('bookingModal'),host=document.getElementById('bookingEditor');
     const deposit=b.depositPaid?(b.depositAmount?`Paid · ${b.depositAmount}`:'Paid'):'Not paid';
-    const quick=bookingAction(b);
-    host.innerHTML=`<div class="booking-editor-head"><p class="kicker">Shared booking</p><h2>${esc(b.title)}</h2><p class="booking-place-link">${b.placeId?`<a href="place.html?id=${encodeURIComponent(b.placeId)}">Open Guide card →</a>`:'Independent booking record'}</p></div><div class="booking-readonly-grid">${readonlyField('Booking status',label(b.status))}${readonlyField('Date',formatDate(b.date))}${readonlyField('Time',b.time)}${readonlyField('Booking name',b.bookingName)}${readonlyField('Deposit',deposit)}${readonlyField('Booking option',b.bookingMethod)}${readonlyField('Contact',b.bookingContact,true)}${readonlyField('Online booking link',b.bookingUrl,true)}${readonlyField('Notes',b.notes,true)}</div><div class="booking-view-actions">${quick||''}<button class="btn booking-edit-btn" type="button" onclick="editBookingEditor('${esc(id)}')">Edit booking</button></div>`;
+    const method=String(b.bookingMethod||'').trim();
+    const contactKind=/whatsapp/i.test(method)?'whatsapp':(/email/i.test(method)?'email':'phone');
+    const contactInfo=bookingInfoLink(contactKind,b.bookingContact);
+    const onlineInfo=bookingInfoLink('url',b.bookingUrl);
+    host.innerHTML=`<div class="booking-editor-head"><p class="kicker">Shared booking</p><h2>${esc(b.title)}</h2><p class="booking-place-link">${b.placeId?`<a href="place.html?id=${encodeURIComponent(b.placeId)}">Open Guide card →</a>`:'Independent booking record'}</p></div><div class="booking-readonly-grid">${readonlyField('Booking status',label(b.status))}${readonlyField('Date',formatDate(b.date))}${readonlyField('Time',b.time)}${readonlyField('Booking name',b.bookingName)}${readonlyField('Deposit',deposit)}${readonlyField('Booking option',b.bookingMethod)}${readonlyField('Contact details',contactInfo,true,true)}${readonlyField('Online booking / website',onlineInfo,true,true)}${readonlyField('Notes',b.notes,true)}</div><div class="booking-view-actions"><button class="btn booking-edit-btn" type="button" onclick="editBookingEditor('${esc(id)}')">Edit booking</button></div>`;
     modal?.classList.add('show');
   };
   root.editBookingEditor=function(id){

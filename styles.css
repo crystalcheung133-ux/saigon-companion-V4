@@ -3060,3 +3060,46 @@ body.home-bg .home-live-grid .live-card{height:auto!important;min-height:96px!im
   body.home-bg .live-rate strong{font-size:11px!important}
   body.home-bg .home-day-button{margin-top:2px!important}
 }
+
+/* ===== VN booking information-only contacts + balanced home cards ===== */
+.booking-contact-row,.booking-quick-action{display:none!important}
+.booking-inline-link{
+  color:var(--gold-deep)!important;text-decoration:underline!important;text-underline-offset:2px!important;
+  overflow-wrap:anywhere!important;word-break:break-word!important
+}
+.booking-readonly-field strong a{font:inherit!important}
+
+@media(max-width:720px){
+  body.home-bg main.dashboard.home-premium.home-v37{
+    height:calc(100dvh - 64px)!important;min-height:0!important;max-height:calc(100dvh - 64px)!important;
+    padding:6px 10px calc(70px + env(safe-area-inset-bottom))!important;overflow:hidden!important;
+    align-items:flex-start!important;justify-content:center!important
+  }
+  body.home-bg section.home-brand-card.v37-dashboard-home{
+    max-height:calc(100dvh - 138px)!important;overflow:hidden!important;padding:10px 12px 11px!important
+  }
+  body.home-bg .home-live-grid{gap:7px!important;margin-bottom:8px!important}
+  body.home-bg .home-live-grid .live-card,body.home-bg .live-rate{
+    height:88px!important;min-height:88px!important;padding:8px 10px!important
+  }
+  body.home-bg .live-rate{gap:3px!important}
+  body.home-bg .live-rate .currency-converter{
+    display:flex!important;align-items:center!important;gap:6px!important;margin:2px 0 3px!important;width:100%!important
+  }
+  body.home-bg .live-rate .currency-converter span{flex:0 0 auto!important;font-size:12px!important}
+  body.home-bg .live-rate .currency-converter input{
+    width:100%!important;min-width:0!important;min-height:36px!important;padding:6px 8px!important;
+    font-size:16px!important;line-height:1.1!important
+  }
+  body.home-bg .live-rate strong{
+    display:block!important;width:100%!important;font-size:13px!important;line-height:1.05!important;
+    white-space:nowrap!important;overflow:visible!important
+  }
+  body.home-bg .home-day-button{margin-top:0!important;flex:0 0 auto!important}
+}
+@media(max-width:390px),(max-height:730px){
+  body.home-bg section.home-brand-card.v37-dashboard-home{padding-top:6px!important;padding-bottom:7px!important}
+  body.home-bg .home-live-grid .live-card,body.home-bg .live-rate{height:80px!important;min-height:80px!important}
+  body.home-bg .live-rate .currency-converter input{min-height:32px!important;font-size:15px!important}
+  body.home-bg .live-rate strong{font-size:12px!important}
+}

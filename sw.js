@@ -1,4 +1,4 @@
-const CACHE_NAME='ccmv-saigon-v4-home-booking-readonly-v2';
+const CACHE_NAME='ccmv-saigon-v4-booking-info-home-cards-v3';
 const ASSETS = [
   './',
   './index.html',
@@ -63,7 +63,7 @@ self.addEventListener('activate', event => {
     caches.keys()
       .then(keys => Promise.all(keys.filter(key =>
         key !== CACHE_NAME &&
-        (key.startsWith('ccmv-vn-') || key.startsWith('ccmv-vietnam-2026-') || key.startsWith('ccmv-saigon-companion-'))
+        (key.startsWith('ccmv-vn-') || key.startsWith('ccmv-vietnam-2026-') || key.startsWith('ccmv-saigon-companion-') || key.startsWith('ccmv-saigon-v4-'))
       ).map(key => caches.delete(key))))
       .then(() => self.clients.claim())
   );
