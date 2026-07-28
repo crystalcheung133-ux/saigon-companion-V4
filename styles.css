@@ -3193,3 +3193,153 @@ body.home-bg .home-live-grid .live-card{height:auto!important;min-height:96px!im
   .booking-sheet h2{font-size:21px!important}
   .booking-readonly-field{padding:5px 7px!important}
 }
+
+/* ===== VN final-4: currency visibility, mobile booking list, single-line booking badge ===== */
+html,body{max-width:100%;overflow-x:hidden}
+.quick-info-actions .guide-booking-badge,
+.quick-info-actions .guide-booking-badge.pending,
+.quick-info-actions .guide-booking-badge.confirmed,
+.quick-info-actions .guide-booking-badge.cancelled{
+  white-space:nowrap!important;
+  flex:0 0 auto!important;
+  min-width:max-content!important;
+  font-size:12px!important;
+  line-height:1!important;
+  padding:9px 12px!important;
+}
+
+@media(min-width:721px){
+  body.home-bg .home-live-grid .live-card,
+  body.home-bg .live-rate{
+    height:124px!important;
+    min-height:124px!important;
+    overflow:visible!important;
+  }
+  body.home-bg .live-rate{
+    display:grid!important;
+    grid-template-rows:auto auto auto auto!important;
+    align-content:center!important;
+    gap:3px!important;
+  }
+  body.home-bg .live-rate .currency-converter{margin:2px 0!important}
+  body.home-bg .live-rate strong{
+    display:block!important;
+    min-height:18px!important;
+    margin:0!important;
+    font-size:14px!important;
+    line-height:1.15!important;
+    white-space:nowrap!important;
+    overflow:visible!important;
+  }
+  body.home-bg .live-rate em{
+    display:block!important;
+    margin:0!important;
+    font-size:10px!important;
+    line-height:1.1!important;
+    overflow:visible!important;
+  }
+}
+
+@media(max-width:720px){
+  body.home-bg,
+  body.home-bg main.dashboard.home-premium.home-v37,
+  body.home-bg section.home-brand-card.v37-dashboard-home{overflow-x:hidden!important}
+  body.home-bg .home-live-grid .live-card,
+  body.home-bg .live-rate{
+    height:112px!important;
+    min-height:112px!important;
+    overflow:visible!important;
+  }
+  body.home-bg .live-rate{
+    display:grid!important;
+    grid-template-rows:auto auto auto auto!important;
+    align-content:center!important;
+    gap:2px!important;
+  }
+  body.home-bg .live-rate .currency-converter{display:flex!important;margin:1px 0!important}
+  body.home-bg .live-rate .currency-converter input{
+    width:100%!important;
+    min-width:0!important;
+    min-height:34px!important;
+    font-size:16px!important;
+    line-height:1.1!important;
+  }
+  body.home-bg .live-rate strong{
+    display:block!important;
+    min-height:16px!important;
+    margin:0!important;
+    font-size:12px!important;
+    line-height:1.1!important;
+    white-space:nowrap!important;
+    overflow:visible!important;
+  }
+  body.home-bg .live-rate em{
+    display:block!important;
+    margin:0!important;
+    font-size:8.5px!important;
+    line-height:1.05!important;
+    white-space:nowrap!important;
+    overflow:visible!important;
+  }
+
+  /* Restore normal booking detail readability. Compact only the Spa category list. */
+  .booking-sheet{
+    padding:14px 14px calc(18px + env(safe-area-inset-bottom))!important;
+  }
+  .booking-sheet h2{font-size:23px!important;line-height:1.1!important}
+  .booking-readonly-grid{gap:7px!important;margin:8px 0 10px!important}
+  .booking-readonly-field,
+  .booking-modal-spa .booking-readonly-field{padding:8px 9px!important}
+  .booking-modal-spa .booking-readonly-grid{gap:7px!important}
+
+  #bookingList.booking-list-spa .booking-tabs{
+    margin:4px 0 6px!important;
+    gap:4px!important;
+  }
+  #bookingList.booking-list-spa .booking-tab{
+    min-height:34px!important;
+    padding:5px 7px!important;
+    font-size:10px!important;
+  }
+  #bookingList.booking-list-spa .booking-group-spa{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:6px!important;
+  }
+  #bookingList.booking-list-spa .booking-card{
+    min-height:0!important;
+    margin:0!important;
+    border-radius:16px!important;
+  }
+  #bookingList.booking-list-spa .booking-card-main{
+    min-height:68px!important;
+    padding:8px 9px!important;
+  }
+  #bookingList.booking-list-spa .booking-card-main strong{
+    font-size:13px!important;
+    line-height:1.15!important;
+  }
+  #bookingList.booking-list-spa .booking-card-main small{
+    font-size:9px!important;
+    line-height:1.1!important;
+  }
+  #bookingList.booking-list-spa .booking-status{
+    font-size:9px!important;
+    padding:5px 7px!important;
+    white-space:nowrap!important;
+  }
+  #bookingList.booking-list-spa .booking-day-button{
+    margin:6px 7px 6px 0!important;
+    padding:6px 8px!important;
+    font-size:9px!important;
+  }
+}
+
+@media(max-width:390px),(max-height:730px){
+  body.home-bg .home-live-grid .live-card,
+  body.home-bg .live-rate{
+    height:106px!important;
+    min-height:106px!important;
+  }
+  body.home-bg .live-rate .currency-converter input{font-size:16px!important}
+}

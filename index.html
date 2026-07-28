@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="zh-Hant"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><title>Home · Saigon Companion</title><link href="manifest.json" rel="manifest"/><meta content="#8A4F2D" name="theme-color"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="Saigon" name="apple-mobile-web-app-title"/><link href="icon-192.png" rel="apple-touch-icon"/><link href="styles.css?v=vn-final-3" rel="stylesheet"/></head><body class="home-bg"><div aria-hidden="true" id="ccmvSplash" role="presentation"><div class="splash-paper"></div><div class="splash-glow"></div><div class="splash-content"><img alt="" class="splash-logo" src="ccmv-logo-calibrated.png"/><h1 class="splash-line">TRAVEL TOGETHER,<br/>CAPTURE TOGETHER</h1><div class="splash-destination">VIETNAM 2026</div></div><div class="splash-fadeout"></div></div><script>(function(){
+<html lang="zh-Hant"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><title>Home · Saigon Companion</title><link href="manifest.json" rel="manifest"/><meta content="#8A4F2D" name="theme-color"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="Saigon" name="apple-mobile-web-app-title"/><link href="icon-192.png" rel="apple-touch-icon"/><link href="styles.css?v=vn-final-4" rel="stylesheet"/></head><body class="home-bg"><div aria-hidden="true" id="ccmvSplash" role="presentation"><div class="splash-paper"></div><div class="splash-glow"></div><div class="splash-content"><img alt="" class="splash-logo" src="ccmv-logo-calibrated.png"/><h1 class="splash-line">TRAVEL TOGETHER,<br/>CAPTURE TOGETHER</h1><div class="splash-destination">VIETNAM 2026</div></div><div class="splash-fadeout"></div></div><script>(function(){
   var splash=document.getElementById('ccmvSplash');
   if(!splash) return;
 
@@ -108,68 +108,10 @@
   renderCurrency();
  }
  const currencyInput=document.getElementById('currencyAmount');
- const currencyCard=document.querySelector('.live-rate');
- let currencyKeyboardActive=false;
- let replaceCurrencyOnNextEntry=true;
- let currencyValueOnFocus='';
- function keepCurrencyCardVisible(){
-  if(!currencyKeyboardActive||!currencyCard)return;
-  const viewport=window.visualViewport;
-  const viewportTop=viewport?viewport.offsetTop:0;
-  const viewportHeight=viewport?viewport.height:window.innerHeight;
-  const keyboardHeight=Math.max(0,window.innerHeight-viewportHeight-viewportTop);
-  document.body.style.setProperty('--currency-keyboard-space',`${keyboardHeight+32}px`);
-  const rect=currencyCard.getBoundingClientRect();
-  const nav=document.querySelector('.site-nav');
-  const safeTop=viewportTop+(nav?nav.getBoundingClientRect().height:0)+12;
-  const safeBottom=viewportTop+viewportHeight-18;
-  let delta=0;
-  if(rect.bottom>safeBottom)delta=rect.bottom-safeBottom;
-  else if(rect.top<safeTop)delta=rect.top-safeTop;
-  if(Math.abs(delta)>1)window.scrollBy({top:delta,behavior:'auto'});
- }
- function openCurrencyKeyboardView(){
-  currencyKeyboardActive=true;
-  replaceCurrencyOnNextEntry=true;
-  currencyValueOnFocus=currencyInput?.value||'';
-  document.body.classList.add('currency-keyboard-open');
-  requestAnimationFrame(()=>{
-   try{currencyInput?.select();}catch(e){}
-   requestAnimationFrame(keepCurrencyCardVisible);
-  });
-  setTimeout(keepCurrencyCardVisible,180);
-  setTimeout(keepCurrencyCardVisible,420);
- }
- function closeCurrencyKeyboardView(){
-  currencyKeyboardActive=false;
-  document.body.classList.remove('currency-keyboard-open');
-  document.body.style.removeProperty('--currency-keyboard-space');
- }
- currencyInput?.addEventListener('beforeinput',event=>{
-  if(!replaceCurrencyOnNextEntry||event.isComposing)return;
-  if(!event.inputType?.startsWith('insert')||!event.data)return;
-  const typed=String(event.data).replace(/[^0-9.]/g,'');
-  if(!typed)return;
-  event.preventDefault();
-  currencyInput.value=typed;
-  replaceCurrencyOnNextEntry=false;
-  renderCurrency();
+ currencyInput?.addEventListener('focus',()=>{
+  try{currencyInput.select();}catch(e){}
  });
- currencyInput?.addEventListener('input',()=>{
-  if(replaceCurrencyOnNextEntry){
-   const current=currencyInput.value;
-   if(current!==currencyValueOnFocus){
-    const appended=current.startsWith(currencyValueOnFocus)?current.slice(currencyValueOnFocus.length):current;
-    currencyInput.value=appended||current;
-    replaceCurrencyOnNextEntry=false;
-   }
-  }
-  renderCurrency();
- });
- currencyInput?.addEventListener('focus',openCurrencyKeyboardView);
- currencyInput?.addEventListener('blur',()=>setTimeout(closeCurrencyKeyboardView,120));
- window.visualViewport?.addEventListener('resize',keepCurrencyCardVisible);
- window.visualViewport?.addEventListener('scroll',keepCurrencyCardVisible);
+ currencyInput?.addEventListener('input',renderCurrency);
  document.getElementById('currencySwap')?.addEventListener('click',swapCurrency);
  updateHomeDash(); setInterval(updateHomeDash,30000); loadWeather(); loadCurrency();
 
@@ -192,7 +134,7 @@
 <a class="summary-link" href="moments.html"><span>✨</span><small>Moments</small></a>
 <a class="summary-link" href="expenses.html"><span>💸</span><small>Expenses</small></a>
 </nav>
-<script src="theme-config.js?v=stage2-canonical"></script><script src="asset-config.js?v=stage2-canonical"></script><script src="trip-config.js?v=stage2-canonical"></script><script src="storage-config.js?v=stage2-canonical"></script><script src="storage.js?v=stage2-canonical"></script><script src="navigation-config.js?v=stage2-canonical"></script><script src="navigation.js?v=stage2-canonical"></script><script src="data.js"></script><script src="canonical-core.js?v=stage2-canonical"></script><script src="vietnam-canonical-data.js?v=stage2-6-repair"></script><script src="vietnam-presentation-adapter.js?v=stage2-6-repair"></script><script src="core-runtime.js?v=vn-final-3"></script><script src="trip-runtime.js?v=stage2-6-repair"></script><script src="bookings-runtime.js?v=vn-final-3"></script><script src="guide-runtime.js?v=vn-final-3"></script><script src="itinerary-runtime.js?v=stage2-canonical"></script><script src="moments-runtime.js?v=stage2-6-repair"></script><script src="expense-canonical-bootstrap.js?v=stage3-2e-1"></script><script src="expenses-runtime.js?v=stage3-2e-1"></script><script src="app-runtime.js?v=stage2-canonical"></script><script src="lifecycle-runtime.js?v=vn-c2cd-1"></script><script src="export-runtime.js?v=vn-c2cd-1"></script><script src="admin.js?v=vn-c2cd-1"></script><script src="pwa.js?v=stage2-canonical"></script>
+<script src="theme-config.js?v=stage2-canonical"></script><script src="asset-config.js?v=stage2-canonical"></script><script src="trip-config.js?v=stage2-canonical"></script><script src="storage-config.js?v=stage2-canonical"></script><script src="storage.js?v=stage2-canonical"></script><script src="navigation-config.js?v=stage2-canonical"></script><script src="navigation.js?v=stage2-canonical"></script><script src="data.js"></script><script src="canonical-core.js?v=stage2-canonical"></script><script src="vietnam-canonical-data.js?v=stage2-6-repair"></script><script src="vietnam-presentation-adapter.js?v=stage2-6-repair"></script><script src="core-runtime.js?v=vn-final-4"></script><script src="trip-runtime.js?v=stage2-6-repair"></script><script src="bookings-runtime.js?v=vn-final-4"></script><script src="guide-runtime.js?v=vn-final-4"></script><script src="itinerary-runtime.js?v=stage2-canonical"></script><script src="moments-runtime.js?v=stage2-6-repair"></script><script src="expense-canonical-bootstrap.js?v=stage3-2e-1"></script><script src="expenses-runtime.js?v=stage3-2e-1"></script><script src="app-runtime.js?v=stage2-canonical"></script><script src="lifecycle-runtime.js?v=vn-c2cd-1"></script><script src="export-runtime.js?v=vn-c2cd-1"></script><script src="admin.js?v=vn-c2cd-1"></script><script src="pwa.js?v=stage2-canonical"></script>
 <div class="trip-modal" id="tripModal"><div class="trip-sheet"><button class="trip-close" data-action="trip-close" type="button">×</button><div id="tripModalContent"></div></div></div>
 <div class="guide-modal" id="guideModal"><div class="guide-sheet"><button class="guide-close" data-action="guide-close" type="button">×</button><div id="guideModalContent"></div></div></div>
 <div class="moments-modal" id="momentsModal"><div class="moments-sheet"><button class="moments-close" onclick="closeMomentsModal()" type="button">×</button><p class="kicker">MEMORY BOOK</p><h2 id="momentsTitle">Moment</h2><p class="lead modal-intro" id="momentsIntro">每一個地方都可以留底 rating、something to say 同相片。旅行完之後，呢度就係四位朋友嘅 memory book。</p><p><span class="status-badge" id="momentsFriend">Friend</span> <button class="mini-btn" data-action="friend-open">Change Friend</button></p><div class="moments-form"><input id="momentsRating" type="hidden" value="0"/><div class="star-row"><span class="star" onclick="setStars(1)">⭐</span><span class="star" onclick="setStars(2)">⭐</span><span class="star" onclick="setStars(3)">⭐</span><span class="star" onclick="setStars(4)">⭐</span><span class="star" onclick="setStars(5)">⭐</span></div><p class="mood-help">Choose up to 2 moods</p><div class="mood-grid" id="moodGrid"></div><textarea id="momentsText" placeholder="Something to say..."></textarea><div class="photo-input">📷 Add Photo（Camera / Photo Library）</div><button class="btn" onclick="saveMoments()">Save</button></div></div></div>
