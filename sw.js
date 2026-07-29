@@ -1,4 +1,4 @@
-const CACHE_NAME='ccmv-saigon-v4-vn-stage-e-device-a-certification-1';
+const CACHE_NAME='ccmv-saigon-v4-vn-stage-e-runtime-diagnostic-1';
 const ASSETS = [
   './',
   './index.html',
