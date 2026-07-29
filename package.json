@@ -1,0 +1,8 @@
+{
+  "name": "ccmv-vn-stage-d-verification",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test sync-core-tests/*.js booking-stage-d-adapter.test.mjs"
+  }
+}

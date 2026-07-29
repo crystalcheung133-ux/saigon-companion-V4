@@ -15,7 +15,7 @@ function openTripCard(key) {
   const content = document.getElementById('tripModalContent');
   const modal = document.getElementById('tripModal');
   if (!content || !modal) return;
-  content.innerHTML = `<div class="trip-onepage"><p class="kicker">Trip</p><h2>${t.title}</h2>${t.body}<div class="guide-next-row"><button class="pill" data-action="trip-card" data-trip-key="${prev}">‹ Previous</button><button class="pill" data-action="trip-card" data-trip-key="${next}">Next ›</button></div><p class="timestamp">Build · VN Refactored Baseline · Stage 1</p></div>`;
+  content.innerHTML = `<div class="trip-onepage"><p class="kicker">Trip</p><h2>${t.title}</h2>${t.body}<div class="guide-next-row"><button class="pill" data-action="trip-card" data-trip-key="${prev}">‹ Previous</button><button class="pill" data-action="trip-card" data-trip-key="${next}">Next ›</button></div><p class="timestamp">Build: ${TRIP_CONFIG.buildLabel||TRIP_CONFIG.version}</p></div>`;
   modal.classList.add('show');
   const sheet=document.querySelector('#tripModal .trip-sheet');
   if(sheet) sheet.scrollTop=0;

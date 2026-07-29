@@ -1,4 +1,4 @@
-const CACHE_NAME='ccmv-saigon-v4-vn-stage-c-booking-schema-1';
+const CACHE_NAME='ccmv-saigon-v4-vn-stage-d-booking-adapter-1';
 const ASSETS = [
   './',
   './index.html',
@@ -16,6 +16,16 @@ const ASSETS = [
   './day-runtime.js',
   './supabase-config.js',
   './booking-repository.js',
+  './booking-sync-adapter.js',
+  './sync-bootstrap.js',
+  './sync-core/index.js',
+  './sync-core/sync-core.js',
+  './sync-core/sync-provider.js',
+  './sync-core/sync-queue.js',
+  './sync-core/sync-reconciler.js',
+  './sync-core/sync-reset-orchestrator.js',
+  './sync-core/sync-state.js',
+  './sync-core/sync-test-provider.js',
   './supabase-booking-provider.js',
   './bookings-runtime.js',
   './lifecycle-runtime.js',

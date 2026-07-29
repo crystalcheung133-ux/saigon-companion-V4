@@ -20,12 +20,15 @@
     endDate:'2026-11-03',
     storageNamespace:'ccmv-vietnam-2026',
     tripGeneration:1,
-    version:'stage-c-local-schema-migration',
+    version:'stage-d-booking-adapter',
+    buildLabel:'VN Stage D · Booking Adapter',
     features:Object.freeze({
       /* Stage 3.2D validation flag. Legacy remains authoritative. */
       expenseCanonicalDualWrite:false,
       expenseCanonicalReadShadow:false,
       bookingSupabaseFoundation:true,
+      travelSyncCore:true,
+      bookingSyncAdapter:true,
       bookingSupabaseSync:false
     }),
     participants
