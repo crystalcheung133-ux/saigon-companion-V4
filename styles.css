@@ -3849,11 +3849,11 @@ body.bookings-page .booking-updated{
     padding:10px 12px!important;
   }
   body.bookings-page #bookingList:has([data-booking-category="Activity"].active) .booking-card-main{
-    min-height:clamp(130px,18dvh,155px)!important;
+    min-height:clamp(150px,20dvh,175px)!important;
     padding:16px 14px!important;
   }
   body.bookings-page #bookingList:has([data-booking-category="Transport"].active) .booking-card-main{
-    min-height:clamp(105px,14dvh,125px)!important;
+    min-height:clamp(115px,16dvh,140px)!important;
     padding:13px 14px!important;
   }
   body.bookings-page #bookingList:has([data-booking-category="Activity"].active) .booking-group-active,
@@ -3861,7 +3861,7 @@ body.bookings-page .booking-updated{
     min-height:clamp(450px,66dvh,570px)!important;
     display:flex!important;
     flex-direction:column!important;
-    justify-content:center!important;
+    justify-content:flex-start!important;
     gap:12px!important;
   }
 }
