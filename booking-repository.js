@@ -7,6 +7,8 @@
   const KEY=(root.STORAGE_CONFIG&&root.STORAGE_CONFIG.keys.bookings)||'ccmv_vietnam_bookings_v1';
   const EVENT_NAME='ccmv:bookings-changed';
   const SCHEMA_VERSION=1;
+  const MIGRATION_KEY=(root.STORAGE_CONFIG&&root.STORAGE_CONFIG.keys.bookingSchemaMigration)||'ccmv-vietnam-2026:booking_schema_migration:stage_c:v1';
+  const MIGRATION_ID='vn-booking-stage-c-v1';
   let remoteProvider=null;
 
   const SEEDS=Object.freeze([
@@ -78,6 +80,52 @@
     delete record.confirmation;delete record.contact;delete record.deadline;delete record.deposit;delete record.updatedBy;
     return record;
   }
+  function validateRecord(record){
+    const errors=[];
+    if(!record||typeof record!=='object')errors.push('record-not-object');
+    if(!String(record&&record.bookingId||'').trim())errors.push('missing-bookingId');
+    if(String(record&&record.tripId||'')!==TRIP_ID)errors.push('wrong-tripId');
+    if(Number(record&&record.schemaVersion)!==SCHEMA_VERSION)errors.push('wrong-schemaVersion');
+    if(Number(record&&record.tripGeneration)!==TRIP_GENERATION)errors.push('wrong-tripGeneration');
+    if(!Number.isInteger(Number(record&&record.version))||Number(record.version)<1)errors.push('invalid-version');
+    if(!String(record&&record.createdAt||'').trim())errors.push('missing-createdAt');
+    if(!String(record&&record.updatedAt||'').trim())errors.push('missing-updatedAt');
+    if(!['pending','confirmed','cancelled'].includes(record&&record.status))errors.push('invalid-status');
+    return errors;
+  }
+  function validateRecords(records){
+    const errors=[];
+    const ids=new Set();
+    if(!Array.isArray(records))return {ok:false,errors:['records-not-array']};
+    records.forEach((record,index)=>{
+      const rowErrors=validateRecord(record);
+      if(ids.has(record.bookingId))rowErrors.push('duplicate-bookingId');
+      ids.add(record.bookingId);
+      rowErrors.forEach(error=>errors.push({index,bookingId:record.bookingId||'',error}));
+    });
+    return {ok:errors.length===0,errors};
+  }
+  function fingerprint(records){
+    return records.map(record=>[record.bookingId,record.tripId,record.schemaVersion,record.tripGeneration,record.version,record.updatedAt].join('|')).sort().join('||');
+  }
+  function readMigrationMarker(){return root.STORAGE.local.readJSON(MIGRATION_KEY,null);}
+  function writeMigrationMarker(records){
+    const marker={migrationId:MIGRATION_ID,status:'completed',tripId:TRIP_ID,schemaVersion:SCHEMA_VERSION,tripGeneration:TRIP_GENERATION,recordCount:records.length,fingerprint:fingerprint(records),completedAt:now()};
+    if(!root.STORAGE.local.writeJSON(MIGRATION_KEY,marker))throw new Error('Unable to persist Booking migration marker');
+    return clone(marker);
+  }
+  function migrationStatus(){
+    const marker=readMigrationMarker();
+    const raw=readRaw();
+    const validation=validateRecords(Array.isArray(raw)?raw:[]);
+    const currentFingerprint=validation.ok?fingerprint(raw):'';
+    return Object.freeze({
+      migrationId:MIGRATION_ID,
+      completed:Boolean(marker&&marker.status==='completed'&&marker.tripId===TRIP_ID&&marker.tripGeneration===TRIP_GENERATION&&marker.schemaVersion===SCHEMA_VERSION&&marker.fingerprint===currentFingerprint),
+      marker:marker?clone(marker):null,
+      validation
+    });
+  }
   function readRaw(){return root.STORAGE.local.readJSON(KEY,null);}
   function write(records, emit=true){
     const normalised=records.map(row=>normalise(row));
@@ -88,13 +136,37 @@
   function migrate(){
     const raw=readRaw();
     const initial=Array.isArray(raw)?raw:[];
+    const marker=readMigrationMarker();
+    if(marker&&marker.status==='completed'){
+      const currentValidation=validateRecords(initial);
+      if(currentValidation.ok&&marker.tripId===TRIP_ID&&marker.tripGeneration===TRIP_GENERATION&&marker.schemaVersion===SCHEMA_VERSION&&marker.fingerprint===fingerprint(initial))return clone(initial);
+    }
     const byId=new Map();
-    initial.forEach(row=>{try{const record=normalise(row);byId.set(record.bookingId,record);}catch(error){console.warn('[BookingRepository] skipped invalid record',error);}});
+    const migrationErrors=[];
+    initial.forEach((row,index)=>{
+      try{
+        const record=normalise(row);
+        if(byId.has(record.bookingId))migrationErrors.push({index,bookingId:record.bookingId,error:'duplicate-bookingId'});
+        else byId.set(record.bookingId,record);
+      }catch(error){migrationErrors.push({index,bookingId:String(row&&row.bookingId||row&&row.id||''),error:error.message||String(error)});}
+    });
+    if(migrationErrors.length){
+      const failure=new Error('BOOKING_SCHEMA_MIGRATION_ABORTED');
+      failure.details=migrationErrors;
+      throw failure;
+    }
     SEEDS.forEach(seed=>{if(!byId.has(seed.bookingId))byId.set(seed.bookingId,normalise(seed));});
     const records=Array.from(byId.values());
+    const validation=validateRecords(records);
+    if(!validation.ok){
+      const failure=new Error('BOOKING_SCHEMA_VALIDATION_FAILED');
+      failure.details=validation.errors;
+      throw failure;
+    }
     const before=JSON.stringify(raw);
     const after=JSON.stringify(records);
     if(before!==after)write(records,false);
+    writeMigrationMarker(records);
     return clone(records);
   }
   function list(options={}){
@@ -115,7 +187,27 @@
     write(rows);
     return clone(rows[index]);
   }
-  function replaceAll(records){return write(records);}
+  function replaceAll(records){
+    const validation=validateRecords(records.map(row=>normalise(row)));
+    if(!validation.ok){const error=new Error('BOOKING_SCHEMA_VALIDATION_FAILED');error.details=validation.errors;throw error;}
+    const written=write(records);
+    writeMigrationMarker(written);
+    return written;
+  }
+  function applyRemoteWrite(record){
+    const incoming=normalise(record);
+    const rows=list({includeDeleted:true});
+    const index=rows.findIndex(row=>row.bookingId===incoming.bookingId);
+    if(index>=0)rows[index]=incoming;else rows.push(incoming);
+    const written=write(rows);
+    writeMigrationMarker(written);
+    return clone(incoming);
+  }
+  function applyRemoteDelete(recordId,tombstone={}){
+    const current=getById(recordId);
+    if(!current)return null;
+    return applyRemoteWrite({...current,deletedAt:tombstone.deletedAt||now(),version:Number(tombstone.version||current.version),updatedAt:tombstone.updatedAt||now(),updatedByPartyId:tombstone.updatedByPartyId||current.updatedByPartyId});
+  }
   function subscribe(listener){
     const custom=()=>listener(list());
     const storage=event=>{if(event.key===KEY)listener(list());};
@@ -144,6 +236,10 @@
     getForPlace(placeId){return list({placeId});},
     update,
     replaceAll,
+    applyRemoteWrite,
+    applyRemoteDelete,
+    validateAll(){const rows=list({includeDeleted:true});return clone(validateRecords(rows));},
+    getMigrationStatus(){return clone(migrationStatus());},
     subscribe,
     registerRemoteProvider,
     getRemoteProvider,

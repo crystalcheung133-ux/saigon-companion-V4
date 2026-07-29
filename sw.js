@@ -1,4 +1,4 @@
-const CACHE_NAME='ccmv-saigon-v4-vn-s1c-safe-rollback-1';
+const CACHE_NAME='ccmv-saigon-v4-vn-stage-c-booking-schema-1';
 const ASSETS = [
   './',
   './index.html',
