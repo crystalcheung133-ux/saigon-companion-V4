@@ -1,4 +1,4 @@
-const CACHE_NAME='ccmv-saigon-v4-vn-s1c-trusted-booking-sync-1';
+const CACHE_NAME='ccmv-saigon-v4-vn-s1c-safe-rollback-1';
 const ASSETS = [
   './',
   './index.html',
@@ -16,7 +16,6 @@ const ASSETS = [
   './day-runtime.js',
   './supabase-config.js',
   './booking-repository.js',
-  './booking-sync-runtime.js',
   './supabase-booking-provider.js',
   './bookings-runtime.js',
   './lifecycle-runtime.js',

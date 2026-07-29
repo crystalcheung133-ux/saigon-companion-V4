@@ -20,14 +20,13 @@
     endDate:'2026-11-03',
     storageNamespace:'ccmv-vietnam-2026',
     tripGeneration:1,
-    version:'vn-s1c-trusted-booking-sync',
+    version:'stage1-refactored',
     features:Object.freeze({
       /* Stage 3.2D validation flag. Legacy remains authoritative. */
       expenseCanonicalDualWrite:false,
       expenseCanonicalReadShadow:false,
       bookingSupabaseFoundation:true,
-      bookingSupabaseSync:true,
-      identityMode:'trusted-party-selector'
+      bookingSupabaseSync:false
     }),
     participants
     ,parties:Object.freeze({
