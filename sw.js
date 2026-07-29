@@ -1,4 +1,4 @@
-const CACHE_NAME='ccmv-saigon-v4-vn-stage-d-booking-adapter-1';
+const CACHE_NAME='ccmv-saigon-v4-vn-stage-e-device-a-certification-1';
 const ASSETS = [
   './',
   './index.html',
@@ -26,6 +26,8 @@ const ASSETS = [
   './sync-core/sync-reset-orchestrator.js',
   './sync-core/sync-state.js',
   './sync-core/sync-test-provider.js',
+  './sync-core/sync-indexeddb-store.js',
+  './supabase-sync-provider.mjs',
   './supabase-booking-provider.js',
   './bookings-runtime.js',
   './lifecycle-runtime.js',

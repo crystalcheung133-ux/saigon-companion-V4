@@ -4,9 +4,10 @@
 
   const supplied=root.CCMV_SUPABASE_CONFIG||{};
   const config={
-    enabled:Boolean(supplied.enabled),
-    url:String(supplied.url||''),
-    anonKey:String(supplied.anonKey||''),
+    enabled:supplied.enabled===undefined?true:Boolean(supplied.enabled),
+    url:String(supplied.url||'https://dafgbqygccvctifrevpa.supabase.co'),
+    anonKey:String(supplied.anonKey||'sb_publishable_gjObd52pFWZh5VDWD5wKZw_jHxzV7yP'),
+    tripAccessToken:String(supplied.tripAccessToken||'ccmv_vn_2026_7LxA9rPqK2mN8VfH5tYwQ3eUzC1JsBdR'),
     schema:String(supplied.schema||'public'),
     tripId:String(supplied.tripId||(root.TRIP_CONFIG&&root.TRIP_CONFIG.id)||'ccmv-vietnam-2026'),
     tables:Object.freeze({
