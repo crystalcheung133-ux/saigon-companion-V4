@@ -54,18 +54,6 @@ function groupShoppingDirectory(){
 function reconcileGuideDirectory(){
  const main=document.querySelector('main');
  if(!main)return;
- const restaurantSection=Array.from(main.querySelectorAll(':scope > section')).find(section=>/RESTAURANTS/i.test(section.querySelector('h2')?.textContent||''));
- const restaurantList=restaurantSection?.querySelector('.category-pop-list');
- const manMoi=VN_PRESENTATION.places['man-moi'];
- if(restaurantList&&manMoi&&!restaurantList.querySelector('[data-guide-place="man-moi"]')&&!restaurantList.querySelector('[onclick*="id=man-moi"]')){
-  const button=document.createElement('button');
-  button.dataset.guidePlace='man-moi';
-  button.type='button';
-  button.innerHTML=`<span><span class="guide-list-title">${manMoi.emoji} ${manMoi.title}</span><span class="guide-list-sub">${manMoi.sub||''}</span></span><span>›</span>`;
-  button.addEventListener('click',()=>{location.href='place.html?id=man-moi';});
-  const lune=restaurantList.querySelector('[onclick*="id=lune"]');
-  if(lune)lune.insertAdjacentElement('afterend',button);else restaurantList.appendChild(button);
- }
  const haButton=main.querySelector('[onclick*="id=ha-spa"]');
  const haSubtitle=haButton?.querySelector('.guide-list-sub');
  if(haSubtitle&&VN_PRESENTATION.places['ha-spa'])haSubtitle.textContent=VN_PRESENTATION.places['ha-spa'].sub||'';

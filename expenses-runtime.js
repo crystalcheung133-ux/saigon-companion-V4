@@ -227,6 +227,7 @@ function useExpenseCalculatorResult(){try{const value=Math.round(safeExpenseCalc
     return `<div class="expense-card"><strong>${escapeHTML(e.item||'')}</strong><p class="timestamp">${timeLabel(e.createdAt)}${e.editedAt?` · Edited ${timeLabel(e.editedAt)}`:''}</p><p>${Number(e.total||0).toLocaleString()} VND · Paid by ${labelFor(e.paidBy)}</p><p>${personal?'Personal Expense':'Shared Expense'} · ${who}</p><div class="entry-actions"><button class="mini-btn" onclick="editExpense(${e._idx})">✏️ Edit</button><button class="mini-btn" onclick="deleteExpense(${e._idx})">🗑 Delete</button></div></div>`;
   }
   function ensureToolHistory(){
+    if(document.body.classList.contains('expenses-page')) return;
     const sheet=document.querySelector('#expenseModal .tools-sheet');
     if(!sheet || document.getElementById('toolTransactionHistory')) return;
     const form=sheet.querySelector('.expense-form');
@@ -299,6 +300,7 @@ function useExpenseCalculatorResult(){try{const value=Math.round(safeExpenseCalc
   };
 
   window.renderToolTransactionHistory=function(){
+    if(document.body.classList.contains('expenses-page')) return;
     const box=document.getElementById('toolTransactionHistory');
     if(!box) return;
     const latest=readExpenses().map((e,i)=>({...e,_idx:i})).sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||''))).slice(0,5);

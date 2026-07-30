@@ -4,7 +4,7 @@
 a{color:inherit;text-decoration:none}
 .brand{display:flex;align-items:center;gap:12px;font-weight:900;font-size:21px}
 .friend-pill{border:1.5px solid var(--line);background:var(--card);border-radius:999px;min-height:42px;padding:9px 13px;font-size:15px}
-.content-page,.section{max-width:860px;margin:0 auto;padding:30px 18px 112px}
+.content-page,.section{max-width:860px;margin:0 auto;padding:30px 18px calc(112px + env(safe-area-inset-bottom))}
 .page-hero{margin:18px 0 22px}
 h1,h2{font-family:"Cormorant Garamond",serif;line-height:.95;margin:8px 0 14px}.prose-block,.trip-card{background:var(--card);border:1px solid var(--surface-border);border-radius:var(--surface-radius);padding:var(--surface-padding);margin:var(--surface-gap) 0;box-shadow:var(--surface-shadow)}.btn,.pill,.mini-btn{border:1px solid var(--line);background:#fff7ed;border-radius:999px;min-height:46px;padding:13px 16px;font:inherit;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:6px;cursor:pointer}
 .app-nav a,.app-nav button{border:0;background:transparent;color:white;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:54px;border-radius:20px;font-size:22px}
@@ -763,7 +763,7 @@ h1,h2,.home-brand-card h1,.page-hero h1,.module-hero h1{font-family:var(--ccmv-f
 .timeline-item,.day-summary a,.quick-info-card,.prose-block,.trip-card,.expense-card,.moments-entry{border-radius:var(--surface-radius)!important}
 
 
-.mini-menu{position:fixed!important;bottom:82px!important;z-index:150!important;width:min(230px, calc(100vw - 24px))!important;border-radius:24px!important;padding:8px!important;pointer-events:none;transform:translateX(-50%) translateY(8px)!important;transition:.16s ease;left:50%!important;right:auto!important;max-height:min(64svh, 520px)!important;overflow:auto!important}
+.mini-menu{position:fixed!important;bottom:calc(82px + env(safe-area-inset-bottom))!important;z-index:150!important;width:min(230px, calc(100vw - 24px))!important;border-radius:24px!important;padding:8px!important;pointer-events:none;transform:translateX(-50%) translateY(8px)!important;transition:.16s ease;left:50%!important;right:auto!important;max-height:min(64svh, 520px)!important;overflow:auto!important}
 .menu-title{font-weight:650!important;color:var(--ink)!important;font-size:15px!important;letter-spacing:-.014em!important}
 .menu-sub{font-size:13px!important;letter-spacing:.075em!important;color:var(--muted)!important;font-weight:700!important}
 @media(max-width:520px){.dashboard{padding-left:14px!important;padding-right:14px!important}
@@ -2906,7 +2906,7 @@ body.home-bg .home-live-grid .live-card{height:auto!important;min-height:96px!im
 .booking-actions{position:sticky;bottom:calc(-1 * var(--booking-nav-clearance));z-index:3;margin:2px -16px calc(-1 * var(--booking-nav-clearance));padding:9px 16px var(--booking-nav-clearance);background:linear-gradient(180deg,rgba(255,250,242,.88),#fffaf2 18%)}
 .booking-actions .btn{width:100%;min-height:46px;background:#8a4f2d!important;color:#fff!important;border-color:#8a4f2d!important}
 .guide-booking-badge{display:inline-flex;text-decoration:none;border-radius:999px;padding:7px 10px;font-size:12px;font-weight:900;margin-top:7px}.quick-info-actions .guide-booking-badge{margin:0 8px 0 0}
-@media(max-width:520px){.bookings-header{align-items:flex-start;flex-direction:column;gap:3px}.booking-tabs{grid-template-columns:repeat(4,minmax(74px,1fr));overflow-x:auto}.booking-tab{font-size:10px;padding:8px 4px}.booking-two{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.bookings-header{align-items:flex-start;flex-direction:column;gap:3px}.booking-tabs{grid-template-columns:repeat(4,minmax(0,1fr));overflow:visible;grid-auto-rows:62px}.booking-tab{height:62px;min-height:62px;padding:8px 4px;font-size:12px;line-height:1.12}.booking-tab small{font-size:11px;margin-top:4px}.booking-two{grid-template-columns:1fr 1fr}}
 
 
 /* ===== VN compact home + booking/guide action alignment + day-filtered directory ===== */
@@ -3165,7 +3165,7 @@ body.home-bg .home-live-grid .live-card{height:auto!important;min-height:96px!im
   }
 
   .booking-sheet{
-    --booking-nav-clearance:calc(12px + env(safe-area-inset-bottom))!important;
+    --booking-nav-clearance:calc(84px + env(safe-area-inset-bottom))!important;
     inset:0!important;max-height:100svh!important;border-radius:0!important;
     padding:10px 12px var(--booking-nav-clearance)!important
   }
@@ -3284,7 +3284,7 @@ html,body{max-width:100%;overflow-x:hidden}
 
   /* Restore normal booking detail readability. Compact only the Spa category list. */
   .booking-sheet{
-    padding:14px 14px calc(18px + env(safe-area-inset-bottom))!important;
+    padding:14px 14px var(--booking-nav-clearance)!important;
   }
   .booking-sheet h2{font-size:23px!important;line-height:1.1!important}
   .booking-readonly-grid{gap:7px!important;margin:8px 0 10px!important}
@@ -3292,47 +3292,6 @@ html,body{max-width:100%;overflow-x:hidden}
   .booking-modal-spa .booking-readonly-field{padding:8px 9px!important}
   .booking-modal-spa .booking-readonly-grid{gap:7px!important}
 
-  #bookingList.booking-list-spa .booking-tabs{
-    margin:4px 0 6px!important;
-    gap:4px!important;
-  }
-  #bookingList.booking-list-spa .booking-tab{
-    min-height:34px!important;
-    padding:5px 7px!important;
-    font-size:10px!important;
-  }
-  #bookingList.booking-list-spa .booking-group-spa{
-    display:grid!important;
-    grid-template-columns:1fr!important;
-    gap:6px!important;
-  }
-  #bookingList.booking-list-spa .booking-card{
-    min-height:0!important;
-    margin:0!important;
-    border-radius:16px!important;
-  }
-  #bookingList.booking-list-spa .booking-card-main{
-    min-height:68px!important;
-    padding:8px 9px!important;
-  }
-  #bookingList.booking-list-spa .booking-card-main strong{
-    font-size:13px!important;
-    line-height:1.15!important;
-  }
-  #bookingList.booking-list-spa .booking-card-main small{
-    font-size:9px!important;
-    line-height:1.1!important;
-  }
-  #bookingList.booking-list-spa .booking-status{
-    font-size:9px!important;
-    padding:5px 7px!important;
-    white-space:nowrap!important;
-  }
-  #bookingList.booking-list-spa .booking-day-button{
-    margin:6px 7px 6px 0!important;
-    padding:6px 8px!important;
-    font-size:9px!important;
-  }
 }
 
 @media(max-width:390px),(max-height:730px){
@@ -3611,3 +3570,38 @@ html,body{max-width:100%;overflow-x:hidden}
   .booking-edit-btn{width:100%!important;margin-left:0!important}
   .booking-view-actions .booking-independent-note{margin-left:auto!important}
 }
+
+
+/* =========================================================
+   VN UI Stabilisation Pack 1
+   ========================================================= */
+.booking-tabs{align-items:stretch;grid-auto-rows:58px}
+.booking-tab{
+  box-sizing:border-box;
+  width:100%;height:58px;min-height:58px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  overflow:hidden;text-align:center;
+}
+.booking-tab.active{height:58px;min-height:58px}
+.booking-group-active{display:grid;grid-template-columns:1fr;gap:10px}
+.booking-card{margin:0;min-height:94px}
+.booking-card-row{min-height:94px}
+.booking-card-main{min-height:94px;padding:14px 16px}
+.booking-card-main strong{font-size:17px;line-height:1.18}
+.booking-card-main small{font-size:12px;line-height:1.2}
+.booking-status{font-size:12px;padding:9px 12px}
+.booking-day-button{align-self:center;min-height:44px;margin-right:12px;padding:9px 12px}
+
+@media(max-width:720px){
+  .booking-tabs{grid-auto-rows:58px;gap:7px;margin:8px 0 12px}
+  .booking-tab,.booking-tab.active{height:58px;min-height:58px;padding:7px 3px;font-size:12px;line-height:1.1}
+  .booking-tab small{font-size:11px;margin-top:4px}
+  .booking-group-active{gap:10px}
+  .booking-card,.booking-card-row,.booking-card-main{min-height:94px}
+  .booking-card-main{padding:13px 12px}
+  .booking-card-main strong{font-size:17px;line-height:1.16}
+  .booking-card-main small{font-size:12px;line-height:1.18}
+  .booking-status{font-size:11px;padding:8px 10px}
+  .booking-day-button{font-size:11px;padding:8px 10px;margin-right:10px}
+}
+body.expenses-page #toolTransactionHistory{display:none!important}
