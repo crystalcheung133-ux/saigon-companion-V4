@@ -174,5 +174,7 @@ async function initialiseStageE() {
   globalThis.dispatchEvent?.(new CustomEvent('ccmv:sync-stage-e-ready', { detail: { ...status } }));
 }
 
-if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initialiseStageE, { once: true });
+if (globalThis.CCMV_STAGE_E_DIAGNOSTIC_ONLY === true) {
+  globalThis.CCMV_STAGE_E_BOOTSTRAP_MODULE_LOADED = true;
+} else if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initialiseStageE, { once: true });
 else void initialiseStageE();
