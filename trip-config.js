@@ -20,8 +20,8 @@
     endDate:'2026-11-03',
     storageNamespace:'ccmv-vietnam-2026',
     tripGeneration:1,
-    version:'stage-e-configuration-fix-patch-6',
-    buildLabel:'VN Stage E · Configuration Fix Patch 6',
+    version:'stage-e-fetch-binding-fix-patch-7',
+    buildLabel:'VN Stage E · Fetch Binding Fix Patch 7',
     features:Object.freeze({
       /* Stage 3.2D validation flag. Legacy remains authoritative. */
       expenseCanonicalDualWrite:false,

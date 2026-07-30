@@ -17,14 +17,22 @@ function mapRow(row) {
 }
 
 export class SupabaseSyncProvider {
-  constructor({ url, anonKey, tripId, tripAccessToken, getPartyId, fetchImpl = globalThis.fetch, WebSocketImpl = globalThis.WebSocket }) {
+  constructor({
+    url,
+    anonKey,
+    tripId,
+    tripAccessToken,
+    getPartyId,
+    fetchImpl = (...args) => globalThis.fetch(...args),
+    WebSocketImpl = globalThis.WebSocket
+  }) {
     if (!url || !anonKey || !tripId) throw new Error('SUPABASE_SYNC_CONFIG_INCOMPLETE');
     this.url = url.replace(/\/$/, '');
     this.anonKey = anonKey;
     this.tripId = tripId;
     this.tripAccessToken = tripAccessToken;
     this.getPartyId = getPartyId;
-    this.fetch = fetchImpl;
+    this.fetch = (...args) => fetchImpl(...args);
     this.WebSocket = WebSocketImpl;
     this.sockets = new Set();
     this.connected = false;
