@@ -30,9 +30,9 @@
     endDate:'2026-11-03',
     storageNamespace:'ccmv-vietnam-2026',
     tripGeneration:1,
-    version:'stage-e1-simple-admin-booking-sync',
-    buildLabel:'Build: VN Stage E1 · Simple Admin Booking Sync',
-    assetVersion:'vn-stage-e1-simple-1',
+    version:'stage-e1-studio-booking-edit',
+    buildLabel:'Build: VN Stage E1 · Studio Booking Edit',
+    assetVersion:'vn-stage-e1-studio-edit-1',
     features:Object.freeze({
       /* Stage 3.2D validation flag. Legacy remains authoritative. */
       expenseCanonicalDualWrite:false,

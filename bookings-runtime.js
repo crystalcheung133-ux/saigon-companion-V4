@@ -9,7 +9,7 @@
   function label(status){return status==='confirmed'?'✓ Confirmed':status==='cancelled'?'Cancelled / unavailable':'Pending';}
   function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
   function user(){try{return getFriend();}catch(e){return STORAGE.local.get(STORAGE_CONFIG.keys.friend,'crystal');}}
-  function canEditBookings(){return user()==='crystal';}
+  function canEditBookings(){return user()==='crystal'&&root.VN_ADMIN?.readMode?.()===true;}
   function currentPartyId(){const alias=user();const parties=root.TRIP_CONFIG?.parties?.identities||{};for(const entry of Object.values(parties)){if((entry.legacyAliases||[]).includes(alias))return entry.partyId;}return `party-${alias}`;}
   function person(k){return (root.VN_PRESENTATION?.friends||{})[k]||k||'—';}
   function formatDate(v){if(!v)return'Date pending';const d=new Date(v+'T12:00:00');return new Intl.DateTimeFormat('en-AU',{weekday:'short',day:'numeric',month:'short'}).format(d);}
@@ -54,7 +54,7 @@
     const guideInfo=b.placeId?`<a class="booking-header-action" href="place.html?id=${encodeURIComponent(b.placeId)}">Guide card</a>`:'';
     const dayInfo=b.eventId&&b.day?`<a class="booking-header-action" href="day.html?day=${encodeURIComponent(b.day)}#${encodeURIComponent(b.eventId)}">Day ${esc(b.day)} timeline</a>`:'';
     const headerActions=(guideInfo||dayInfo)?`<div class="booking-header-actions">${guideInfo}${dayInfo}</div>`:'<p class="booking-independent-note">Independent booking record</p>';
-    host.innerHTML=`<div class="booking-editor-head"><p class="kicker">Shared booking</p><h2>${esc(b.title)}</h2>${headerActions}</div><div class="booking-readonly-grid">${readonlyField('Booking status',label(b.status))}${readonlyField('Date',formatDate(b.date))}${readonlyField('Time',b.time)}${readonlyField('Booking name',b.bookingName)}${readonlyField('Deposit',deposit)}${readonlyField('Booking option',b.bookingMethod)}${readonlyField('Contact details',contactInfo,true,true)}${secondaryInfo}${readonlyField('Online booking / website',onlineInfo,true,true)}${readonlyField('Notes',b.notes,true)}</div><div class="booking-view-actions">${canEditBookings()?`<button class="btn booking-edit-btn" type="button" onclick="editBookingEditor('${esc(id)}')">Edit booking</button>`:`<p class="booking-independent-note">Read only · Send booking updates to Crystal by WhatsApp.</p>`}</div>`;
+    host.innerHTML=`<div class="booking-editor-head"><p class="kicker">Shared booking</p><h2>${esc(b.title)}</h2>${headerActions}</div><div class="booking-readonly-grid">${readonlyField('Booking status',label(b.status))}${readonlyField('Date',formatDate(b.date))}${readonlyField('Time',b.time)}${readonlyField('Booking name',b.bookingName)}${readonlyField('Deposit',deposit)}${readonlyField('Booking option',b.bookingMethod)}${readonlyField('Contact details',contactInfo,true,true)}${secondaryInfo}${readonlyField('Online booking / website',onlineInfo,true,true)}${readonlyField('Notes',b.notes,true)}</div><div class="booking-view-actions">${canEditBookings()?`<button class="btn booking-edit-btn" type="button" onclick="editBookingEditor('${esc(id)}')">Edit booking</button>`:`<p class="booking-independent-note">Read only · Crystal can edit after entering Trip Studio.</p>`}</div>`;
     bindCopyControls(host);modal?.classList.add('show');
   };
   root.editBookingEditor=function(id){
@@ -66,11 +66,12 @@
   root.closeBookingModal=function(){const modal=document.getElementById('bookingModal');modal?.classList.remove('show','booking-modal-spa');document.getElementById('tripModal')?.classList.remove('show');};
   root.saveBookingEditor=async function(event,id){
     event.preventDefault();
-    if(!canEditBookings()){window.alert('Only Crystal can edit bookings.');return;}
+    if(!canEditBookings()){window.alert('Enter Trip Studio as Crystal to edit bookings.');return;}
     const current=REPOSITORY.getById(id);if(!current)return;
     const form=event.currentTarget,button=form.querySelector('[type="submit"]'),f=new FormData(form),depositPaid=f.get('depositPaid')==='on';
     const draft={...current,status:String(f.get('status')||'pending'),date:String(f.get('date')||''),time:String(f.get('time')||''),bookingName:String(f.get('bookingName')||''),depositPaid,depositAmount:depositPaid?String(f.get('depositAmount')||''):'',bookingMethod:String(f.get('bookingMethod')||''),bookingContact:String(f.get('bookingContact')||''),bookingUrl:String(f.get('bookingUrl')||''),notes:String(f.get('notes')||''),updatedAt:new Date().toISOString(),updatedByPartyId:'party-crystal'};
     try{if(button){button.disabled=true;button.textContent='Saving…';}const sync=root.CCMV_SIMPLE_BOOKING_SYNC;if(!sync)throw new Error('BOOKING_SYNC_NOT_LOADED');const saved=await sync.push(draft);REPOSITORY.applyRemoteWrite(saved);render();openBookingEditor(id);}catch(error){console.error('[Booking Save]',error);window.alert(`Booking was not saved: ${error?.message||error}`);}finally{if(button){button.disabled=false;button.textContent='Save booking';}}
   };
+  root.addEventListener('ccmv:studio-mode-changed',()=>{render();const openId=document.querySelector('[data-booking-editor]')?.dataset?.bookingEditor;if(openId)root.openBookingEditor(openId);});
   document.addEventListener('DOMContentLoaded',render);REPOSITORY.subscribe(render);
 })(globalThis);

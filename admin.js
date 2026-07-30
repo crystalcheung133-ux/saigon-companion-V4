@@ -10,7 +10,10 @@
   function isUnlocked(){ try{return sessionStorage.getItem(SESSION_KEY)==='1';}catch(_){return false;} }
   function setUnlocked(on){ try{on?sessionStorage.setItem(SESSION_KEY,'1'):sessionStorage.removeItem(SESSION_KEY);}catch(_){} }
   function readMode(){ return isCrystal() && isUnlocked() && localStorage.getItem(MODE_KEY)==='studio'; }
-  function writeMode(on){ on?localStorage.setItem(MODE_KEY,'studio'):localStorage.removeItem(MODE_KEY); }
+  function writeMode(on){
+    on?localStorage.setItem(MODE_KEY,'studio'):localStorage.removeItem(MODE_KEY);
+    root.dispatchEvent?.(new CustomEvent('ccmv:studio-mode-changed',{detail:{active:readMode()}}));
+  }
 
   function removeAdminDom(){
     ['vnTripStudioEntry','vnTripStudioModal','vnAdminPinModal','vnStudioBanner'].forEach(id=>document.getElementById(id)?.remove());
@@ -207,6 +210,7 @@
   }
 
   root.VN_ADMIN={refresh,onIdentityChanged:refresh,open:openPin,close:closeStudio,isCrystal,readMode};
+  root.dispatchEvent?.(new CustomEvent('ccmv:studio-mode-changed',{detail:{active:readMode()}}));
   document.addEventListener('click',routeActiveSelectorToStudio,true);
   document.addEventListener('DOMContentLoaded',()=>{refresh();syncLifecycleUi();});
   document.addEventListener('ccmv:tripcompletionchange',syncLifecycleUi);
