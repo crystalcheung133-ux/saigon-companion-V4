@@ -20,8 +20,8 @@
     endDate:'2026-11-03',
     storageNamespace:'ccmv-vietnam-2026',
     tripGeneration:1,
-    version:'stage-e-local-edit-sync-fix',
-    buildLabel:'VN Stage E · Local Edit Sync Fix',
+    version:'stage-e1-admin-booking-sync',
+    buildLabel:'VN Stage E1 · Admin Booking Sync',
     features:Object.freeze({
       /* Stage 3.2D validation flag. Legacy remains authoritative. */
       expenseCanonicalDualWrite:false,
@@ -30,7 +30,7 @@
       travelSyncCore:true,
       bookingSyncAdapter:true,
       bookingSyncRuntime:true,
-      bookingSyncMode:'certification',
+      bookingSyncMode:'admin-write-party-read',
       bookingSupabaseSync:true
     }),
     participants
@@ -41,22 +41,22 @@
         'party-christal':Object.freeze({
           partyId:'party-christal',displayName:'Christal',
           legacyAliases:Object.freeze(['christal']),ordering:1,
-          permissions:Object.freeze({adminEligible:false})
+          permissions:Object.freeze({adminEligible:false,bookingWrite:false})
         }),
         'party-crystal':Object.freeze({
           partyId:'party-crystal',displayName:'Crystal',
           legacyAliases:Object.freeze(['crystal']),ordering:2,
-          permissions:Object.freeze({adminEligible:false})
+          permissions:Object.freeze({adminEligible:true,bookingWrite:true})
         }),
         'party-mero':Object.freeze({
           partyId:'party-mero',displayName:'Mero',
           legacyAliases:Object.freeze(['mero']),ordering:3,
-          permissions:Object.freeze({adminEligible:false})
+          permissions:Object.freeze({adminEligible:false,bookingWrite:false})
         }),
         'party-vivian':Object.freeze({
           partyId:'party-vivian',displayName:'Vivian',
           legacyAliases:Object.freeze(['vivian']),ordering:4,
-          permissions:Object.freeze({adminEligible:false})
+          permissions:Object.freeze({adminEligible:false,bookingWrite:false})
         })
       })
     })

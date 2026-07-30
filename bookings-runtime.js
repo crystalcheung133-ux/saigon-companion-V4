@@ -9,6 +9,7 @@
   function label(status){return status==='confirmed'?'✓ Confirmed':status==='cancelled'?'Cancelled / unavailable':'Pending';}
   function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
   function user(){try{return getFriend();}catch(e){return STORAGE.local.get(STORAGE_CONFIG.keys.friend,'crystal');}}
+  function canEditBookings(){return user()==='crystal';}
   function currentPartyId(){const alias=user();const parties=root.TRIP_CONFIG?.parties?.identities||{};for(const entry of Object.values(parties)){if((entry.legacyAliases||[]).includes(alias))return entry.partyId;}return `party-${alias}`;}
   function person(k){return (root.VN_PRESENTATION?.friends||{})[k]||k||'—';}
   function formatDate(v){if(!v)return'Date pending';const d=new Date(v+'T12:00:00');return new Intl.DateTimeFormat('en-AU',{weekday:'short',day:'numeric',month:'short'}).format(d);}
@@ -53,17 +54,22 @@
     const guideInfo=b.placeId?`<a class="booking-header-action" href="place.html?id=${encodeURIComponent(b.placeId)}">Guide card</a>`:'';
     const dayInfo=b.eventId&&b.day?`<a class="booking-header-action" href="day.html?day=${encodeURIComponent(b.day)}#${encodeURIComponent(b.eventId)}">Day ${esc(b.day)} timeline</a>`:'';
     const headerActions=(guideInfo||dayInfo)?`<div class="booking-header-actions">${guideInfo}${dayInfo}</div>`:'<p class="booking-independent-note">Independent booking record</p>';
-    host.innerHTML=`<div class="booking-editor-head"><p class="kicker">Shared booking</p><h2>${esc(b.title)}</h2>${headerActions}</div><div class="booking-readonly-grid">${readonlyField('Booking status',label(b.status))}${readonlyField('Date',formatDate(b.date))}${readonlyField('Time',b.time)}${readonlyField('Booking name',b.bookingName)}${readonlyField('Deposit',deposit)}${readonlyField('Booking option',b.bookingMethod)}${readonlyField('Contact details',contactInfo,true,true)}${secondaryInfo}${readonlyField('Online booking / website',onlineInfo,true,true)}${readonlyField('Notes',b.notes,true)}</div><div class="booking-view-actions"><button class="btn booking-edit-btn" type="button" onclick="editBookingEditor('${esc(id)}')">Edit booking</button></div>`;
+    host.innerHTML=`<div class="booking-editor-head"><p class="kicker">Shared booking</p><h2>${esc(b.title)}</h2>${headerActions}</div><div class="booking-readonly-grid">${readonlyField('Booking status',label(b.status))}${readonlyField('Date',formatDate(b.date))}${readonlyField('Time',b.time)}${readonlyField('Booking name',b.bookingName)}${readonlyField('Deposit',deposit)}${readonlyField('Booking option',b.bookingMethod)}${readonlyField('Contact details',contactInfo,true,true)}${secondaryInfo}${readonlyField('Online booking / website',onlineInfo,true,true)}${readonlyField('Notes',b.notes,true)}</div><div class="booking-view-actions">${canEditBookings()
+      ? `<button class="btn booking-edit-btn" type="button" onclick="editBookingEditor('${esc(id)}')">Edit booking</button>`
+      : `<p class="booking-independent-note">Read only · Send booking updates to Crystal by WhatsApp.</p>`
+    }</div>`;
     bindCopyControls(host);modal?.classList.add('show');
   };
   root.editBookingEditor=function(id){
+    if(!canEditBookings()){root.openBookingEditor(id);return;}
     const b=load().find(x=>x.bookingId===id);if(!b)return;
     const host=document.getElementById('bookingEditor');
     host.innerHTML=`<div class="booking-editor-head"><p class="kicker">Edit booking</p><h2>${esc(b.title)}</h2></div><form onsubmit="saveBookingEditor(event,'${esc(id)}')"><label>Booking status<select name="status"><option value="pending" ${b.status==='pending'?'selected':''}>Pending</option><option value="confirmed" ${b.status==='confirmed'?'selected':''}>Confirmed</option><option value="cancelled" ${b.status==='cancelled'?'selected':''}>Cancelled / unavailable</option></select></label><div class="booking-two"><label>Date<input name="date" type="date" value="${esc(b.date)}"></label><label>Time<input name="time" type="time" value="${esc(b.time?.slice(0,5))}"></label></div><label>Booking name<input name="bookingName" value="${esc(b.bookingName)}"></label><label class="booking-deposit-check"><input name="depositPaid" type="checkbox" ${b.depositPaid?'checked':''} onchange="toggleDepositAmount(this)"> Deposit paid</label><label data-deposit-amount ${b.depositPaid?'':'hidden'}>Deposit amount<input name="depositAmount" inputmode="decimal" type="number" min="0" step="any" value="${esc(b.depositAmount)}"></label><label>Booking option<input name="bookingMethod" value="${esc(b.bookingMethod||'')}"></label><label>WhatsApp / phone<input name="bookingContact" value="${esc(b.bookingContact||'')}"></label><label>Online booking link<input name="bookingUrl" type="url" value="${esc(b.bookingUrl||'')}"></label><label>Notes<textarea name="notes">${esc(b.notes)}</textarea></label><div class="booking-actions"><button class="btn" type="submit">Save booking</button><button class="mini-btn" type="button" onclick="openBookingEditor('${esc(id)}')">Cancel</button></div></form>`;
   };
   root.closeBookingModal=function(){const modal=document.getElementById('bookingModal');modal?.classList.remove('show','booking-modal-spa');document.getElementById('tripModal')?.classList.remove('show');};
   root.saveBookingEditor=function(event,id){
-    event.preventDefault();const b=REPOSITORY.getById(id);if(!b)return;const f=new FormData(event.currentTarget);
+    event.preventDefault();
+    if(!canEditBookings()){throw new Error('BOOKING_ADMIN_ONLY');}const b=REPOSITORY.getById(id);if(!b)return;const f=new FormData(event.currentTarget);
     const depositPaid=f.get('depositPaid')==='on';
     REPOSITORY.update(id,{status:String(f.get('status')||'pending'),date:String(f.get('date')||''),time:String(f.get('time')||''),bookingName:String(f.get('bookingName')||''),depositPaid,depositAmount:depositPaid?String(f.get('depositAmount')||''):'',bookingMethod:String(f.get('bookingMethod')||''),bookingContact:String(f.get('bookingContact')||''),bookingUrl:String(f.get('bookingUrl')||''),notes:String(f.get('notes')||'')},{expectedVersion:b.version,updatedByPartyId:currentPartyId()});
     render();openBookingEditor(id);

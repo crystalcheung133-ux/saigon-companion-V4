@@ -1,4 +1,4 @@
-const CACHE_NAME='ccmv-saigon-v4-vn-stage-e-local-edit-sync-fix';
+const CACHE_NAME='ccmv-saigon-v4-vn-stage-e1-admin-booking-sync';
 const ASSETS = [
   './',
   './index.html',
@@ -18,7 +18,6 @@ const ASSETS = [
   './booking-repository.js',
   './booking-sync-adapter.js',
   './sync-bootstrap.js',
-  './stage-e-diagnostic-loader.js',
   './sync-core/index.js',
   './sync-core/sync-core.js',
   './sync-core/sync-provider.js',
