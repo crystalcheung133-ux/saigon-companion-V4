@@ -4,9 +4,9 @@
 
   root.CCMV_STAGE_E_DIAGNOSTIC_ONLY = true;
 
-  const VERSION = 'vn-stage-e-stack-trace-8';
+  const VERSION = 'vn-stage-e-global-config-final';
   const state = {
-    build: 'VN Stage E · Stack Trace Patch 8',
+    build: 'VN Stage E · Global Configuration Final',
     loader: 'loaded',
     current: 'waiting for DOM',
     modules: {},

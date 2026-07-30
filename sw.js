@@ -1,4 +1,4 @@
-const CACHE_NAME='ccmv-saigon-v4-vn-stage-e-stack-trace-8';
+const CACHE_NAME='ccmv-saigon-v4-vn-stage-e-global-config-final';
 const ASSETS = [
   './',
   './index.html',

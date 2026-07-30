@@ -20,8 +20,8 @@
     endDate:'2026-11-03',
     storageNamespace:'ccmv-vietnam-2026',
     tripGeneration:1,
-    version:'stage-e-stack-trace-patch-8',
-    buildLabel:'VN Stage E · Stack Trace Patch 8',
+    version:'stage-e-global-config-final',
+    buildLabel:'VN Stage E · Global Configuration Final',
     features:Object.freeze({
       /* Stage 3.2D validation flag. Legacy remains authoritative. */
       expenseCanonicalDualWrite:false,
@@ -69,3 +69,14 @@
     ])
   });
 })(globalThis);
+
+// Stage E private-trip certification configuration.
+// This scoped token is intentionally browser-visible in Trusted Party Selector mode.
+globalThis.CCMV_SUPABASE_CONFIG = Object.freeze({
+  enabled: true,
+  url: "https://dafgbqygccvctifrevpa.supabase.co",
+  anonKey: "sb_publishable_gjObd52pFWZh5VDWD5wKZw_jHxzV7yP",
+  tripAccessToken: "ccmv_vn_2026_7LxA9rPqK2mN8VfH5tYwQ3eUzC1JsBdR",
+  tripId: "ccmv-vietnam-2026",
+  schema: "public"
+});
