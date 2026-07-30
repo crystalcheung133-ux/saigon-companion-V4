@@ -3,7 +3,7 @@
   'use strict';
   root.CCMV_STAGE_E_DIAGNOSTIC_ONLY=true;
   const state={
-    build:'VN Stage E · Runtime Diagnostic Patch 2',
+    build:'VN Stage E · Runtime Diagnostic Patch 3',
     loader:'loaded',
     current:'waiting for DOM',
     modules:{},
@@ -59,7 +59,7 @@
     for(const [path,name] of moduleList){
       state.current=`importing ${name}`; state.modules[name]='loading'; render();
       try{
-        const mod=await import(`${path}?v=vn-stage-e-runtime-diag-2`);
+        const mod=await import(`${path}?v=vn-stage-e-runtime-diag-3`);
         state.modules[name]=`loaded (${Object.keys(mod).join(', ')||'no exports'})`;
       }catch(error){
         state.modules[name]='FAILED';
