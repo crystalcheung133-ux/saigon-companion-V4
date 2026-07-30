@@ -4,9 +4,9 @@
 
   root.CCMV_STAGE_E_DIAGNOSTIC_ONLY = true;
 
-  const VERSION = 'vn-stage-e-config-diag-5';
+  const VERSION = 'vn-stage-e-config-fix-6';
   const state = {
-    build: 'VN Stage E · Configuration Diagnostic Patch 5',
+    build: 'VN Stage E · Configuration Fix Patch 6',
     loader: 'loaded',
     current: 'waiting for DOM',
     modules: {},
@@ -40,7 +40,7 @@
 
     panel.innerHTML =
       '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">' +
-      '<strong>Stage E Configuration Loader</strong>' +
+      '<strong>Stage E Configuration Fix</strong>' +
       '<button id="ccmvDiag4Close" type="button" style="border:0;background:transparent;font-size:21px;cursor:pointer">×</button>' +
       '</div>' +
       '<p style="margin:6px 0;color:#80542f">Certification mode: modules are checked before Sync starts.</p>' +
