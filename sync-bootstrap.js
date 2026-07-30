@@ -86,7 +86,16 @@ function installGlobalErrorDiagnostics(status, publish) {
   });
 }
 
-async function initialiseStageE() {
+export async function initialiseStageE() {
+  if (globalThis.CCMV_STAGE_E_INITIALISE_PROMISE) {
+    return globalThis.CCMV_STAGE_E_INITIALISE_PROMISE;
+  }
+  const run = initialiseStageEInternal();
+  globalThis.CCMV_STAGE_E_INITIALISE_PROMISE = run;
+  return run;
+}
+
+async function initialiseStageEInternal() {
   const config = globalThis.TRIP_CONFIG;
   const supabase = globalThis.CCMV_SUPABASE_CONFIG;
   const repository = globalThis.CCMV_BOOKING_REPOSITORY;
@@ -174,7 +183,12 @@ async function initialiseStageE() {
   globalThis.dispatchEvent?.(new CustomEvent('ccmv:sync-stage-e-ready', { detail: { ...status } }));
 }
 
-if (globalThis.CCMV_STAGE_E_DIAGNOSTIC_ONLY === true) {
-  globalThis.CCMV_STAGE_E_BOOTSTRAP_MODULE_LOADED = true;
-} else if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initialiseStageE, { once: true });
-else void initialiseStageE();
+globalThis.CCMV_STAGE_E_BOOTSTRAP_MODULE_LOADED = true;
+
+if (globalThis.CCMV_STAGE_E_DIAGNOSTIC_ONLY !== true) {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => void initialiseStageE(), { once: true });
+  } else {
+    void initialiseStageE();
+  }
+}
