@@ -1,8 +1,11 @@
 {
-  "name": "ccmv-vn-stage-d-verification",
+  "name": "ccmv-vn-stage-e-booking-sync-certification",
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test sync-core-tests/*.js booking-stage-d-adapter.test.mjs"
+    "test": "npm run test:core && npm run test:legacy && npm run test:stage-e",
+    "test:core": "node --test sync-core-tests/*.js booking-stage-d-adapter.test.mjs",
+    "test:legacy": "node legacy-test-runner.cjs",
+    "test:stage-e": "node --test stage-e-booking-sync.test.mjs"
   }
 }

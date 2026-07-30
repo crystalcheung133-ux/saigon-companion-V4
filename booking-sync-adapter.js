@@ -70,7 +70,7 @@ export function createBookingSyncAdapter(repository){
     async onGenerationBump(event){
       if(String(event&&event.tripId||'')!==adapter.tripId)return;
       if(Number(event.currentGeneration)!==Number(repository.tripGeneration)){
-        // Stage D is local-only. A generation mismatch must be handled by a later migration stage.
+        repository.applyGenerationBump(event.currentGeneration);
         globalThis.dispatchEvent?.(new CustomEvent('ccmv:booking-generation-mismatch',{detail:clone(event)}));
       }
     }

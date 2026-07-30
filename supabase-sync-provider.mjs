@@ -31,7 +31,7 @@ export class SupabaseSyncProvider {
   }
   async connect() { await this.ping(); this.connected = true; }
   async disconnect() { for (const socket of this.sockets) socket.close(); this.sockets.clear(); this.connected = false; }
-  headers() { return { apikey: this.anonKey, 'Content-Type': 'application/json' }; }
+  headers() { return { apikey: this.anonKey, Authorization: `Bearer ${this.anonKey}`, 'Content-Type': 'application/json' }; }
   async ping() {
     const response = await this.fetch(`${this.url}/rest/v1/trips?trip_id=eq.${encodeURIComponent(this.tripId)}&select=trip_generation&limit=1`, { headers: this.headers() });
     if (!response.ok) throw new Error(`SUPABASE_PING_${response.status}`);

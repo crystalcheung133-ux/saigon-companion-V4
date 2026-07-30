@@ -3,7 +3,7 @@
   'use strict';
 
   const TRIP_ID=(root.TRIP_CONFIG&&root.TRIP_CONFIG.id)||'ccmv-vietnam-2026';
-  const TRIP_GENERATION=Number((root.TRIP_CONFIG&&root.TRIP_CONFIG.tripGeneration)||1);
+  let TRIP_GENERATION=Number((root.TRIP_CONFIG&&root.TRIP_CONFIG.tripGeneration)||1);
   const KEY=(root.STORAGE_CONFIG&&root.STORAGE_CONFIG.keys.bookings)||'ccmv_vietnam_bookings_v1';
   const EVENT_NAME='ccmv:bookings-changed';
   const SCHEMA_VERSION=1;
@@ -75,7 +75,8 @@
       updatedAt,
       updatedByPartyId:partyId(source.updatedByPartyId||source.updatedBy),
       updatedByUserId:source.updatedByUserId?String(source.updatedByUserId):'',
-      deletedAt:source.deletedAt?String(source.deletedAt):''
+      deletedAt:source.deletedAt?String(source.deletedAt):'',
+      mutationId:source.mutationId?String(source.mutationId):''
     };
     delete record.confirmation;delete record.contact;delete record.deadline;delete record.deposit;delete record.updatedBy;
     return record;
@@ -183,7 +184,7 @@
     if(index<0)throw new Error(`Unknown booking: ${id}`);
     const current=rows[index];
     if(context.expectedVersion!=null&&Number(context.expectedVersion)!==Number(current.version))throw new Error('BOOKING_VERSION_CONFLICT');
-    rows[index]=normalise({...current,...patch,bookingId:id,version:current.version+1,updatedAt:now(),updatedByPartyId:context.updatedByPartyId||patch.updatedByPartyId||current.updatedByPartyId,updatedByUserId:context.updatedByUserId||patch.updatedByUserId||current.updatedByUserId});
+    rows[index]=normalise({...current,...patch,bookingId:id,mutationId:'',version:current.version+1,updatedAt:now(),updatedByPartyId:context.updatedByPartyId||patch.updatedByPartyId||current.updatedByPartyId,updatedByUserId:context.updatedByUserId||patch.updatedByUserId||current.updatedByUserId});
     write(rows);
     return clone(rows[index]);
   }
@@ -208,6 +209,14 @@
     if(!current)return null;
     return applyRemoteWrite({...current,deletedAt:tombstone.deletedAt||now(),version:Number(tombstone.version||current.version),updatedAt:tombstone.updatedAt||now(),updatedByPartyId:tombstone.updatedByPartyId||current.updatedByPartyId});
   }
+  function applyGenerationBump(nextGeneration){
+    const generation=Number(nextGeneration);
+    if(!Number.isInteger(generation)||generation<=TRIP_GENERATION)throw new Error('INVALID_TRIP_GENERATION_BUMP');
+    TRIP_GENERATION=generation;
+    const records=list({includeDeleted:true}).map(record=>normalise({...record,tripGeneration:generation,mutationId:''}));
+    write(records);
+    return generation;
+  }
   function subscribe(listener){
     const custom=()=>listener(list());
     const storage=event=>{if(event.key===KEY)listener(list());};
@@ -228,7 +237,7 @@
     key:KEY,
     schemaVersion:SCHEMA_VERSION,
     tripId:TRIP_ID,
-    tripGeneration:TRIP_GENERATION,
+    get tripGeneration(){return TRIP_GENERATION;},
     migrate,
     list,
     getAll:list,
@@ -238,6 +247,7 @@
     replaceAll,
     applyRemoteWrite,
     applyRemoteDelete,
+    applyGenerationBump,
     validateAll(){const rows=list({includeDeleted:true});return clone(validateRecords(rows));},
     getMigrationStatus(){return clone(migrationStatus());},
     subscribe,

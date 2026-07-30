@@ -28,10 +28,10 @@ function repository(initial = record()) {
   };
 }
 
-test('Device A certification enables runtime and visible build label', () => {
+test('feature flag OFF is the safe default and visible build label is Stage E', () => {
   const source = fs.readFileSync('trip-config.js', 'utf8');
-  assert.match(source, /bookingSyncRuntime:true/);
-  assert.match(source, /VN Stage E · Runtime Diagnostic Patch 1/);
+  assert.match(source, /bookingSyncRuntime:false/);
+  assert.match(source, /VN Stage E · Booking Sync Certification/);
 });
 test('no browser direct Booking write path exists', () => {
   const legacy = fs.readFileSync('supabase-booking-provider.js', 'utf8');

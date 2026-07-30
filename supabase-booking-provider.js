@@ -120,12 +120,8 @@
     return rows&&rows[0]?fromRemote(rows[0]):null;
   }
   async function upsert(records){
-    if(!accessToken)throw new Error('Authenticated Supabase access token required before remote writes');
-    const payload=(Array.isArray(records)?records:[records]).map(toRemote);
-    const rows=await request(`${config.tables.bookings}?on_conflict=trip_id,booking_id`,{
-      method:'POST',prefer:'resolution=merge-duplicates,return=representation',body:payload
-    });
-    return Array.isArray(rows)?rows.map(fromRemote):[];
+    void records;
+    throw new Error('DIRECT_BOOKING_TABLE_WRITES_PROHIBITED_USE_EDGE_FUNCTION');
   }
 
   const provider=Object.freeze({
