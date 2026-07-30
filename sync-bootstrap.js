@@ -9,6 +9,61 @@ const DOMAIN = 'booking';
 const uuid = () => globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 const clone = value => structuredClone(value);
 
+function maskValue(value, visible = 4) {
+  const text = String(value || '');
+  if (!text) return '(empty)';
+  if (text.length <= visible * 2) return `${text.slice(0, 1)}…${text.slice(-1)}`;
+  return `${text.slice(0, visible)}…${text.slice(-visible)}`;
+}
+
+function configurationChecks(config, supabase, repository, mode, enabled) {
+  const checks = {
+    tripConfigPresent: Boolean(config),
+    tripIdPresent: Boolean(config?.id),
+    bookingSyncRuntime: config?.features?.bookingSyncRuntime === true,
+    bookingSyncMode: mode,
+    modeAllowed: mode === 'certification' || mode === 'production',
+    runtimeEnabled: enabled,
+    repositoryPresent: Boolean(repository),
+    supabaseConfigPresent: Boolean(supabase),
+    supabaseEnabled: supabase?.enabled === true,
+    supabaseUrlPresent: Boolean(supabase?.url),
+    supabaseUrlValid: /^https:\/\/.+\.supabase\.co$/i.test(String(supabase?.url || '')),
+    anonKeyPresent: Boolean(supabase?.anonKey),
+    tripAccessTokenPresent: Boolean(supabase?.tripAccessToken),
+    isConfiguredFunctionPresent: typeof supabase?.isConfigured === 'function',
+    isConfiguredResult: Boolean(supabase?.isConfigured?.())
+  };
+
+  checks.complete = Boolean(
+    checks.tripConfigPresent &&
+    checks.tripIdPresent &&
+    checks.bookingSyncRuntime &&
+    checks.modeAllowed &&
+    checks.runtimeEnabled &&
+    checks.repositoryPresent &&
+    checks.supabaseConfigPresent &&
+    checks.supabaseEnabled &&
+    checks.supabaseUrlPresent &&
+    checks.supabaseUrlValid &&
+    checks.anonKeyPresent &&
+    checks.tripAccessTokenPresent &&
+    checks.isConfiguredFunctionPresent &&
+    checks.isConfiguredResult
+  );
+
+  return {
+    checks,
+    safeValues: {
+      tripId: String(config?.id || '(missing)'),
+      mode: String(mode || '(missing)'),
+      supabaseUrl: String(supabase?.url || '(empty)'),
+      anonKey: maskValue(supabase?.anonKey),
+      tripAccessToken: maskValue(supabase?.tripAccessToken)
+    }
+  };
+}
+
 function selectedPartyId() {
   const key = globalThis.STORAGE_CONFIG?.keys?.friend || 'saigon_friend';
   const friend = globalThis.STORAGE?.local?.get(key, 'crystal') || 'crystal';
@@ -43,6 +98,20 @@ function diagnosticText(status) {
     `Started: ${status.started ? 'yes' : 'no'} · First sync: ${status.firstSyncComplete === true ? 'complete' : status.firstSyncComplete === false ? 'pending' : '-'}`,
     `Queue: pending ${status.pendingCount || 0} · failed ${status.failedCount || 0} · conflicts ${status.conflictCount || 0}`,
     `Last action: ${status.lastAction || '-'}`,
+    '',
+    'Configuration:',
+    `- trip config: ${status.configChecks?.tripConfigPresent ? 'yes' : 'NO'}`,
+    `- trip ID: ${status.configChecks?.tripIdPresent ? 'yes' : 'NO'} · ${status.configSafeValues?.tripId || '-'}`,
+    `- runtime flag: ${status.configChecks?.bookingSyncRuntime ? 'true' : 'FALSE'}`,
+    `- mode: ${status.configChecks?.bookingSyncMode || '-'} · allowed ${status.configChecks?.modeAllowed ? 'yes' : 'NO'}`,
+    `- repository: ${status.configChecks?.repositoryPresent ? 'yes' : 'NO'}`,
+    `- Supabase config object: ${status.configChecks?.supabaseConfigPresent ? 'yes' : 'NO'}`,
+    `- Supabase enabled: ${status.configChecks?.supabaseEnabled ? 'true' : 'FALSE'}`,
+    `- Supabase URL: ${status.configChecks?.supabaseUrlPresent ? 'present' : 'MISSING'} · valid ${status.configChecks?.supabaseUrlValid ? 'yes' : 'NO'}`,
+    `- anon key: ${status.configChecks?.anonKeyPresent ? 'present' : 'MISSING'} · ${status.configSafeValues?.anonKey || '-'}`,
+    `- trip token: ${status.configChecks?.tripAccessTokenPresent ? 'present' : 'MISSING'} · ${status.configSafeValues?.tripAccessToken || '-'}`,
+    `- isConfigured(): ${status.configChecks?.isConfiguredResult ? 'true' : 'FALSE'}`,
+    `- complete: ${status.configChecks?.complete ? 'YES' : 'NO'}`,
     `Error: ${status.error || 'none'}`
   ].join('\n');
 }
@@ -101,7 +170,26 @@ async function initialiseStageEInternal() {
   const repository = globalThis.CCMV_BOOKING_REPOSITORY;
   const mode = config?.features?.bookingSyncMode || 'off';
   const enabled = config?.features?.bookingSyncRuntime === true && mode !== 'off';
-  const status = { build: config?.buildLabel, mode, enabled, coreLoaded: true, adapterRegistered: false, providerConfigured: false, providerConnected: false, repositoryCount: 0, firstSyncComplete: null, pendingCount: 0, failedCount: 0, conflictCount: 0, started: false, lastAction: 'bootstrap', error: null };
+  const configDiagnostic = configurationChecks(config, supabase, repository, mode, enabled);
+  const status = {
+    build: config?.buildLabel,
+    mode,
+    enabled,
+    coreLoaded: true,
+    adapterRegistered: false,
+    providerConfigured: false,
+    providerConnected: false,
+    repositoryCount: 0,
+    firstSyncComplete: null,
+    pendingCount: 0,
+    failedCount: 0,
+    conflictCount: 0,
+    started: false,
+    lastAction: 'bootstrap',
+    error: null,
+    configChecks: configDiagnostic.checks,
+    configSafeValues: configDiagnostic.safeValues
+  };
   const publish = () => { globalThis.CCMV_SYNC_STAGE_E = Object.freeze({ ...status }); globalThis.dispatchEvent?.(new CustomEvent('ccmv:sync-stage-e-status', { detail: { ...status } })); renderDiagnosticPanel(status); };
   installGlobalErrorDiagnostics(status, publish);
   publish();
@@ -116,7 +204,12 @@ async function initialiseStageEInternal() {
       status.repositoryCount = repository.getAll({ includeDeleted: true }).length; status.lastAction = 'disabled'; publish(); return;
     }
     if (mode !== 'certification' && mode !== 'production') throw new Error('INVALID_BOOKING_SYNC_MODE');
-    if (!supabase?.isConfigured?.() || !supabase.tripAccessToken) throw new Error('BOOKING_SYNC_CONFIGURATION_INCOMPLETE');
+    if (!status.configChecks.complete) {
+      const missing = Object.entries(status.configChecks)
+        .filter(([key, value]) => key !== 'complete' && (value === false || value === null || value === undefined || value === ''))
+        .map(([key]) => key);
+      throw new Error(`BOOKING_SYNC_CONFIGURATION_INCOMPLETE: ${missing.join(', ') || 'unknown'}`);
+    }
     status.providerConfigured = true; status.lastAction = 'provider-configured'; publish();
 
     const queue = new SyncMutationQueue(new IndexedDbQueueStore({ databaseName: `${config.id}-stage-e-queue` }));

@@ -20,8 +20,8 @@
     endDate:'2026-11-03',
     storageNamespace:'ccmv-vietnam-2026',
     tripGeneration:1,
-    version:'stage-e-certification-runtime-patch-4',
-    buildLabel:'VN Stage E · Certification Runtime Patch 4',
+    version:'stage-e-configuration-diagnostic-patch-5',
+    buildLabel:'VN Stage E · Configuration Diagnostic Patch 5',
     features:Object.freeze({
       /* Stage 3.2D validation flag. Legacy remains authoritative. */
       expenseCanonicalDualWrite:false,
