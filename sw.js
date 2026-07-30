@@ -1,4 +1,4 @@
-const CACHE_NAME='ccmv-saigon-v4-vn-stage-e1-studio-booking-edit';
+const CACHE_NAME='ccmv-saigon-v4-vn-stage-e1-booking-polish-pack-1';
 const ASSETS = [
   './',
   './index.html',
