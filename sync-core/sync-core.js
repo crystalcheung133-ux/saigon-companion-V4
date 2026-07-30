@@ -65,16 +65,6 @@ export class TravelSyncEngine {
 
   getState(domain) { return this.#state.snapshot(domain); }
   subscribe(listener) { return this.#state.subscribe(listener); }
-  async enqueueMutation(mutation) {
-    const adapter = this.#adapters.get(mutation?.domain);
-    if (!adapter) throw new Error(`Unknown domain: ${mutation?.domain}`);
-    if (String(mutation.tripId) !== adapter.tripId) throw new Error('Mutation trip does not match adapter');
-    const openConflict = this.listConflicts(mutation.domain).find(conflict => conflict.recordId === mutation.recordId);
-    if (openConflict) return { held: true, conflictId: openConflict.conflictId };
-    const queued = await this.#queue.enqueue(mutation);
-    await this.#refreshDomainCounts(mutation.domain);
-    return queued;
-  }
   listConflicts(domain) {
     return [...this.#conflicts.values()].filter(c => !domain || c.domain === domain).map(clone);
   }
@@ -270,8 +260,6 @@ export class TravelSyncEngine {
 
   #recordConflict({ domain, adapter, mutation, remoteRecord, reason }) {
     const recordId = mutation?.recordId ?? safeRecordId(adapter, remoteRecord);
-    const existing = [...this.#conflicts.values()].find(conflict => conflict.domain === domain && conflict.recordId === recordId && conflict.status === 'open');
-    if (existing) return existing.conflictId;
     const conflictId = `${domain}:${recordId}:${mutation?.mutationId || remoteRecord?.mutationId || Date.now()}`;
     this.#conflicts.set(conflictId, {
       conflictId,

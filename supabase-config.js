@@ -7,7 +7,6 @@
     enabled:Boolean(supplied.enabled),
     url:String(supplied.url||''),
     anonKey:String(supplied.anonKey||''),
-    tripAccessToken:String(supplied.tripAccessToken||''),
     schema:String(supplied.schema||'public'),
     tripId:String(supplied.tripId||(root.TRIP_CONFIG&&root.TRIP_CONFIG.id)||'ccmv-vietnam-2026'),
     tables:Object.freeze({
