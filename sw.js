@@ -1,4 +1,4 @@
-const CACHE_NAME='ccmv-saigon-v4-vn-stage-e1-admin-booking-sync';
+const CACHE_NAME='ccmv-saigon-v4-vn-stage-e1-bootstrap-loader-fix';
 const ASSETS = [
   './',
   './index.html',
