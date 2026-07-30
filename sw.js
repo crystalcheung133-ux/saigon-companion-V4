@@ -1,4 +1,4 @@
-const CACHE_NAME='ccmv-saigon-v4-vn-ui-stabilisation-pack-1';
+const CACHE_NAME='ccmv-saigon-v4-vn-ui-stabilisation-pack-2';
 const ASSETS = [
   './',
   './index.html',

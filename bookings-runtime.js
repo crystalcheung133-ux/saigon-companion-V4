@@ -28,8 +28,7 @@
   function render(){
     const host=document.getElementById('bookingList');if(!host)return;
     const rows=load(),sum=document.getElementById('bookingSummary');if(sum)sum.textContent=summary(rows);
-    host.classList.toggle('booking-list-spa',activeCategory==='Spa');
-    host.innerHTML=categoryTabs(rows)+`<section class="booking-group booking-group-active${activeCategory==='Spa'?' booking-group-spa':''}">${rows.filter(x=>x.category===activeCategory).map(card).join('')}</section>`;
+    host.innerHTML=categoryTabs(rows)+`<section class="booking-group booking-group-active">${rows.filter(x=>x.category===activeCategory).map(card).join('')}</section>`;
     host.querySelectorAll('[data-booking-category]').forEach(btn=>btn.addEventListener('click',()=>{activeCategory=btn.dataset.bookingCategory;render();}));
   }
   function bookingInfoLink(kind,value){
