@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+const runtime=fs.readFileSync(new URL('./bookings-runtime.js',import.meta.url),'utf8');
+const sync=fs.readFileSync(new URL('./simple-booking-sync.js',import.meta.url),'utf8');
+const html=fs.readFileSync(new URL('./bookings.html',import.meta.url),'utf8');
+test('Crystal-only edit guards',()=>{assert.match(runtime,/canEditBookings/);assert.match(runtime,/Only Crystal can edit bookings/);assert.match(runtime,/Read only/);});
+test('Save uses explicit remote push',()=>{assert.match(runtime,/await sync\.push\(draft\)/);assert.match(runtime,/applyRemoteWrite\(saved\)/);});
+test('No collaborative sync engine',()=>{assert.doesNotMatch(sync,/TravelSyncEngine|SyncMutationQueue|resolveConflict/);assert.match(sync,/async function push/);assert.match(sync,/async function pull/);});
+test('One simple sync script',()=>{assert.match(html,/simple-booking-sync\.js/);assert.doesNotMatch(html,/booking-sync-bootstrap\.mjs/);assert.doesNotMatch(html,/supabase-booking-provider\.js/);});

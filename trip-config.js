@@ -11,6 +11,16 @@
       vivian:Object.freeze({emoji:'👟',name:'Vivian'})
     })
   });
+
+  root.CCMV_SIMPLE_BOOKING_CONFIG=Object.freeze({
+    enabled:true,
+    url:'https://dafgbqygccvctifrevpa.supabase.co',
+    anonKey:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRhZmdicXlnY2N2Y3RpZnJldnBhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyNTQyOTksImV4cCI6MjA5ODgzMDI5OX0.9dB6WV8BldV6rGze3QuisIaj3qnUV7zSzdo_eGPBbrA',
+    tripId:'ccmv-vietnam-2026',
+    tripAccessToken:'ccmv_vn_2026_7LxA9rPqK2mN8VfH5tYwQ3eUzC1JsBdR',
+    adminPartyId:'party-crystal'
+  });
+
   root.TRIP_CONFIG=Object.freeze({
     id:'ccmv-vietnam-2026',
     name:'Saigon Companion',
@@ -20,18 +30,18 @@
     endDate:'2026-11-03',
     storageNamespace:'ccmv-vietnam-2026',
     tripGeneration:1,
-    version:'stage-e1-bootstrap-loader-fix',
-    buildLabel:'VN Stage E1 · Admin Booking Sync · Loader Fix',
+    version:'stage-e1-simple-admin-booking-sync',
+    buildLabel:'Build: VN Stage E1 · Simple Admin Booking Sync',
+    assetVersion:'vn-stage-e1-simple-1',
     features:Object.freeze({
       /* Stage 3.2D validation flag. Legacy remains authoritative. */
       expenseCanonicalDualWrite:false,
       expenseCanonicalReadShadow:false,
       bookingSupabaseFoundation:true,
-      travelSyncCore:true,
+      bookingSupabaseSync:true,
+      syncCoreStageB5:true,
       bookingSyncAdapter:true,
-      bookingSyncRuntime:true,
-      bookingSyncMode:'admin-write-party-read',
-      bookingSupabaseSync:true
+      bookingSyncRuntime:true
     }),
     participants
     ,parties:Object.freeze({
@@ -41,22 +51,22 @@
         'party-christal':Object.freeze({
           partyId:'party-christal',displayName:'Christal',
           legacyAliases:Object.freeze(['christal']),ordering:1,
-          permissions:Object.freeze({adminEligible:false,bookingWrite:false})
+          permissions:Object.freeze({adminEligible:false})
         }),
         'party-crystal':Object.freeze({
           partyId:'party-crystal',displayName:'Crystal',
           legacyAliases:Object.freeze(['crystal']),ordering:2,
-          permissions:Object.freeze({adminEligible:true,bookingWrite:true})
+          permissions:Object.freeze({adminEligible:false})
         }),
         'party-mero':Object.freeze({
           partyId:'party-mero',displayName:'Mero',
           legacyAliases:Object.freeze(['mero']),ordering:3,
-          permissions:Object.freeze({adminEligible:false,bookingWrite:false})
+          permissions:Object.freeze({adminEligible:false})
         }),
         'party-vivian':Object.freeze({
           partyId:'party-vivian',displayName:'Vivian',
           legacyAliases:Object.freeze(['vivian']),ordering:4,
-          permissions:Object.freeze({adminEligible:false,bookingWrite:false})
+          permissions:Object.freeze({adminEligible:false})
         })
       })
     })
@@ -69,14 +79,3 @@
     ])
   });
 })(globalThis);
-
-// Stage E private-trip certification configuration.
-// This scoped token is intentionally browser-visible in Trusted Party Selector mode.
-globalThis.CCMV_SUPABASE_CONFIG = Object.freeze({
-  enabled: true,
-  url: "https://dafgbqygccvctifrevpa.supabase.co",
-  anonKey: "sb_publishable_gjObd52pFWZh5VDWD5wKZw_jHxzV7yP",
-  tripAccessToken: "ccmv_vn_2026_7LxA9rPqK2mN8VfH5tYwQ3eUzC1JsBdR",
-  tripId: "ccmv-vietnam-2026",
-  schema: "public"
-});

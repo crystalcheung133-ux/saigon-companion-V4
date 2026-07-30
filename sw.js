@@ -1,4 +1,4 @@
-const CACHE_NAME='ccmv-saigon-v4-vn-stage-e1-bootstrap-loader-fix';
+const CACHE_NAME='ccmv-saigon-v4-vn-stage-e1-simple-admin-sync';
 const ASSETS = [
   './',
   './index.html',
@@ -16,8 +16,10 @@ const ASSETS = [
   './day-runtime.js',
   './supabase-config.js',
   './booking-repository.js',
-  './booking-sync-adapter.js',
-  './sync-bootstrap.js',
+  './booking-sync-adapter.mjs',
+  './booking-sync-bootstrap.mjs',
+  './supabase-booking-provider.js',
+  './bookings-runtime.js',
   './sync-core/index.js',
   './sync-core/sync-core.js',
   './sync-core/sync-provider.js',
@@ -26,10 +28,7 @@ const ASSETS = [
   './sync-core/sync-reset-orchestrator.js',
   './sync-core/sync-state.js',
   './sync-core/sync-test-provider.js',
-  './sync-core/sync-indexeddb-store.js',
-  './supabase-sync-provider.mjs',
-  './supabase-booking-provider.js',
-  './bookings-runtime.js',
+  './sync-core/package.json',
   './lifecycle-runtime.js',
   './itinerary-runtime.js',
   './moments-runtime.js',
@@ -50,6 +49,7 @@ const ASSETS = [
   './canonical-core.js',
   './vietnam-canonical-data.js',
   './vietnam-presentation-adapter.js',
+  './simple-booking-sync.js',
   './manifest.json',
   './place.html',
   './day.html',
