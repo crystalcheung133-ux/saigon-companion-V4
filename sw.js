@@ -1,4 +1,4 @@
-const CACHE_NAME='ccmv-saigon-v4-vn-stage-e-global-config-final';
+const CACHE_NAME='ccmv-saigon-v4-vn-stage-e-local-edit-sync-fix';
 const ASSETS = [
   './',
   './index.html',

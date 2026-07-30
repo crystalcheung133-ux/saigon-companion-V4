@@ -348,10 +348,24 @@ async function initialiseStageEInternal() {
         const next = new Map(repository.getAll({ includeDeleted: true }).map(row => [row.bookingId, clone(row)]));
         for (const [id, record] of next) {
           const previous = snapshot.get(id);
-          if (record.mutationId || JSON.stringify(record) === JSON.stringify(previous)) continue;
+          if (JSON.stringify(record) === JSON.stringify(previous)) continue;
+
+          // A changed mutationId means the repository is applying a newly
+          // acknowledged/remote canonical row. Skip that echo once.
+          // If the mutationId is unchanged but other fields changed, this is
+          // a genuine local edit and must be queued.
+          const isRemoteEcho = Boolean(
+            previous &&
+            record.mutationId &&
+            record.mutationId !== previous.mutationId
+          );
+          if (isRemoteEcho) continue;
+
           const operation = !previous ? 'create' : record.deletedAt && !previous.deletedAt ? 'delete' : 'update';
           const baseVersion = previous ? Number(previous.version) : undefined;
           await engine.enqueueMutation(mutation(operation, record, baseVersion));
+          status.lastAction = `queued-${operation} · ${record.bookingId}`;
+          publish();
         }
         snapshot = next;
         if (navigator.onLine) await engine.syncNow(DOMAIN);

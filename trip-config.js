@@ -20,8 +20,8 @@
     endDate:'2026-11-03',
     storageNamespace:'ccmv-vietnam-2026',
     tripGeneration:1,
-    version:'stage-e-global-config-final',
-    buildLabel:'VN Stage E · Global Configuration Final',
+    version:'stage-e-local-edit-sync-fix',
+    buildLabel:'VN Stage E · Local Edit Sync Fix',
     features:Object.freeze({
       /* Stage 3.2D validation flag. Legacy remains authoritative. */
       expenseCanonicalDualWrite:false,

@@ -4,9 +4,9 @@
 
   root.CCMV_STAGE_E_DIAGNOSTIC_ONLY = true;
 
-  const VERSION = 'vn-stage-e-global-config-final';
+  const VERSION = 'vn-stage-e-local-edit-sync-fix';
   const state = {
-    build: 'VN Stage E · Global Configuration Final',
+    build: 'VN Stage E · Local Edit Sync Fix',
     loader: 'loaded',
     current: 'waiting for DOM',
     modules: {},
