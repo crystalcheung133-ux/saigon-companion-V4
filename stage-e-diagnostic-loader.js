@@ -4,9 +4,9 @@
 
   root.CCMV_STAGE_E_DIAGNOSTIC_ONLY = true;
 
-  const VERSION = 'vn-stage-e-fetch-fix-7';
+  const VERSION = 'vn-stage-e-stack-trace-8';
   const state = {
-    build: 'VN Stage E · Fetch Binding Fix Patch 7',
+    build: 'VN Stage E · Stack Trace Patch 8',
     loader: 'loaded',
     current: 'waiting for DOM',
     modules: {},

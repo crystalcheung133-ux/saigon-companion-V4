@@ -89,6 +89,39 @@ function mutation(operation, record, baseVersion) {
 }
 
 
+
+function serialiseError(error) {
+  const cause = error?.cause;
+  return {
+    name: error?.name || 'Error',
+    message: error?.message || String(error),
+    stack: error?.stack || '(no stack)',
+    fileName: error?.fileName || error?.sourceURL || '(unknown)',
+    lineNumber: error?.lineNumber || error?.line || '(unknown)',
+    columnNumber: error?.columnNumber || error?.column || '(unknown)',
+    cause: cause
+      ? {
+          name: cause?.name || typeof cause,
+          message: cause?.message || String(cause),
+          stack: cause?.stack || '(no stack)'
+        }
+      : null
+  };
+}
+
+function applyDetailedError(status, error, action) {
+  const detail = serialiseError(error);
+  status.error = `${detail.name}: ${detail.message}`;
+  status.errorName = detail.name;
+  status.errorMessage = detail.message;
+  status.errorStack = detail.stack;
+  status.errorFile = detail.fileName;
+  status.errorLine = detail.lineNumber;
+  status.errorColumn = detail.columnNumber;
+  status.errorCause = detail.cause;
+  status.lastAction = action;
+}
+
 function diagnosticText(status) {
   return [
     `Build: ${status.build || 'unknown'}`,
@@ -112,7 +145,14 @@ function diagnosticText(status) {
     `- trip token: ${status.configChecks?.tripAccessTokenPresent ? 'present' : 'MISSING'} · ${status.configSafeValues?.tripAccessToken || '-'}`,
     `- isConfigured(): ${status.configChecks?.isConfiguredResult ? 'true' : 'FALSE'}`,
     `- complete: ${status.configChecks?.complete ? 'YES' : 'NO'}`,
-    `Error: ${status.error || 'none'}`
+    '',
+    'Error detail:',
+    `- name: ${status.errorName || 'none'}`,
+    `- message: ${status.errorMessage || status.error || 'none'}`,
+    `- file: ${status.errorFile || '-'}`,
+    `- line: ${status.errorLine || '-'} · column: ${status.errorColumn || '-'}`,
+    `- cause: ${status.errorCause ? JSON.stringify(status.errorCause) : 'none'}`,
+    `- stack: ${status.errorStack || 'none'}`
   ].join('\n');
 }
 
@@ -144,13 +184,23 @@ function renderDiagnosticPanel(status) {
 
 function installGlobalErrorDiagnostics(status, publish) {
   globalThis.addEventListener?.('error', event => {
-    if (!status.error) status.error = event?.error?.message || event?.message || 'window-error';
-    status.lastAction = 'window-error';
+    if (!status.error) {
+      applyDetailedError(
+        status,
+        event?.error || new Error(event?.message || 'window-error'),
+        'window-error'
+      );
+    }
     publish();
   });
   globalThis.addEventListener?.('unhandledrejection', event => {
-    status.error = event?.reason?.message || String(event?.reason || 'unhandled-rejection');
-    status.lastAction = 'unhandled-rejection';
+    applyDetailedError(
+      status,
+      event?.reason instanceof Error
+        ? event.reason
+        : new Error(String(event?.reason || 'unhandled-rejection')),
+      'unhandled-rejection'
+    );
     publish();
   });
 }
@@ -187,6 +237,13 @@ async function initialiseStageEInternal() {
     started: false,
     lastAction: 'bootstrap',
     error: null,
+    errorName: null,
+    errorMessage: null,
+    errorStack: null,
+    errorFile: null,
+    errorLine: null,
+    errorColumn: null,
+    errorCause: null,
     configChecks: configDiagnostic.checks,
     configSafeValues: configDiagnostic.safeValues
   };
@@ -225,8 +282,44 @@ async function initialiseStageEInternal() {
     const unsubscribeState = engine.subscribe(snapshot => { const domainState = snapshot?.booking || snapshot || {}; status.pendingCount = Number(domainState.pendingCount || 0); status.failedCount = Number(domainState.failedCount || 0); status.conflictCount = Number(domainState.conflictCount || 0); if (domainState.lastError) status.error = domainState.lastError; publish(); });
     globalThis.CCMV_SYNC_DIAGNOSTICS = {
       getStatus: () => ({ ...status }),
-      async testConnection() { try { status.lastAction = 'test-connection'; status.error = null; publish(); await provider.ping(); const generation = await provider.getTripGeneration(config.id); const rows = await provider.fetchChanges({ tripId: config.id, domain: DOMAIN }); status.providerConnected = true; status.lastAction = `connection-ok · generation ${generation} · remote ${rows.length}`; } catch (error) { status.providerConnected = false; status.error = error?.message || String(error); status.lastAction = 'connection-failed'; } publish(); return { ...status }; },
-      async syncNow() { try { status.lastAction = 'manual-sync'; status.error = null; publish(); const result = await engine.syncNow(DOMAIN); status.lastAction = `manual-sync-complete ${JSON.stringify(result)}`; } catch (error) { status.error = error?.message || String(error); status.lastAction = 'manual-sync-failed'; } publish(); return { ...status }; }
+      async testConnection() {
+        try {
+          status.lastAction = 'test-connection';
+          status.error = null;
+          status.errorName = null;
+          status.errorMessage = null;
+          status.errorStack = null;
+          publish();
+          await provider.ping();
+          const generation = await provider.getTripGeneration(config.id);
+          const rows = await provider.fetchChanges({ tripId: config.id, domain: DOMAIN });
+          status.providerConnected = true;
+          status.lastAction = `connection-ok · generation ${generation} · remote ${rows.length}`;
+        } catch (error) {
+          status.providerConnected = false;
+          applyDetailedError(status, error, 'connection-failed');
+          console.error('[CCMV Stage E testConnection]', error);
+        }
+        publish();
+        return { ...status };
+      },
+      async syncNow() {
+        try {
+          status.lastAction = 'manual-sync';
+          status.error = null;
+          status.errorName = null;
+          status.errorMessage = null;
+          status.errorStack = null;
+          publish();
+          const result = await engine.syncNow(DOMAIN);
+          status.lastAction = `manual-sync-complete ${JSON.stringify(result)}`;
+        } catch (error) {
+          applyDetailedError(status, error, 'manual-sync-failed');
+          console.error('[CCMV Stage E syncNow]', error);
+        }
+        publish();
+        return { ...status };
+      }
     };
 
     let snapshot = new Map(repository.getAll({ includeDeleted: true }).map(row => [row.bookingId, clone(row)]));
@@ -262,15 +355,21 @@ async function initialiseStageEInternal() {
         }
         snapshot = next;
         if (navigator.onLine) await engine.syncNow(DOMAIN);
-      }).catch(error => { status.error = error?.message || String(error); });
+      }).catch(error => {
+        applyDetailedError(status, error, 'repository-sync-failed');
+        console.error('[CCMV Stage E repository sync]', error);
+        publish();
+      });
     });
     const reconnect = () => void engine.syncNow(DOMAIN);
     globalThis.addEventListener('online', reconnect);
     status.started = true; status.lastAction = 'ready'; publish();
     status.stop = async () => { unsubscribeRepository(); unsubscribeState?.(); globalThis.removeEventListener('online', reconnect); await engine.stop(); };
   } catch (error) {
-    status.error = error?.message || String(error); status.lastAction = 'bootstrap-failed'; publish();
-    console.error('[CCMV Stage E]', error);
+    applyDetailedError(status, error, 'bootstrap-failed');
+    publish();
+    console.error('[CCMV Stage E bootstrap]', error);
+    console.trace('[CCMV Stage E bootstrap trace]');
   }
   publish();
   globalThis.dispatchEvent?.(new CustomEvent('ccmv:sync-stage-e-ready', { detail: { ...status } }));
