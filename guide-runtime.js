@@ -51,13 +51,15 @@ function groupShoppingDirectory(){
  });
  grid.dataset.grouped='true';
 }
-function reconcileGuideDirectory(){
- const main=document.querySelector('main');
- if(!main)return;
- const haButton=main.querySelector('[onclick*="id=ha-spa"]');
- const haSubtitle=haButton?.querySelector('.guide-list-sub');
- if(haSubtitle&&VN_PRESENTATION.places['ha-spa'])haSubtitle.textContent=VN_PRESENTATION.places['ha-spa'].sub||'';
-}
+/* DEFECT-8 FIX (VN UI Stabilisation Pack 2): reconcileGuideDirectory() used to
+   runtime-patch two things into the Guide DOM after load — inserting a Mặn Mòi
+   <button> into the RESTAURANTS list (guide.html's category-pop-list markup is
+   static, hand-authored HTML, not rendered from data, so Mặn Mòi was otherwise
+   missing) and syncing the ha-spa subtitle text from VN_PRESENTATION. Both are
+   now authored directly: Mặn Mòi has its own <button> in guide.html's RESTAURANTS
+   section (and in data.js's PLACES/CATEGORIES literals), and the ha-spa subtitle
+   in guide.html now matches the corrected label in data.js. This function is
+   removed along with its DOMContentLoaded call. */
 function applyGuideHashView(){
  const directory=document.getElementById('shopping-directory');
  const main=directory?.closest('main');
@@ -92,7 +94,7 @@ function openShoppingDirectoryView(){
  else location.hash='shopping-directory';
 }
 window.addEventListener('hashchange',applyGuideHashView);
-document.addEventListener('DOMContentLoaded',()=>{reconcileGuideDirectory();applyGuideHashView();});
+document.addEventListener('DOMContentLoaded',()=>{applyGuideHashView();});
 
 
 function bookingStatusForPlace(placeId){

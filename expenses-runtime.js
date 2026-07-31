@@ -227,7 +227,6 @@ function useExpenseCalculatorResult(){try{const value=Math.round(safeExpenseCalc
     return `<div class="expense-card"><strong>${escapeHTML(e.item||'')}</strong><p class="timestamp">${timeLabel(e.createdAt)}${e.editedAt?` · Edited ${timeLabel(e.editedAt)}`:''}</p><p>${Number(e.total||0).toLocaleString()} VND · Paid by ${labelFor(e.paidBy)}</p><p>${personal?'Personal Expense':'Shared Expense'} · ${who}</p><div class="entry-actions"><button class="mini-btn" onclick="editExpense(${e._idx})">✏️ Edit</button><button class="mini-btn" onclick="deleteExpense(${e._idx})">🗑 Delete</button></div></div>`;
   }
   function ensureToolHistory(){
-    if(document.body.classList.contains('expenses-page')) return;
     const sheet=document.querySelector('#expenseModal .tools-sheet');
     if(!sheet || document.getElementById('toolTransactionHistory')) return;
     const form=sheet.querySelector('.expense-form');
@@ -300,7 +299,6 @@ function useExpenseCalculatorResult(){try{const value=Math.round(safeExpenseCalc
   };
 
   window.renderToolTransactionHistory=function(){
-    if(document.body.classList.contains('expenses-page')) return;
     const box=document.getElementById('toolTransactionHistory');
     if(!box) return;
     const latest=readExpenses().map((e,i)=>({...e,_idx:i})).sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||''))).slice(0,5);
@@ -340,8 +338,12 @@ function useExpenseCalculatorResult(){try{const value=Math.round(safeExpenseCalc
       const balanceHtml=FRIEND_ORDER.map(k=>{const v=balance[k]||0;return `<p>${labelFor(k)}<br><strong>${v>=0?'Receive':'Owes'} ${Math.abs(Math.round(v)).toLocaleString()} VND</strong></p>`;}).join('');
       pageBox.innerHTML=`<div class="expense-dashboard-v33"><div class="expense-total-card"><span>Trip Total</span><strong>${total.toLocaleString()} VND</strong><small>Shared + personal expenses</small></div><div class="expense-focus-grid"><div class="expense-focus-card"><h3>Personal Spend</h3>${spendHtml}</div><div class="expense-focus-card"><h3>Settlement</h3>${balanceHtml}</div></div></div><div class="expense-history-block"><h3>Transaction History</h3><p class="timestamp">最新交易會顯示喺最上面。</p><div class="transaction-scroll">${sorted.length?sorted.map(expenseCard).join(''):'<p>No transactions yet.</p>'}</div></div>`;
     }
-    ensureToolHistory();
-    window.renderToolTransactionHistory();
+    // DEFECT-7 FIX (VN UI Stabilisation Pack 2): renderExpenses() used to also call
+    // ensureToolHistory()/renderToolTransactionHistory() here on every render, which
+    // injected a second "Transaction History" (latest 5) into #expenseModal's entry
+    // sheet — a duplicate of the complete Transaction History block just rendered
+    // into #expensePageList above. Removed the duplicate injection; the entry modal
+    // itself, the calculations, and the full page-level history are unchanged.
   };
 
   window.exportExpenseData=function(){

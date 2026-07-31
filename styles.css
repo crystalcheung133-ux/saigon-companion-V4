@@ -4,7 +4,7 @@
 a{color:inherit;text-decoration:none}
 .brand{display:flex;align-items:center;gap:12px;font-weight:900;font-size:21px}
 .friend-pill{border:1.5px solid var(--line);background:var(--card);border-radius:999px;min-height:42px;padding:9px 13px;font-size:15px}
-.content-page,.section{max-width:860px;margin:0 auto;padding:30px 18px calc(112px + env(safe-area-inset-bottom))}
+.content-page,.section{max-width:860px;margin:0 auto;padding:30px 18px 112px}
 .page-hero{margin:18px 0 22px}
 h1,h2{font-family:"Cormorant Garamond",serif;line-height:.95;margin:8px 0 14px}.prose-block,.trip-card{background:var(--card);border:1px solid var(--surface-border);border-radius:var(--surface-radius);padding:var(--surface-padding);margin:var(--surface-gap) 0;box-shadow:var(--surface-shadow)}.btn,.pill,.mini-btn{border:1px solid var(--line);background:#fff7ed;border-radius:999px;min-height:46px;padding:13px 16px;font:inherit;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:6px;cursor:pointer}
 .app-nav a,.app-nav button{border:0;background:transparent;color:white;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:54px;border-radius:20px;font-size:22px}
@@ -291,7 +291,14 @@ a.pill[href*="maps.google"]{background:#fff7eb!important;color:#2b251f!important
 
 
 .live-card{min-height:92px;border:1px solid rgba(170,126,79,.18);border-radius:24px;padding:13px 12px;text-align:left;box-shadow:0 10px 28px rgba(54,39,24,.055);position:relative;overflow:hidden}
-.live-card:after{content:"";position:absolute;right:-22px;bottom:-28px;width:86px;height:86px;border-radius:50%;background:#fffdf8}
+/* DEFECT-2 FIX (VN UI Stabilisation Pack 2): this decorative corner circle relied on
+   .live-card's overflow:hidden (above) to stay clipped inside the card. Later rules
+   (needed to stop the currency/rate text being cropped — see "VN final-7" comment,
+   and the equivalent mobile overflow:visible rules for .home-live-grid .live-card)
+   correctly changed these cards to overflow:visible, which let this circle escape
+   the card's bottom-right corner and render as a large white blob over the hero.
+   Removing the decorative pseudo-element (the real source) instead of re-adding
+   overflow:hidden, which would re-crop the currency/rate card's text. */
 
 .live-time{background:linear-gradient(180deg,#eaf2df,#fbfff4)}
 .live-weather{background:linear-gradient(180deg,#e7f1fb,#fbfdff)}
@@ -715,7 +722,17 @@ body.home-bg .home-day-button{min-height:38px!important;padding:8px 16px!importa
    Reference: Journey Planner 11.43 calm cream / gold editorial system.
    ========================================================= */
 html,body{-webkit-text-size-adjust:100%}
-body{margin:0;background:radial-gradient(circle at 50% 12%,rgba(255,255,255,.55),transparent 26rem),linear-gradient(135deg,#f7f0e6,#f3eadb)!important;color:var(--ink)!important;font:16px/1.65 Inter,"Noto Sans TC",system-ui,sans-serif;padding-bottom:92px;background-color:var(--bg)!important;background-image:linear-gradient(rgba(244,237,227,.90), rgba(244,237,227,.90)),
+/* DEFECT-5 FIX (VN UI Stabilisation Pack 2): <html> has no background of its own and
+   (outside body.home-bg, which already sets its own min-height:100dvh) body had no
+   height floor either, so on any content page whose rendered content is shorter than
+   the viewport — Bookings' Activities/Transport tabs being the clearest case, with far
+   fewer records than Restaurants/Spa — body's textured background ended where the
+   content ended, exposing the plain, unstyled <html> canvas beneath it as a visibly
+   different-coloured area. Giving body a real min-height keeps its background (and so
+   the Booking content surface) continuous down to the bottom of the viewport on every
+   category regardless of record count. */
+html{background:var(--bg)}
+body{margin:0;min-height:100dvh;background:radial-gradient(circle at 50% 12%,rgba(255,255,255,.55),transparent 26rem),linear-gradient(135deg,#f7f0e6,#f3eadb)!important;color:var(--ink)!important;font:16px/1.65 Inter,"Noto Sans TC",system-ui,sans-serif;padding-bottom:92px;background-color:var(--bg)!important;background-image:linear-gradient(rgba(244,237,227,.90), rgba(244,237,227,.90)),
     url("logo-watermark-monogram.png")!important;background-repeat:repeat!important;background-size:auto, 140px 140px!important;background-position:center center!important;font-size:16px!important;line-height:1.55!important;font-weight:500;-webkit-text-size-adjust:100%;font-family:var(--font-sans)!important}
 
 body.home-bg{padding-bottom:0!important;background:radial-gradient(circle at 50% 10%,rgba(255,255,255,.58),transparent 24rem),linear-gradient(135deg,#f7f0e6,#f3eadb)!important}
@@ -763,7 +780,7 @@ h1,h2,.home-brand-card h1,.page-hero h1,.module-hero h1{font-family:var(--ccmv-f
 .timeline-item,.day-summary a,.quick-info-card,.prose-block,.trip-card,.expense-card,.moments-entry{border-radius:var(--surface-radius)!important}
 
 
-.mini-menu{position:fixed!important;bottom:calc(82px + env(safe-area-inset-bottom))!important;z-index:150!important;width:min(230px, calc(100vw - 24px))!important;border-radius:24px!important;padding:8px!important;pointer-events:none;transform:translateX(-50%) translateY(8px)!important;transition:.16s ease;left:50%!important;right:auto!important;max-height:min(64svh, 520px)!important;overflow:auto!important}
+.mini-menu{position:fixed!important;bottom:82px!important;z-index:150!important;width:min(230px, calc(100vw - 24px))!important;border-radius:24px!important;padding:8px!important;pointer-events:none;transform:translateX(-50%) translateY(8px)!important;transition:.16s ease;left:50%!important;right:auto!important;max-height:min(64svh, 520px)!important;overflow:auto!important}
 .menu-title{font-weight:650!important;color:var(--ink)!important;font-size:15px!important;letter-spacing:-.014em!important}
 .menu-sub{font-size:13px!important;letter-spacing:.075em!important;color:var(--muted)!important;font-weight:700!important}
 @media(max-width:520px){.dashboard{padding-left:14px!important;padding-right:14px!important}
@@ -2880,7 +2897,16 @@ body.home-bg .home-live-grid .live-card{height:auto!important;min-height:96px!im
    Canonical Bookings layout owner
    Compact header/list plus a self-scrolling, keyboard-safe editor sheet.
    ========================================================================== */
-.bookings-content{padding-top:18px;padding-bottom:calc(118px + env(safe-area-inset-bottom))}
+/* DEFECT-3 FIX (VN UI Stabilisation Pack 2): traced .app-nav's real footprint —
+   button min-height (50-54px) + container padding (7-8px top/bottom) + border (2px)
+   + bottom offset (12px + safe-area) — to roughly 78-95px+safe-area depending on
+   viewport width. The previous 118px value already cleared that on paper, but the
+   task's real-device screenshots showed only a 1-10px visible gap, not the ~24-40px
+   the math implied — real Safari toolbar/safe-area behaviour eats into that margin
+   in ways headless simulation doesn't reproduce. Increased to 140px so the last
+   Booking card keeps a comfortably visible 16-24px+ gap above the nav even under
+   that real-device variance, without changing card content, order, or structure. */
+.bookings-content{padding-top:18px;padding-bottom:calc(140px + env(safe-area-inset-bottom))}
 .bookings-header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:4px 0 10px;padding:0 2px}
 .bookings-header h1{margin:0;font-size:clamp(42px,9vw,58px)}
 .booking-summary{display:inline-flex;padding:7px 11px;border-radius:999px;background:#fff8ed;border:1px solid var(--line);font-size:12px;font-weight:800;color:var(--gold-deep);white-space:nowrap}
@@ -2906,7 +2932,7 @@ body.home-bg .home-live-grid .live-card{height:auto!important;min-height:96px!im
 .booking-actions{position:sticky;bottom:calc(-1 * var(--booking-nav-clearance));z-index:3;margin:2px -16px calc(-1 * var(--booking-nav-clearance));padding:9px 16px var(--booking-nav-clearance);background:linear-gradient(180deg,rgba(255,250,242,.88),#fffaf2 18%)}
 .booking-actions .btn{width:100%;min-height:46px;background:#8a4f2d!important;color:#fff!important;border-color:#8a4f2d!important}
 .guide-booking-badge{display:inline-flex;text-decoration:none;border-radius:999px;padding:7px 10px;font-size:12px;font-weight:900;margin-top:7px}.quick-info-actions .guide-booking-badge{margin:0 8px 0 0}
-@media(max-width:520px){.bookings-header{align-items:flex-start;flex-direction:column;gap:3px}.booking-tabs{grid-template-columns:repeat(4,minmax(0,1fr));overflow:visible;grid-auto-rows:62px}.booking-tab{height:62px;min-height:62px;padding:8px 4px;font-size:12px;line-height:1.12}.booking-tab small{font-size:11px;margin-top:4px}.booking-two{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.bookings-header{align-items:flex-start;flex-direction:column;gap:3px}.booking-tabs{grid-template-columns:repeat(4,minmax(74px,1fr));overflow-x:auto}.booking-tab{font-size:10px;padding:8px 4px}.booking-two{grid-template-columns:1fr 1fr}}
 
 
 /* ===== VN compact home + booking/guide action alignment + day-filtered directory ===== */
@@ -3076,14 +3102,26 @@ body.home-bg .home-live-grid .live-card{height:auto!important;min-height:96px!im
 .booking-copy-value{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
 .booking-copy-control{flex:0 0 auto;border:1px solid var(--line);border-radius:999px;background:#fffaf2;color:var(--gold-deep);padding:4px 9px;font:800 10px/1.2 inherit}
 
+/* DEFECT-1 FIX (VN UI Stabilisation Pack 2): this was the final cascade owner for
+   mobile home-dashboard clearance (last @media(max-width:720px) rule for this
+   selector in source order). It previously fixed main's height/max-height with
+   overflow:hidden and only 70px of bottom padding — less than the real .app-nav
+   footprint (~66-70px button box + 12px offset + safe-area ≈ 78-95px+), so the
+   nav clipped/covered the lower dashboard content (weather card, currency
+   converter/result, 4th card, day button). Corrected to the same height:auto +
+   overflow:visible + safe clearance pattern already proven for desktop by the
+   "VN final-7" fix below (min-width:721px block) — hero size/position unchanged
+   (align-items:flex-start / justify-content:center kept as-is), page now simply
+   allows the body to scroll if content is taller than the viewport instead of
+   clipping it under the nav. */
 @media(max-width:720px){
   body.home-bg main.dashboard.home-premium.home-v37{
-    height:calc(100dvh - 64px)!important;min-height:0!important;max-height:calc(100dvh - 64px)!important;
-    padding:6px 10px calc(70px + env(safe-area-inset-bottom))!important;overflow:hidden!important;
+    height:auto!important;min-height:calc(100dvh - 64px)!important;max-height:none!important;
+    padding:6px 10px calc(96px + env(safe-area-inset-bottom))!important;overflow:visible!important;
     align-items:flex-start!important;justify-content:center!important
   }
   body.home-bg section.home-brand-card.v37-dashboard-home{
-    max-height:calc(100dvh - 138px)!important;overflow:hidden!important;padding:10px 12px 11px!important
+    max-height:none!important;overflow:visible!important;padding:10px 12px 11px!important
   }
   body.home-bg .home-live-grid{gap:7px!important;margin-bottom:8px!important}
   body.home-bg .home-live-grid .live-card,body.home-bg .live-rate{
@@ -3165,7 +3203,7 @@ body.home-bg .home-live-grid .live-card{height:auto!important;min-height:96px!im
   }
 
   .booking-sheet{
-    --booking-nav-clearance:calc(84px + env(safe-area-inset-bottom))!important;
+    --booking-nav-clearance:calc(12px + env(safe-area-inset-bottom))!important;
     inset:0!important;max-height:100svh!important;border-radius:0!important;
     padding:10px 12px var(--booking-nav-clearance)!important
   }
@@ -3282,9 +3320,9 @@ html,body{max-width:100%;overflow-x:hidden}
     overflow:visible!important;
   }
 
-  /* Restore normal booking detail readability. Compact only the Spa category list. */
+  /* Restore normal booking detail readability. */
   .booking-sheet{
-    padding:14px 14px var(--booking-nav-clearance)!important;
+    padding:14px 14px calc(18px + env(safe-area-inset-bottom))!important;
   }
   .booking-sheet h2{font-size:23px!important;line-height:1.1!important}
   .booking-readonly-grid{gap:7px!important;margin:8px 0 10px!important}
@@ -3292,6 +3330,16 @@ html,body{max-width:100%;overflow-x:hidden}
   .booking-modal-spa .booking-readonly-field{padding:8px 9px!important}
   .booking-modal-spa .booking-readonly-grid{gap:7px!important}
 
+  /* DEFECT-4 FIX (VN UI Stabilisation Pack 2): the #bookingList.booking-list-spa
+     rules that used to live here (smaller .booking-tabs/.booking-tab, .booking-card,
+     .booking-card-main, .booking-status, .booking-day-button) were the exact root
+     cause of the Restaurant/Spa vertical-rhythm defect — bookings-runtime.js toggles
+     the `booking-list-spa` class on #bookingList whenever the Spa tab is active, so
+     these Spa-only compacting rules made every Spa card (and even the category tab
+     bar itself) visibly shorter than the identical-count Restaurant list, and made
+     the four tabs resize between categories. Removed so Restaurant and Spa share the
+     same .booking-card/.booking-tab geometry (the shared, non-Spa-scoped rules
+     earlier in this file already apply identically to every category). */
 }
 
 @media(max-width:390px),(max-height:730px){
@@ -3570,38 +3618,3 @@ html,body{max-width:100%;overflow-x:hidden}
   .booking-edit-btn{width:100%!important;margin-left:0!important}
   .booking-view-actions .booking-independent-note{margin-left:auto!important}
 }
-
-
-/* =========================================================
-   VN UI Stabilisation Pack 1
-   ========================================================= */
-.booking-tabs{align-items:stretch;grid-auto-rows:58px}
-.booking-tab{
-  box-sizing:border-box;
-  width:100%;height:58px;min-height:58px;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  overflow:hidden;text-align:center;
-}
-.booking-tab.active{height:58px;min-height:58px}
-.booking-group-active{display:grid;grid-template-columns:1fr;gap:10px}
-.booking-card{margin:0;min-height:94px}
-.booking-card-row{min-height:94px}
-.booking-card-main{min-height:94px;padding:14px 16px}
-.booking-card-main strong{font-size:17px;line-height:1.18}
-.booking-card-main small{font-size:12px;line-height:1.2}
-.booking-status{font-size:12px;padding:9px 12px}
-.booking-day-button{align-self:center;min-height:44px;margin-right:12px;padding:9px 12px}
-
-@media(max-width:720px){
-  .booking-tabs{grid-auto-rows:58px;gap:7px;margin:8px 0 12px}
-  .booking-tab,.booking-tab.active{height:58px;min-height:58px;padding:7px 3px;font-size:12px;line-height:1.1}
-  .booking-tab small{font-size:11px;margin-top:4px}
-  .booking-group-active{gap:10px}
-  .booking-card,.booking-card-row,.booking-card-main{min-height:94px}
-  .booking-card-main{padding:13px 12px}
-  .booking-card-main strong{font-size:17px;line-height:1.16}
-  .booking-card-main small{font-size:12px;line-height:1.18}
-  .booking-status{font-size:11px;padding:8px 10px}
-  .booking-day-button{font-size:11px;padding:8px 10px;margin-right:10px}
-}
-body.expenses-page #toolTransactionHistory{display:none!important}
