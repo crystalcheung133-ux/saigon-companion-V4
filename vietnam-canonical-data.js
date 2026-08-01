@@ -63,13 +63,14 @@
     'pho-vietnam','pizza4ps','quince','quan-thuy','garmentory','dauple','libe',
     'nosbyn','ohquao','push-push','saigon-concept','new-playground','ha-spa',
     'moc-huong','moc-kim','nha-suga','tinh-thuc','fine-arts','book-street',
-    'notre-dame','post-office','pink-church','war-museum','cooking','cash-backup'
+    'notre-dame','post-office','pink-church','war-museum','cooking','cash-backup',
+    'louh','dalla-saigon','rubies','lane-ci'
   ]);
   const categoryMembers=Object.freeze({
     STAY:Object.freeze(['fusion']),
     'CAFÉS':Object.freeze(['bakes','cong','marou','cafe-apartments','workshop-coffee','running-bean']),
     RESTAURANTS:Object.freeze(['bep-me-in','late-night-supper','com-tam-moc','little-bear','lune','man-moi','omakase-tiger','pho-sol','pho-vietnam','pizza4ps','quince','quan-thuy']),
-    SHOP:Object.freeze(['garmentory','dauple','libe','nosbyn','ohquao','push-push','saigon-concept','new-playground']),
+    SHOP:Object.freeze(['garmentory','dauple','libe','nosbyn','ohquao','push-push','saigon-concept','new-playground','louh','dalla-saigon','rubies','lane-ci']),
     SPA:Object.freeze(['ha-spa','moc-huong','moc-kim','nha-suga','tinh-thuc']),
     ATTRACTIONS:Object.freeze(['fine-arts','book-street','notre-dame','post-office','pink-church','war-museum']),
     EXPERIENCE:Object.freeze(['cooking','cash-backup'])
@@ -139,7 +140,7 @@
     [2,"cooking","cooking","cooking-class-booking",[],false],
     [2,"grab-moc-kim","moc-kim",null,[],false],
     [2,"moc-kim","moc-kim",null,[],false],
-    [2,"libe","libe",null,["libe","dauple","nosbyn"],true],
+    [2,"libe","moc-kim",null,["libe","dauple","nosbyn"],true],
     [2,"grab-lune","lune",null,[],false],
     [2,"lune","lune",null,[],false],
     [2,"late-night-supper","late-night-supper",null,[],false],
@@ -151,7 +152,7 @@
     [3,"bakes","bakes",null,[],false],
     [3,"ohquao","ohquao",null,[],false],
     [3,"moc-huong","moc-huong",null,[],false],
-    [3,"louh","ohquao",null,[],false],
+    [3,"louh","louh",null,[],false],
     [3,"little-bear","little-bear",null,[],false],
     [3,"marou","marou",null,[],false],
     [3,"late-night-supper","late-night-supper",null,[],false],
@@ -160,7 +161,7 @@
     [4,"pizza4ps","pizza4ps",null,[],false],
     [4,"garmentory","garmentory",null,[],true],
     [4,"tinh-thuc","tinh-thuc",null,[],false],
-    [4,"shopping-round2","garmentory",null,[],true],
+    [4,"shopping-round2","dalla-saigon",null,["dalla-saigon","rubies","lane-ci"],true],
     [4,"grab-quince","quince",null,[],false],
     [4,"quince","quince",null,[],false],
     [4,"social-club",null,null,[],false],

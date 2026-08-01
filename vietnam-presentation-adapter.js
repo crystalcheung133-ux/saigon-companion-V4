@@ -94,7 +94,7 @@
       items:Object.freeze(events.map(event=>Object.freeze({
         id:event.presentation.legacyId,
         time:event.timeText,
-        title:(event.presentation.dayNumber===2&&event.presentation.legacyId==='libe')?'Nguyễn Trãi Shopping Route':event.title,
+        title:event.title,
         details:event.notes,
         route:event.routeToNext||'',
         map:event.presentation.map||'',
