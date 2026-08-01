@@ -3674,6 +3674,37 @@ body.home-bg main.dashboard.home-premium.home-v37{height:auto!important;min-heig
    this increase, so the page remains a comfortable one-page, no-scroll fit. */
 body.home-bg .home-live-grid .live-card{height:158px!important;min-height:158px!important}
 
+/* VN PACK 2 FOLLOW-UP 5 — Homepage: short-viewport-HEIGHT fallback.
+   Every earlier single-page-fit measurement here was done at viewport heights
+   >=844px (the 5 required test sizes). A real desktop/laptop browser window can
+   be much shorter than that at any width — measured overlap starting between
+   720-760px tall (e.g. 1188x720 gave a -12.5px gap: the day button sat behind
+   the nav again). None of the earlier fixes were wrong for what they were tested
+   against; they just didn't have a fallback for shorter heights. This adds one,
+   scoped to @media(max-height:800px) so it only engages on short windows and
+   leaves every taller viewport (phones included) exactly as already verified.
+   Savings target ~74px, breakdown at 1188x720: h1 91px->~61px (-30), kicker/
+   tagline margins (-8), trip-line margin (-10), live-grid gaps (-10), hero-card
+   padding (-10), main top padding (-4), day-button margin (-2). Live-card height
+   (158px) is deliberately left untouched here — it's sized for the Currency
+   card's content at wide widths (see FOLLOW-UP 4.1), and a short-but-wide window
+   is exactly the case that needs that height most, so shrinking it here would
+   reintroduce the overflow bug this fallback is not meant to touch. */
+@media(max-height:800px){
+  body.home-bg main.dashboard.home-premium.home-v37{padding-top:4px!important}
+  body.home-bg .home-brand-card.v37-dashboard-home{padding:10px 14px 10px!important}
+  body.home-bg .home-brand-card.v37-dashboard-home .home-since{margin:0 0 2px!important}
+  body.home-bg .home-brand-card.v37-dashboard-home h1{font-size:clamp(26px,5.4vw,32px)!important;margin:0 0 2px!important}
+  body.home-bg .home-brand-card.v37-dashboard-home .home-tagline{margin:0 0 4px!important}
+  body.home-bg .home-brand-card.v37-dashboard-home .home-trip-line{margin:0 0 6px!important;gap:6px!important}
+  body.home-bg .home-live-grid{gap:6px!important;margin:0 0 6px!important}
+  body.home-bg .home-day-button{margin-top:0!important}
+}
+@media(max-height:700px){
+  body.home-bg .home-brand-card.v37-dashboard-home{padding:6px 14px 6px!important}
+  body.home-bg .home-brand-card.v37-dashboard-home h1{font-size:22px!important}
+}
+
 /* VN PACK 2 FOLLOW-UP 2 — Bookings: single-page fit, no scroll needed.
    Measured with an actual headless render at 390x844: siteNav 67px + header
    77.5px + tabs 56px + 5 cards (~82px each + 12px gaps) put the last card's
