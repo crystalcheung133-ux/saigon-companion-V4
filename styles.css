@@ -3634,71 +3634,57 @@ html,body{max-width:100%;overflow-x:hidden}
    single, final, authoritative rule for these selectors — placed last in
    the file and matching/exceeding the specificity of every earlier
    competing declaration so it wins the cascade outright. */
-body.home-bg .home-brand-card.v37-dashboard-home{transform:none!important;max-height:none!important;overflow:visible!important;padding:16px 14px 14px!important;width:min(94vw,600px)!important;margin:0 auto!important}
-body.home-bg .home-brand-card.v37-dashboard-home .home-since{font-size:10px!important;margin:0 0 4px!important}
-body.home-bg .home-brand-card.v37-dashboard-home h1{font-size:clamp(34px,7.2vw,46px)!important;line-height:.95!important;margin:0 0 4px!important}
-body.home-bg .home-brand-card.v37-dashboard-home .home-tagline{font-size:10px!important;margin:0 0 8px!important;letter-spacing:.12em!important}
-body.home-bg .home-brand-card.v37-dashboard-home .home-trip-line{margin:0 0 10px!important;gap:6px!important}
-body.home-bg .home-live-grid{gap:8px!important;margin:0 0 10px!important}
-body.home-bg .home-live-grid .live-card{min-height:56px!important;height:auto!important;padding:8px 9px!important;display:flex!important;flex-direction:column!important;justify-content:center!important}
-body.home-bg .home-live-grid .live-card small{font-size:9px!important;margin:0 0 2px!important}
-body.home-bg .home-live-grid .live-card strong{font-size:14px!important;line-height:1.05!important}
-body.home-bg .home-live-grid .live-card em{font-size:9px!important;font-style:normal!important;margin-top:2px!important}
+/* VN PACK 2 FOLLOW-UP 6 — Homepage: match the NZ Companion reference layout.
+   Superseded FOLLOW-UP 4's forced-uniform card height: the user clarified they
+   want the *natural* NZ proportions (top row compact, bottom row taller because
+   Currency genuinely has more content — an icon+label row, an input row, a
+   result, and a rate-updated line vs the other three cards' two or three), not
+   perfectly equal boxes. Title size increased substantially to match NZ's much
+   larger, bolder look. Card font sizes bumped up too (label/value/subtext).
+   Cards go back to auto-height with a moderate min-height floor so the top row
+   still reads as a real card rather than a sliver, while the bottom row is free
+   to grow to fit Currency's larger content naturally, exactly like the
+   reference. Day-button margin-top increased for a clearly visible gap above
+   the nav (not just technically non-overlapping). */
+body.home-bg .home-brand-card.v37-dashboard-home{transform:none!important;max-height:none!important;overflow:visible!important;padding:20px 18px 18px!important;width:min(94vw,600px)!important;margin:0 auto!important}
+body.home-bg .home-brand-card.v37-dashboard-home .home-since{font-size:12px!important;margin:0 0 4px!important}
+body.home-bg .home-brand-card.v37-dashboard-home h1{font-size:clamp(46px,10vw,64px)!important;line-height:.92!important;margin:0 0 4px!important}
+body.home-bg .home-brand-card.v37-dashboard-home .home-tagline{font-size:14px!important;margin:0 0 10px!important;letter-spacing:.04em!important;text-transform:none!important;font-style:italic!important}
+body.home-bg .home-brand-card.v37-dashboard-home .home-trip-line{margin:0 0 12px!important;gap:6px!important}
+body.home-bg .home-live-grid{gap:8px!important;margin:0 0 12px!important}
+body.home-bg .home-live-grid .live-card{height:auto!important;min-height:76px!important;padding:12px 14px!important;display:flex!important;flex-direction:column!important;justify-content:center!important}
+body.home-bg .home-live-grid .live-card small{font-size:11px!important;margin:0 0 3px!important}
+body.home-bg .home-live-grid .live-card strong{font-size:20px!important;line-height:1.1!important}
+body.home-bg .home-live-grid .live-card em{font-size:11px!important;font-style:normal!important;margin-top:3px!important}
 body.home-bg .live-rate .currency-heading{margin:0!important}
-body.home-bg .live-rate .currency-converter{margin:3px 0!important;gap:5px!important;font-size:11px!important}
-body.home-bg .currency-swap{width:24px!important;height:24px!important;font-size:13px!important}
-body.home-bg .home-day-button{min-height:34px!important;padding:7px 20px!important;margin-top:2px!important;font-size:13px!important}
+body.home-bg .live-rate .currency-converter{margin:5px 0!important;gap:6px!important;font-size:14px!important}
+body.home-bg .currency-swap{width:28px!important;height:28px!important;font-size:15px!important}
+body.home-bg .home-day-button{min-height:44px!important;padding:11px 26px!important;margin-top:14px!important;font-size:17px!important}
 body.home-bg main.dashboard.home-premium.home-v37{height:auto!important;min-height:calc(100dvh - 64px)!important;max-height:none!important;overflow:visible!important;padding:8px 12px calc(100px + env(safe-area-inset-bottom))!important;display:flex!important;align-items:flex-start!important;justify-content:center!important}
-
-/* VN PACK 2 FOLLOW-UP 4 — Homepage: balance the 4 hero cards to equal size.
-   Measured: Countdown/Time cards were 63.6px tall while Weather/Currency were
-   115.4px — CSS Grid auto-sizes each ROW to its tallest cell, and the Currency
-   card (icon+label row, input row, result, rate-updated line — 4 stacked pieces
-   vs the other 3 cards' 3) made the whole bottom row much taller than the top
-   row, reading as "4 buttons very different sizes". Giving every card the same
-   explicit height (sized to comfortably fit Currency's content, the tallest)
-   makes all four match; the shorter cards' content already centers vertically
-   via the flex column + justify-content:center from the single-page-fit fix
-   above.
-   FOLLOW-UP 4.1: the first pass set this to 118px, sized only against a
-   390x844 mobile measurement (115.4px natural height there). At wider
-   viewports (768px+) the same content needs ~136px — some of Currency's
-   internal rows render slightly taller at those widths — so 118px was too
-   tight there specifically, and since this card requires overflow:visible
-   (to avoid the pre-existing text-cropping bug — see Defect 2 in the
-   Implementation Report) the excess spilled out below the rounded card
-   instead of being clipped. Raised to 150px, re-verified with headless
-   renders at 390x844, 768x1024, and 1440x900 to confirm the rate-updated
-   line stays inside the card at every required viewport, with margin to
-   spare. There's still ~188px of spare room before the nav at 390x844 after
-   this increase, so the page remains a comfortable one-page, no-scroll fit. */
-body.home-bg .home-live-grid .live-card{height:158px!important;min-height:158px!important}
 
 /* VN PACK 2 FOLLOW-UP 5 — Homepage: short-viewport-HEIGHT fallback.
    Every earlier single-page-fit measurement here was done at viewport heights
    >=844px (the 5 required test sizes). A real desktop/laptop browser window can
    be much shorter than that at any width — measured overlap starting between
    720-760px tall (e.g. 1188x720 gave a -12.5px gap: the day button sat behind
-   the nav again). None of the earlier fixes were wrong for what they were tested
-   against; they just didn't have a fallback for shorter heights. This adds one,
-   scoped to @media(max-height:800px) so it only engages on short windows and
-   leaves every taller viewport (phones included) exactly as already verified.
-   Savings target ~74px, breakdown at 1188x720: h1 91px->~61px (-30), kicker/
-   tagline margins (-8), trip-line margin (-10), live-grid gaps (-10), hero-card
-   padding (-10), main top padding (-4), day-button margin (-2). Live-card height
-   (158px) is deliberately left untouched here — it's sized for the Currency
-   card's content at wide widths (see FOLLOW-UP 4.1), and a short-but-wide window
-   is exactly the case that needs that height most, so shrinking it here would
-   reintroduce the overflow bug this fallback is not meant to touch. */
+   the nav again). This adds a fallback, scoped to @media(max-height:800px) so
+   it only engages on short windows and leaves every taller viewport (phones
+   included) exactly as already verified. Re-tuned after FOLLOW-UP 6's larger
+   fonts/natural card heights to restore the same short-viewport safety margin. */
 @media(max-height:800px){
-  body.home-bg main.dashboard.home-premium.home-v37{padding-top:4px!important}
-  body.home-bg .home-brand-card.v37-dashboard-home{padding:10px 14px 10px!important}
+  body.home-bg main.dashboard.home-premium.home-v37{padding-top:0!important}
+  body.home-bg .home-brand-card.v37-dashboard-home{padding:8px 14px 8px!important}
   body.home-bg .home-brand-card.v37-dashboard-home .home-since{margin:0 0 2px!important}
   body.home-bg .home-brand-card.v37-dashboard-home h1{font-size:clamp(26px,5.4vw,32px)!important;margin:0 0 2px!important}
-  body.home-bg .home-brand-card.v37-dashboard-home .home-tagline{margin:0 0 4px!important}
-  body.home-bg .home-brand-card.v37-dashboard-home .home-trip-line{margin:0 0 6px!important;gap:6px!important}
-  body.home-bg .home-live-grid{gap:6px!important;margin:0 0 6px!important}
-  body.home-bg .home-day-button{margin-top:0!important}
+  body.home-bg .home-brand-card.v37-dashboard-home .home-tagline{margin:0 0 4px!important;font-size:10px!important}
+  body.home-bg .home-brand-card.v37-dashboard-home .home-trip-line{margin:0 0 4px!important;gap:6px!important}
+  body.home-bg .home-live-grid{gap:6px!important;margin:0 0 4px!important}
+  body.home-bg .home-live-grid .live-card{height:auto!important;min-height:56px!important;padding:8px 10px!important}
+  body.home-bg .home-live-grid .live-card small{font-size:10px!important}
+  body.home-bg .home-live-grid .live-card strong{font-size:16px!important}
+  body.home-bg .home-live-grid .live-card em{font-size:10px!important}
+  body.home-bg .live-rate .currency-converter{font-size:11px!important}
+  body.home-bg .home-day-button{min-height:34px!important;padding:7px 20px!important;margin-top:6px!important;font-size:13px!important}
 }
 @media(max-height:700px){
   body.home-bg .home-brand-card.v37-dashboard-home{padding:6px 14px 6px!important}
