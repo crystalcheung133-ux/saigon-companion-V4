@@ -3649,3 +3649,27 @@ body.home-bg .live-rate .currency-converter{margin:3px 0!important;gap:5px!impor
 body.home-bg .currency-swap{width:24px!important;height:24px!important;font-size:13px!important}
 body.home-bg .home-day-button{min-height:34px!important;padding:7px 20px!important;margin-top:2px!important;font-size:13px!important}
 body.home-bg main.dashboard.home-premium.home-v37{height:auto!important;min-height:calc(100dvh - 64px)!important;max-height:none!important;overflow:visible!important;padding:8px 12px calc(100px + env(safe-area-inset-bottom))!important;display:flex!important;align-items:flex-start!important;justify-content:center!important}
+
+/* VN PACK 2 FOLLOW-UP 2 — Bookings: single-page fit, no scroll needed.
+   Measured with an actual headless render at 390x844: siteNav 67px + header
+   77.5px + tabs 56px + 5 cards (~82px each + 12px gaps) put the last card's
+   bottom edge at y≈796 while the fixed nav's top sits at y≈764 — i.e. the
+   list was ~32px too tall for the viewport even before scrolling, which is
+   what made the last card sit behind the nav on first load. Rather than
+   relying on scroll + bottom padding (the earlier fix), this compresses the
+   header title, tab bar, and card padding/margins so the whole 5-card list
+   comfortably fits above the nav without needing to scroll at all, while
+   keeping card title (15px) and meta (11px) text sizes untouched for
+   readability. Bottom clearance is reduced from the earlier 180px back down
+   to a real nav-footprint value (100px + safe-area) now that fitting the
+   page doesn't depend on extra scroll room. Placed last in the file so it
+   authoritatively wins over every earlier declaration for these selectors. */
+body.bookings-page .bookings-content{padding-top:10px!important;padding-bottom:calc(100px + env(safe-area-inset-bottom))!important}
+body.bookings-page .bookings-header{margin:2px 0 6px!important}
+body.bookings-page .bookings-header h1{font-size:26px!important;line-height:1!important}
+body.bookings-page .booking-summary{padding:5px 9px!important;font-size:11px!important}
+body.bookings-page .booking-tabs{margin:4px 0 8px!important;padding:4px 0!important;top:58px!important}
+body.bookings-page .booking-tab{padding:6px 6px!important;min-height:0!important}
+body.bookings-page .booking-card{margin:4px 0!important}
+body.bookings-page .booking-card-main{padding:8px 11px!important}
+body.bookings-page .booking-day-button{margin:6px 8px 6px 0!important;padding:6px 9px!important}
