@@ -3647,7 +3647,7 @@ html,body{max-width:100%;overflow-x:hidden}
    reference. Day-button margin-top increased for a clearly visible gap above
    the nav (not just technically non-overlapping). */
 body.home-bg .home-brand-card.v37-dashboard-home{transform:none!important;max-height:none!important;overflow:visible!important;padding:20px 18px 18px!important;width:min(94vw,600px)!important;margin:0 auto!important}
-body.home-bg .home-brand-card.v37-dashboard-home .home-since{font-size:12px!important;margin:0 0 4px!important}
+body.home-bg .home-brand-card.v37-dashboard-home .home-since{display:none!important}
 body.home-bg .home-brand-card.v37-dashboard-home h1{font-size:clamp(46px,10vw,64px)!important;line-height:.92!important;margin:0 0 4px!important}
 body.home-bg .home-brand-card.v37-dashboard-home .home-tagline{font-size:14px!important;margin:0 0 10px!important;letter-spacing:.04em!important;text-transform:none!important;font-style:italic!important}
 body.home-bg .home-brand-card.v37-dashboard-home .home-trip-line{margin:0 0 12px!important;gap:6px!important}
@@ -3675,7 +3675,7 @@ body.home-bg main.dashboard.home-premium.home-v37{height:auto!important;min-heig
   body.home-bg main.dashboard.home-premium.home-v37{padding-top:0!important}
   body.home-bg .home-brand-card.v37-dashboard-home{padding:8px 14px 8px!important}
   body.home-bg .home-brand-card.v37-dashboard-home .home-since{margin:0 0 2px!important}
-  body.home-bg .home-brand-card.v37-dashboard-home h1{font-size:clamp(26px,5.4vw,32px)!important;margin:0 0 2px!important}
+  body.home-bg .home-brand-card.v37-dashboard-home h1{font-size:clamp(40px,7.6vh,54px)!important;margin:0 0 2px!important}
   body.home-bg .home-brand-card.v37-dashboard-home .home-tagline{margin:0 0 4px!important;font-size:10px!important}
   body.home-bg .home-brand-card.v37-dashboard-home .home-trip-line{margin:0 0 4px!important;gap:6px!important}
   body.home-bg .home-live-grid{gap:6px!important;margin:0 0 4px!important}
@@ -3688,7 +3688,18 @@ body.home-bg main.dashboard.home-premium.home-v37{height:auto!important;min-heig
 }
 @media(max-height:700px){
   body.home-bg .home-brand-card.v37-dashboard-home{padding:6px 14px 6px!important}
-  body.home-bg .home-brand-card.v37-dashboard-home h1{font-size:22px!important}
+  body.home-bg .home-brand-card.v37-dashboard-home h1{font-size:clamp(33px,6vh,42px)!important}
+}
+@media(max-height:680px){
+  body.home-bg .home-brand-card.v37-dashboard-home .home-tagline{display:none!important}
+  body.home-bg .home-brand-card.v37-dashboard-home .home-trip-line{margin:0 0 3px!important}
+  body.home-bg .home-live-grid{gap:5px!important;margin:0 0 3px!important}
+  body.home-bg .home-live-grid .live-card{min-height:44px!important;padding:6px 8px!important}
+  body.home-bg .home-live-grid .live-card small{font-size:9px!important;margin:0 0 1px!important}
+  body.home-bg .home-live-grid .live-card strong{font-size:14px!important}
+  body.home-bg .home-live-grid .live-card em{font-size:9px!important;margin-top:1px!important}
+  body.home-bg .live-rate .currency-converter{font-size:10px!important;margin:2px 0!important}
+  body.home-bg .home-day-button{min-height:30px!important;padding:6px 18px!important;margin-top:4px!important;font-size:12px!important}
 }
 
 /* VN PACK 2 FOLLOW-UP 2 — Bookings: single-page fit, no scroll needed.
