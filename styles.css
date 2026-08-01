@@ -3650,6 +3650,19 @@ body.home-bg .currency-swap{width:24px!important;height:24px!important;font-size
 body.home-bg .home-day-button{min-height:34px!important;padding:7px 20px!important;margin-top:2px!important;font-size:13px!important}
 body.home-bg main.dashboard.home-premium.home-v37{height:auto!important;min-height:calc(100dvh - 64px)!important;max-height:none!important;overflow:visible!important;padding:8px 12px calc(100px + env(safe-area-inset-bottom))!important;display:flex!important;align-items:flex-start!important;justify-content:center!important}
 
+/* VN PACK 2 FOLLOW-UP 4 — Homepage: balance the 4 hero cards to equal size.
+   Measured: Countdown/Time cards were 63.6px tall while Weather/Currency were
+   115.4px — CSS Grid auto-sizes each ROW to its tallest cell, and the Currency
+   card (icon+label row, input row, result, rate-updated line — 4 stacked pieces
+   vs the other 3 cards' 3) made the whole bottom row much taller than the top
+   row, reading as "4 buttons very different sizes". Giving every card the same
+   explicit height (sized to comfortably fit Currency's content, the tallest)
+   makes all four match; the shorter cards' content already centers vertically
+   via the flex column + justify-content:center from the single-page-fit fix
+   above. There's ~309px of spare room before the nav at 390x844, so this adds
+   height with plenty of margin left over. */
+body.home-bg .home-live-grid .live-card{height:118px!important;min-height:118px!important}
+
 /* VN PACK 2 FOLLOW-UP 2 — Bookings: single-page fit, no scroll needed.
    Measured with an actual headless render at 390x844: siteNav 67px + header
    77.5px + tabs 56px + 5 cards (~82px each + 12px gaps) put the last card's
@@ -3673,3 +3686,16 @@ body.bookings-page .booking-tab{padding:6px 6px!important;min-height:0!important
 body.bookings-page .booking-card{margin:4px 0!important}
 body.bookings-page .booking-card-main{padding:8px 11px!important}
 body.bookings-page .booking-day-button{margin:6px 8px 6px 0!important;padding:6px 9px!important}
+
+/* VN PACK 2 FOLLOW-UP 3 — Homepage hero in Admin/Studio mode.
+   body.vn-studio-mode adds padding-top:var(--vn-studio-status-height) (a ~32px+
+   safe-area status band shown while Trip Studio is active) to push all page
+   content down. The single-page-fit hero rule above budgets the hero's height as
+   calc(100dvh - 64px) regardless of that extra top offset, so in Studio mode the
+   hero effectively starts ~32px+safe-area lower on screen while still trying to
+   claim the same amount of vertical space — eating directly into the nav
+   clearance and reproducing the overlap for admin/Crystal users specifically.
+   Scoped to body.vn-studio-mode (higher specificity than the plain body.home-bg
+   rule above, so it wins only when Studio mode is actually active) and placed
+   last so it's the authoritative value in that state. */
+body.vn-studio-mode.home-bg main.dashboard.home-premium.home-v37{min-height:calc(100dvh - 64px - var(--vn-studio-status-height))!important}
