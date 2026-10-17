@@ -1,0 +1,16 @@
+const assert=require('node:assert/strict');
+const vm=require('node:vm');const fs=require('node:fs');const path=require('node:path');
+const context=vm.createContext({module:{exports:{}},JSON,Object,Error});
+for(const f of ['timeline-sync-journal.js','timeline-trip-journal.js','timeline-journal-migration.js','timeline-journal-claim.js'])vm.runInContext(fs.readFileSync(path.join(__dirname,'..',f),'utf8'),context);
+const storage=()=>{const m=new Map();return {getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>m.set(k,v),snapshot:()=>new Map(m)};};
+const s=storage();const legacy=context.createTimelineJournal(s);legacy.enqueue({day:'4',items:[{id:'spa',notes:'manual'}]});
+const snapshot=JSON.stringify([...s.snapshot()]);
+assert.throws(()=>context.claimLegacyTimelineJournal(s,{tripId:'tripA'}),/confirmation/);
+assert.equal(JSON.stringify([...s.snapshot()]),snapshot);
+const res=context.claimLegacyTimelineJournal(s,{tripId:'tripA',confirmOwnership:true});
+assert.equal(res.status,'COPIED_LEGACY_RETAINED');assert.equal(res.count,1);
+assert.equal(context.createTripTimelineJournal(s,{tripId:'tripA'}).read().changes[0].items[0].notes,'manual');
+assert.equal(s.getItem('vn_timeline_pending_v1'),new Map(JSON.parse(snapshot)).get('vn_timeline_pending_v1'));
+assert.throws(()=>context.claimLegacyTimelineJournal(s,{tripId:'tripA',confirmOwnership:true}),/reconciliation/);
+const corrupt=storage();corrupt.setItem('vn_timeline_pending_v1','bad');assert.throws(()=>context.claimLegacyTimelineJournal(corrupt,{tripId:'tripA',confirmOwnership:true}));
+console.log('PASS: explicit claim, copy verification, legacy retention, duplicate refusal, corrupt fail-closed');

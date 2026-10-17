@@ -1,0 +1,13 @@
+const fs=require('fs'), assert=require('assert');
+const css=fs.readFileSync('styles.css','utf8');
+const canonical=css.slice(css.indexOf('/* RC29.132 — Guide modal canonical layout.'));
+assert(canonical.includes('#guideModal.show > .guide-sheet > .guide-close'));
+assert(canonical.includes('position:sticky!important'));
+assert(canonical.includes('top:12px!important'));
+assert(canonical.includes('margin:-50px 0 6px auto!important'));
+assert(canonical.includes('float:none!important'));
+assert(canonical.includes('#guideModal.show #guideModalContent'));
+assert(canonical.includes('width:100%!important'));
+const legacy=css.slice(0,css.indexOf('/* RC29.132 — Guide modal canonical layout.'));
+assert(!legacy.includes('.trip-close,.guide-close,.moments-close'), 'Guide remains in shared sticky selector');
+console.log('RC29.132 GUIDE LAYOUT: PASS');

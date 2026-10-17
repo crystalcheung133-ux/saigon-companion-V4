@@ -1,7 +1,28 @@
 <!DOCTYPE html>
 
-<html lang="zh-Hant"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><title>Home · Saigon Companion</title><link href="manifest.json" rel="manifest"/><meta content="#8A4F2D" name="theme-color"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="Saigon" name="apple-mobile-web-app-title"/><link href="icon-192.png" rel="apple-touch-icon"/><link href="styles.css?v=vn-pack2-followup-2" rel="stylesheet"/></head><body class="home-bg"><div aria-hidden="true" id="ccmvSplash" role="presentation"><div class="splash-paper"></div><div class="splash-glow"></div><div class="splash-content"><img alt="" class="splash-logo" src="ccmv-logo-calibrated.png"/><h1 class="splash-line">TRAVEL TOGETHER,<br/>CAPTURE TOGETHER</h1><div class="splash-destination">VIETNAM 2026</div></div><div class="splash-fadeout"></div></div><script>(function(){
+<html lang="en"><head><meta charset="utf-8"/><meta name="travel-engine-build" content="VN-RC29.135|25.7.3"/><meta content="width=device-width, initial-scale=1" name="viewport"/><title data-trip-page-title="Home">Home</title><meta content="" data-trip-theme-color="" name="theme-color"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="#f4eadb" name="theme-color"/><meta content="#f4eadb" name="msapplication-TileColor"/><link rel="manifest" href="manifest.webmanifest?v=rc29135-weather5-fx100k"/><meta content="" data-trip-apple-title="" name="apple-mobile-web-app-title"/><link data-trip-icon="icon192" rel="apple-touch-icon"/><style id="pwa-launch-critical">html,body{margin:0;min-height:100%;background:#f4eadb}#ccmvSplash{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;min-height:100dvh;padding:22px 18px;background:#f4eadb;box-sizing:border-box}#ccmvSplash .splash-content{text-align:center;width:min(94vw,620px)}#ccmvSplash .splash-logo{display:block;width:min(76vw,370px);max-height:52vh;object-fit:contain;margin:0 auto 16px;filter:none;box-shadow:none}#ccmvSplash .splash-line{margin:0;border:0;box-shadow:none;text-shadow:none;background:transparent;color:#12324a;font:950 clamp(20px,5.3vw,30px)/1.18 system-ui,sans-serif;letter-spacing:.11em}#ccmvSplash .splash-destination{margin-top:18px;color:#d76518;font:900 clamp(13px,3.4vw,18px)/1 system-ui,sans-serif;letter-spacing:.18em;text-transform:uppercase}</style><script id="vn-startup-diagnostics">(function(){
+  // Diagnostics only: no network requests, persistence or personal information.
+  var t=window.__vnStartupTiming={};
+  function stamp(name){t[name]=Math.round(performance.now());try{performance.mark('vn-'+name);}catch(e){}}
+  stamp('headParsed');
+  try{
+    var nav=performance.getEntriesByType('navigation')[0];
+    if(nav){t.navigationType=nav.type;t.responseStart=Math.round(nav.responseStart);t.responseEnd=Math.round(nav.responseEnd);t.workerStart=Math.round(nav.workerStart||0);}
+  }catch(e){}
+  if('PerformanceObserver' in window){try{
+    var observer=new PerformanceObserver(function(list){list.getEntries().forEach(function(entry){if(entry.name==='first-paint'||entry.name==='first-contentful-paint')t[entry.name]=Math.round(entry.startTime);});});
+    observer.observe({type:'paint',buffered:true});
+  }catch(e){}}
+  document.addEventListener('DOMContentLoaded',function(){stamp('domContentLoaded');},{once:true});
+  window.addEventListener('load',function(){stamp('windowLoad');setTimeout(function(){
+    try{console.info('[VN Startup Timing] milliseconds from navigation start',JSON.stringify(t));}catch(e){}
+  },1500);},{once:true});
+  if(navigator.serviceWorker){navigator.serviceWorker.addEventListener('message',function(event){
+    if(event.data&&event.data.type==='VN_STARTUP_NAV'){t.swSource=event.data.source;t.swDurationMs=event.data.durationMs;}
+  });}
+})();</script><link href="styles.css?v=rc29135-weather5-fx100k" rel="stylesheet"/></head><body class="home-bg"><div aria-hidden="true" id="ccmvSplash" role="presentation"><div class="splash-paper"></div><div class="splash-glow"></div><div class="splash-content"><img alt="" class="splash-logo" data-brand-logo="splash" src="ccmv-logo-calibrated.png"/><h1 class="splash-line" data-brand-text="splashSlogan">TRAVEL TOGETHER, CAPTURE TOGETHER</h1><div class="splash-destination" data-brand-text="splashDestination">VIETNAM 2026</div></div><div class="splash-fadeout"></div></div><script>(function(){
   var splash=document.getElementById('ccmvSplash');
+  if(window.__vnStartupTiming){window.__vnStartupTiming.splashScript=Math.round(performance.now());}
   if(!splash) return;
 
   var navType='navigate';
@@ -11,14 +32,20 @@
     else if(performance.navigation && performance.navigation.type===1) navType='reload';
   }catch(e){}
 
-  var sameOriginRef=false;
-  try{
-    sameOriginRef=!!document.referrer && new URL(document.referrer).origin===location.origin;
-  }catch(e){}
+  var coldLaunchRedirect=false;
+  try{coldLaunchRedirect=new URLSearchParams(window.location.search).get('coldLaunch')==='1';}catch(e){}
+  if(coldLaunchRedirect && window.history && window.history.replaceState){
+    try{window.history.replaceState(null,'','index.html');}catch(e){}
+  }
 
-  // Show the loading screen on fresh app open / direct visit / refresh.
-  // Skip it when coming back to the front page from another page inside the app.
-  var shouldShow = navType==='reload' || !sameOriginRef;
+  // RC15.2 Fast Resume: show the branded splash once per live app session.
+  // Internal navigation, browser back/forward and a normal background resume
+  // reuse the existing session and must return immediately without replaying it.
+  var sessionKey='travel_engine_fast_resume_started';
+  var sessionStarted=false;
+  try{sessionStarted=sessionStorage.getItem(sessionKey)==='1';}catch(e){}
+  var shouldShow=!sessionStarted || coldLaunchRedirect;
+  try{sessionStorage.setItem(sessionKey,'1');}catch(e){}
 
   function removeSplashNow(){
     if(splash && splash.parentNode) splash.parentNode.removeChild(splash);
@@ -38,106 +65,32 @@
     setTimeout(function(){
       document.body.classList.remove('ccmv-splash-active');
       if(splash && splash.parentNode) splash.parentNode.removeChild(splash);
-    }, 500);
+    }, 760);
   }
 
   splash.addEventListener('click', dismiss);
-  setTimeout(dismiss, 5200);
-})();</script><nav class="site-nav"><a class="brand" href="index.html"><span class="brand-mark"><img alt="" src="logo-watermark-monogram.png"/></span>Saigon Companion</a><button class="friend-pill" data-action="friend-open"><span data-friend-label="">👓 Crystal</span></button></nav><main class="dashboard home-premium home-v37">
-<section aria-label="Saigon Companion home" class="home-brand-card v37-dashboard-home">
-<p class="home-since">CCMV · Since 2013</p>
-<h1>Saigon<br/><em>Companion</em></h1>
-<p class="home-tagline">Guide · Itinerary · Memory Book</p>
-<div class="home-trip-line"><span>30 Oct — 3 Nov 2026</span><span>Ho Chi Minh City</span></div>
-<div aria-label="Live travel dashboard" class="home-live-grid">
-<div class="live-card live-countdown"><span class="live-icon">⏳</span><small>Countdown</small><strong id="countdownText">Counting down...</strong><em>Trip starts 30 Oct 2026</em></div>
-<div class="live-card live-time"><span class="live-icon">🕒</span><small>Ho Chi Minh</small><strong id="hcmTime">--:--</strong><em id="hcmDate">Local time · ICT</em></div>
-<div class="live-card live-weather" aria-live="polite"><span class="live-icon" id="weatherIcon">☀️</span><small>Ho Chi Minh Weather</small><strong id="weatherNow">Loading…</strong><em id="weatherDetail">Live forecast</em></div>
-<div class="live-card live-rate"><span class="live-icon">💱</span><div class="currency-heading"><small id="currencyDirection">VND → AUD</small><button class="currency-swap" id="currencySwap" type="button" aria-label="Swap currencies">⇄</button></div><label class="currency-converter"><span id="currencyInputCode">VND</span><input id="currencyAmount" type="number" inputmode="decimal" min="0" step="1" value="1000000" aria-label="Currency amount"/></label><strong id="currencyResult">Loading…</strong><em id="rateUpdated">Live rate</em></div>
-</div>
-<a class="home-day-button" href="day.html?day=1">Let's go ✨</a>
-</section>
-</main><script>(function(){
- const target=new Date('2026-10-30T00:00:00+11:00');
- function updateHomeDash(){
-  const now=new Date();
-  const diff=Math.ceil((target-now)/(1000*60*60*24));
-  const c=document.getElementById('countdownText');
-  if(c){ if(diff>7)c.textContent=`${diff} days to go`; else if(diff>1)c.textContent='One week to go'; else if(diff===1)c.textContent='Pack your bags'; else if(diff===0)c.textContent='Welcome to Saigon'; else c.textContent='Thanks for the moments'; }
-  const t=document.getElementById('hcmTime');
-  if(t){ t.textContent=new Intl.DateTimeFormat('en-AU',{timeZone:'Asia/Ho_Chi_Minh',hour:'2-digit',minute:'2-digit',hour12:false}).format(now)+' ICT'; }
-  const localDate=document.getElementById('hcmDate');
-  if(localDate){ localDate.textContent=new Intl.DateTimeFormat('en-AU',{timeZone:'Asia/Ho_Chi_Minh',weekday:'short',day:'numeric',month:'short'}).format(now); }
- }
 
- const weatherCodes={0:['☀️','Clear'],1:['🌤️','Mostly clear'],2:['⛅','Partly cloudy'],3:['☁️','Cloudy'],45:['🌫️','Fog'],48:['🌫️','Fog'],51:['🌦️','Light drizzle'],53:['🌦️','Drizzle'],55:['🌧️','Heavy drizzle'],61:['🌦️','Light rain'],63:['🌧️','Rain'],65:['🌧️','Heavy rain'],80:['🌦️','Showers'],81:['🌧️','Showers'],82:['⛈️','Heavy showers'],95:['⛈️','Thunderstorm'],96:['⛈️','Thunderstorm'],99:['⛈️','Thunderstorm']};
- async function loadWeather(){
-  try{
-   const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude=10.8231&longitude=106.6297&current=temperature_2m,apparent_temperature,weather_code,precipitation_probability&timezone=Asia%2FHo_Chi_Minh',{cache:'no-store'});
-   if(!r.ok)throw new Error('weather'); const d=await r.json(); const c=d.current||{}; const meta=weatherCodes[c.weather_code]||['🌤️','Current conditions'];
-   document.getElementById('weatherIcon').textContent=meta[0]; document.getElementById('weatherNow').textContent=`${Math.round(c.temperature_2m)}°C · ${meta[1]}`; document.getElementById('weatherDetail').textContent=`Feels ${Math.round(c.apparent_temperature)}° · Rain ${Math.round(c.precipitation_probability||0)}%`;
-  }catch(e){document.getElementById('weatherNow').textContent='29–33°C';document.getElementById('weatherDetail').textContent='Live weather unavailable';}
- }
- let audVndRate=18126;
- let currencyForward=false;
- function renderCurrency(){
-  const input=document.getElementById('currencyAmount');
-  const out=document.getElementById('currencyResult');
-  const inputCode=document.getElementById('currencyInputCode');
-  const direction=document.getElementById('currencyDirection');
-  if(!input||!out||!inputCode||!direction)return;
-  const amount=Math.max(0,Number(input.value)||0);
-  if(currencyForward){
-   inputCode.textContent='AUD'; direction.textContent='AUD → VND';
-   out.textContent=`≈ ${Math.round(amount*audVndRate).toLocaleString('en-AU')} VND`;
-  }else{
-   inputCode.textContent='VND'; direction.textContent='VND → AUD';
-   out.textContent=`≈ ${(amount/audVndRate).toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2})} AUD`;
-  }
- }
- function swapCurrency(){
-  const input=document.getElementById('currencyAmount');
-  const current=Math.max(0,Number(input?.value)||0);
-  currencyForward=!currencyForward;
-  if(input){input.value=currencyForward ? Math.round(current/audVndRate) : Math.round(current*audVndRate);}
-  renderCurrency();
- }
- async function loadCurrency(){
-  try{const r=await fetch('https://open.er-api.com/v6/latest/AUD',{cache:'no-store'});if(!r.ok)throw new Error('rate');const d=await r.json();if(!d.rates?.VND)throw new Error('rate');audVndRate=Number(d.rates.VND);document.getElementById('rateUpdated').textContent=`1 AUD ≈ ${Math.round(audVndRate).toLocaleString('en-AU')} VND · live`;}
-  catch(e){document.getElementById('rateUpdated').textContent='Reference rate · offline fallback';}
-  renderCurrency();
- }
- const currencyInput=document.getElementById('currencyAmount');
- currencyInput?.addEventListener('focus',()=>{
-  try{currencyInput.select();}catch(e){}
- });
- currencyInput?.addEventListener('input',renderCurrency);
- document.getElementById('currencySwap')?.addEventListener('click',swapCurrency);
- updateHomeDash(); setInterval(updateHomeDash,30000); loadWeather(); loadCurrency();
-
-})();</script><div class="mini-menu" id="guideMenu"><button data-action="guide-category" data-category="ATTRACTIONS"><span><span class="menu-title">📍 ATTRACTIONS</span></span><span>›</span></button><button data-action="guide-category" data-category="CAFÉS"><span><span class="menu-title">☕ CAFÉS</span></span><span>›</span></button><button data-action="guide-category" data-category="EXPERIENCE"><span><span class="menu-title">🍳 EXPERIENCE</span></span><span>›</span></button><button data-action="guide-category" data-category="RESTAURANTS"><span><span class="menu-title">🍽 RESTAURANTS</span></span><span>›</span></button><button data-action="guide-category" data-category="SHOP"><span><span class="menu-title">🛍 SHOP</span></span><span>›</span></button><button data-action="guide-category" data-category="SPA"><span><span class="menu-title">💆 SPA</span></span><span>›</span></button><button data-action="guide-category" data-category="STAY"><span><span class="menu-title">🏨 STAY</span></span><span>›</span></button></div><div class="mini-menu" id="tripMenu">
-<a href="#" data-action="trip-card" data-trip-key="checklist"><span><span class="menu-title">✅ Checklist</span><span class="menu-sub">Before the Trip</span></span><span>›</span></a>
-<a href="bookings.html"><span><span class="menu-title">📋 Bookings</span><span class="menu-sub">Confirmed & pending</span></span><span>›</span></a>
-<a href="#" data-action="trip-card" data-trip-key="flights"><span><span class="menu-title">✈️ Flights</span><span class="menu-sub">VJ082 · VN781</span></span><span>›</span></a>
-<a href="#" data-action="trip-card" data-trip-key="stay"><span><span class="menu-title">🏨 Stay</span><span class="menu-sub">Fusion Original</span></span><span>›</span></a>
-<a href="#" data-action="trip-card" data-trip-key="emergency"><span><span class="menu-title">☎️ Emergency</span><span class="menu-sub">Useful numbers</span></span><span>›</span></a>
-</div><div class="mini-menu" id="daysMenu">
-<a href="day.html?day=1"><span><span class="menu-title">👋 Day 1</span><span class="menu-sub">Hello Saigon<br/>30 Oct • Friday</span></span><span>›</span></a>
-<a href="day.html?day=2"><span><span class="menu-title">🍳 Day 2</span><span class="menu-sub">Made in Saigon<br/>31 Oct • Saturday</span></span><span>›</span></a>
-<a href="day.html?day=3"><span><span class="menu-title">🌿 Day 3</span><span class="menu-sub">A Slower Side<br/>1 Nov • Sunday</span></span><span>›</span></a>
-<a href="day.html?day=4"><span><span class="menu-title">🏛 Day 4</span><span class="menu-sub">City Contrast<br/>2 Nov • Monday</span></span><span>›</span></a>
-<a href="day.html?day=5"><span><span class="menu-title">✈️ Day 5</span><span class="menu-sub">Until Next Time<br/>3 Nov • Tuesday</span></span><span>›</span></a></div>
-<nav class="app-nav">
-<button class="trip-trigger" data-action="trip-menu" type="button"><span>🧳</span><small>Trip</small></button>
-<button class="guide-trigger" data-action="guide-menu" type="button"><span>📖</span><small>Guide</small></button>
-<button class="days-trigger" data-action="days-menu" type="button"><span>🗓</span><small>Days</small></button>
+  // Local UI is already available in the document. Do not block first use on
+  // cloud sync or hold the splash for the former 5.2-second animation.
+  var dismissSoon=function(){window.requestAnimationFrame(function(){setTimeout(dismiss,4400);});};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',dismissSoon,{once:true});
+  else dismissSoon();
+  setTimeout(dismiss,5200);
+})();</script><script src="app-runtime.js?v=rc29135-weather5-fx100k"></script><script src="theme-config.js"></script><script src="asset-config.js"></script><script src="locale-config.js"></script><script src="geo-config.js?v=rc29135-weather5-fx100k"></script><script src="formatter.js"></script><script src="money-config.js"></script><script src="navigation-config.js?v=rc29135-weather5-fx100k"></script><script src="navigation.js?v=rc29135-weather5-fx100k"></script><script src="trip-config.js?v=rc29135-weather5-fx100k"></script><script src="storage-config.js?v=rc29135-weather5-fx100k"></script><script src="storage.js"></script><script src="sync-config.js?v=rc29135-weather5-fx100k"></script><script src="sync-runtime.js?v=rc29135-weather5-fx100k"></script><script src="vendor-supabase-js-2.117.2.umd.js"></script><script src="supabase-client-runtime.js?v=rc29135-weather5-fx100k"></script><script src="expense-sync-runtime.js?v=rc29135-weather5-fx100k"></script><script src="expense-notification-runtime.js?v=rc29135-weather5-fx100k"></script><script src="moment-sync-runtime.js?v=rc29135-weather5-fx100k"></script><script src="generation-runtime.js?v=rc29135-weather5-fx100k"></script><script src="documents-runtime.js?v=rc29135-weather5-fx100k"></script><script src="party-render-runtime.js?v=rc29135-weather5-fx100k"></script><script src="money.js"></script><nav class="site-nav"><a class="brand" href="index.html"><span class="brand-mark"><img alt="" data-brand-logo="header"/></span><span data-brand-text="navLabel"></span></a><button class="friend-pill" onclick="openFriendModal()"><span data-friend-label="" data-family=""></span></button></nav><main class="dashboard home-premium home-v37">
+<section aria-label="" data-trip-home-aria="" class="home-brand-card v37-dashboard-home"><p class="home-since" data-brand-text="familyLabel"></p><h1><span data-brand-text="heroLine1">Saigon</span><br/><em data-brand-text="heroEmphasis">Companion</em></h1><div class="home-reunion-story" aria-label="Annual family reunion"><strong data-trip-home="reunionStory">Four friends. Five days. One Saigon.</strong></div><div class="home-trip-line"><span data-trip-home="dateLine">30 Oct — 3 Nov 2026</span><span data-trip-home="regionLine">Ho Chi Minh City</span></div><div aria-label="Live travel dashboard" class="home-live-grid"><div class="live-card live-countdown"><span class="live-icon">⏳</span><small>Countdown</small><strong id="countdownText">Counting down...</strong></div><button aria-label="Open destination and home clocks" class="live-card live-time live-interactive-card" onclick="openHomeInfoModal('clockModal')" type="button"><span class="live-icon">🕒</span><small id="homeClockLabel">Saigon</small><strong id="hcmTime">--:--</strong><em class="live-card-action">View clocks ›</em></button><button aria-label="View five-day weather forecast" class="live-card live-weather live-interactive-card" id="homeWeatherCard" onclick="openHomeInfoModal('weatherModal')" type="button"><span class="live-icon" id="homeWeatherIcon">🌦</span><small id="homeWeatherLabel">Today · Ho Chi Minh City</small><strong id="homeWeatherValue">Loading weather…</strong><em class="live-card-action" id="homeWeatherMeta">5-day forecast ›</em></button><div aria-label="Currency converter" class="live-card live-rate live-currency-card" id="currencyCard"><div class="currency-card-top"><span class="live-icon">💱</span><button aria-label="Swap currency direction" class="currency-card-swap" id="currencySwap" onclick="swapCurrencyDirection()" type="button">⇄</button></div><small id="currencyDirectionLabel">VND → AUD</small><div class="currency-card-input-row"><span id="currencyInputCode">VND</span><input aria-label="Currency amount" autocomplete="off" id="currencyAmount" inputmode="decimal" enterkeyhint="done" pattern="[0-9]*[.,]?[0-9]*" type="text" value="100000"/></div><strong aria-live="polite" id="currencyResult">≈ AUD --</strong><em class="live-card-action" id="currencyCardMeta">Loading live rate…</em></div></div><div class="home-primary-actions"><a class="home-day-button" id="homeTodayButton" href="day.html?day=1">Let\'s go ✨</a></div></section>
+</main><div class="mini-menu" id="guideMenu"><button onclick="openGuideCategory('ATTRACTIONS')"><span><span class="menu-title guide-menu-title"><span class="guide-menu-icon" aria-hidden="true">🏛️</span><span class="guide-menu-label">ATTRACTIONS</span></span></span><span>›</span></button><button onclick="openGuideCategory('DINING')"><span><span class="menu-title guide-menu-title"><span class="guide-menu-icon" aria-hidden="true">🍽</span><span class="guide-menu-label">DINING</span></span></span><span>›</span></button><button onclick="openGuideCategory('SHOP')"><span><span class="menu-title guide-menu-title"><span class="guide-menu-icon" aria-hidden="true">🛍</span><span class="guide-menu-label">SHOPPING</span></span></span><span>›</span></button><button onclick="openGuideCategory('STAY')"><span><span class="menu-title guide-menu-title"><span class="guide-menu-icon" aria-hidden="true">🏨</span><span class="guide-menu-label">STAY</span></span></span><span>›</span></button><button onclick="openGuideCategory('WELLNESS')"><span><span class="menu-title guide-menu-title"><span class="guide-menu-icon" aria-hidden="true">💆</span><span class="guide-menu-label">WELLNESS</span></span></span><span>›</span></button></div><div class="mini-menu" id="tripMenu"></div><div class="mini-menu" id="daysMenu"></div><nav class="app-nav">
+<button class="trip-trigger" onclick="toggleTripMenu()" type="button"><span>🧳</span><small>Booking</small></button>
+<button class="guide-trigger" onclick="toggleGuideMenu()" type="button"><span>📖</span><small>Guide</small></button>
+<button class="days-trigger" onclick="toggleDays()" type="button"><span>🗓</span><small>Days</small></button>
+<a class="summary-link docs-nav-trigger" href="documents.html"><span>📎</span><small>Docs</small></a>
 <a class="summary-link" href="moments.html"><span>✨</span><small>Moments</small></a>
 <a class="summary-link" href="expenses.html"><span>💸</span><small>Expenses</small></a>
 </nav>
-<script src="theme-config.js?v=stage2-canonical"></script><script src="asset-config.js?v=stage2-canonical"></script><script src="trip-config.js?v=vn-stage-d-1"></script><script src="storage-config.js?v=stage2-canonical"></script><script src="storage.js?v=stage2-canonical"></script><script src="navigation-config.js?v=stage2-canonical"></script><script src="navigation.js?v=stage2-canonical"></script><script src="data.js"></script><script src="canonical-core.js?v=stage2-canonical"></script><script src="vietnam-canonical-data.js?v=stage2-6-repair"></script><script src="vietnam-presentation-adapter.js?v=stage2-6-repair"></script><script src="core-runtime.js?v=vn-content-final-7"></script><script src="trip-runtime.js?v=vn-stage-d-1"></script><script src="supabase-config.js?v=vn-s1b-1"></script><script src="booking-repository.js?v=vn-stage-d-1"></script><script src="supabase-booking-provider.js?v=vn-stage-d-1"></script><script src="bookings-runtime.js?v=vn-stage-d-1"></script><script src="guide-runtime.js?v=vn-content-final-7"></script><script src="itinerary-runtime.js?v=stage2-canonical"></script><script src="moments-runtime.js?v=stage2-6-repair"></script><script src="expense-canonical-bootstrap.js?v=stage3-2e-1"></script><script src="expenses-runtime.js?v=stage3-2e-1"></script><script src="app-runtime.js?v=stage2-canonical"></script><script src="lifecycle-runtime.js?v=vn-c2cd-1"></script><script src="export-runtime.js?v=vn-c2cd-1"></script><script src="admin.js?v=vn-c2cd-1"></script><script src="pwa.js?v=stage2-canonical"></script>
-<div class="trip-modal" id="tripModal"><div class="trip-sheet"><button class="trip-close" data-action="trip-close" type="button">×</button><div id="tripModalContent"></div></div></div>
-<div class="guide-modal" id="guideModal"><div class="guide-sheet"><button class="guide-close" data-action="guide-close" type="button">×</button><div id="guideModalContent"></div></div></div>
-<div class="moments-modal" id="momentsModal"><div class="moments-sheet"><button class="moments-close" onclick="closeMomentsModal()" type="button">×</button><p class="kicker">MEMORY BOOK</p><h2 id="momentsTitle">Moment</h2><p class="lead modal-intro" id="momentsIntro">每一個地方都可以留底 rating、something to say 同相片。旅行完之後，呢度就係四位朋友嘅 memory book。</p><p><span class="status-badge" id="momentsFriend">Friend</span> <button class="mini-btn" data-action="friend-open">Change Friend</button></p><div class="moments-form"><input id="momentsRating" type="hidden" value="0"/><div class="star-row"><span class="star" onclick="setStars(1)">⭐</span><span class="star" onclick="setStars(2)">⭐</span><span class="star" onclick="setStars(3)">⭐</span><span class="star" onclick="setStars(4)">⭐</span><span class="star" onclick="setStars(5)">⭐</span></div><p class="mood-help">Choose up to 2 moods</p><div class="mood-grid" id="moodGrid"></div><textarea id="momentsText" placeholder="Something to say..."></textarea><div class="photo-input">📷 Add Photo（Camera / Photo Library）</div><button class="btn" onclick="saveMoments()">Save</button></div></div></div>
-<div class="unexpected-modal" id="unexpectedModal"><div class="unexpected-sheet"><button class="unexpected-close" onclick="closeUnexpectedModal()" type="button">×</button><p class="kicker">Moments</p><h2>Leave a Moment</h2><p class="lead">每一個地方都可以留底 rating、something to say 同相片。旅行完之後，呢度就係四位朋友嘅 memory book。</p><p><span class="status-badge" id="unexpectedFriend">Friend</span></p><textarea id="unexpectedText" placeholder="Capture this moment..." style="width:100%;min-height:120px;border:1px solid var(--line);border-radius:18px;background:#fffaf2;padding:14px;font:inherit;color:var(--ink)"></textarea><div class="photo-input">📷 Add Photo（Camera / Photo Library）</div><button class="btn" onclick="saveUnexpected()">Save</button></div></div>
-<div class="tools-modal" id="expenseModal"><div class="tools-sheet"><button class="tools-close" onclick="closeExpenseModal()" type="button">×</button><p class="kicker">TRIP EXPENSES</p><h2 id="expenseModalTitle">💰 What did we spend?</h2><p class="lead modal-intro" id="expenseIntro">記低每一筆公數或個人消費，系統會自動計 Personal Spend 同 Settlement。</p><div class="expense-form"><input id="expenseItem" placeholder="Item e.g. Little Bear Dinner"/><input autocomplete="off" id="expenseTotal" inputmode="numeric" pattern="[0-9]*" placeholder="Total VND" type="tel"/><label>Paid by</label><select class="btn" id="expensePaidBy" onchange="syncConsumedIfAuto()"><option value="christal">🧸 Christal</option><option selected="" value="crystal">👓 Crystal</option><option value="mero">✝️ Mero</option><option value="vivian">👟 Vivian</option></select><label class="check-row"><input id="expensePersonal" onchange="updateExpenseMode()" type="checkbox"/> Personal Expense</label><div id="splitBetweenBlock"><p>Split between</p><div class="expense-split-tools"><button class="mini-btn" onclick="splitAll()" type="button">Split between all</button><button class="mini-btn" onclick="clearAllSplit()" type="button">Clear all</button></div><label><input checked="" data-split="" type="checkbox" value="christal"/> 🧸 Christal</label><br/><label><input checked="" data-split="" type="checkbox" value="crystal"/> 👓 Crystal</label><br/><label><input checked="" data-split="" type="checkbox" value="mero"/> ✝️ Mero</label><br/><label><input checked="" data-split="" type="checkbox" value="vivian"/> 👟 Vivian</label></div><div id="consumedByBlock" style="display:none"><label>Consumed by <span class="timestamp">(same as paid by unless changed)</span></label><select class="btn" id="expenseConsumedBy" onchange="markConsumedManual()"><option value="christal">🧸 Christal</option><option selected="" value="crystal">👓 Crystal</option><option value="mero">✝️ Mero</option><option value="vivian">👟 Vivian</option></select></div><br/><button class="btn" id="expenseSaveButton" onclick="saveExpense()">Save Expense</button></div><p class="timestamp">Save 完會留喺呢個視窗，可以連續輸入多筆；關閉後 Summary 會即時更新。</p></div></div><div class="mama-modal" id="mamaModal"><div class="guide-sheet"><button class="mama-close" data-action="friend-close" type="button">×</button><p class="kicker">Friend</p><h2>Choose Friend</h2><div class="category-pop-list friend-choice-list"><button data-action="friend-select" data-friend="christal">🧸 Christal</button><button data-action="friend-select" data-friend="crystal">👓 Crystal</button><button data-action="friend-select" data-friend="mero">✝️ Mero</button><button data-action="friend-select" data-friend="vivian">👟 Vivian</button></div></div></div><script type="module" src="booking-sync-bootstrap.mjs?v=vn-stage-d-1"></script>
-</body></html>
+<div aria-hidden="true" class="home-info-modal" id="weatherModal"><div class="home-info-sheet" role="dialog" aria-modal="true" aria-labelledby="weatherModalTitle"><button aria-label="Close weather forecast" class="home-info-close" onclick="closeHomeInfoModal('weatherModal')" type="button">×</button><p class="kicker">LOCAL WEATHER</p><h2 id="weatherModalTitle">5-day forecast</h2><p class="home-info-note" id="weatherForecastPlace">Ho Chi Minh City · Vietnam time</p><div class="weather-forecast-list" id="weatherForecastList" aria-live="polite"><p class="home-info-note">Loading forecast…</p></div><p class="home-info-note" id="weatherForecastUpdated">Forecast from Open-Meteo</p></div></div><div aria-hidden="true" class="home-info-modal" id="clockModal"><div class="home-info-sheet" role="dialog" aria-modal="true" aria-labelledby="clockModalTitle"><button aria-label="Close clocks" class="home-info-close" onclick="closeHomeInfoModal('clockModal')" type="button">×</button><p class="kicker">TRIP CLOCKS</p><h2 id="clockModalTitle">Destination &amp; home</h2><div class="home-info-list"><div><span><span data-geo-flag="destinationFlag">🇻🇳</span> <span data-trip-home="clockLabel">Saigon</span></span><strong id="clockNzValue">--:--</strong></div><div><span><span data-geo-flag="homeFlag">🇦🇺</span> <span data-trip-home="homeCities"></span></span><strong id="clockMelValue">--:--</strong></div></div><p class="home-info-note">Before departure, the Home card shows <span data-trip-home="clockLabel">Saigon</span> time. During the trip, it switches to <span data-geo-label="homeLabel">Melbourne</span> time so it is easier to contact home.</p></div></div><script src="engine-integrity.js?v=rc29135-weather5-fx100k"></script><script src="data.js?v=rc29135-weather5-fx100k"></script><script src="booking-authority.js?v=rc29135-weather5-fx100k"></script><script src="booking-permissions.js?v=rc29135-weather5-fx100k"></script><script src="generation-selection-adapter.js?v=rc29135-weather5-fx100k"></script><script src="booking-sync-runtime.js?v=rc29135-weather5-fx100k"></script><script src="booking-sync-status-ui.js?v=rc29135-weather5-fx100k"></script><script src="guide-navigation-runtime.js?v=rc29135-weather5-fx100k"></script><script src="itinerary-authority.js?v=rc29135-weather5-fx100k"></script><script src="core-runtime.js?v=rc29135-weather5-fx100k"></script><script src="expenses.js?v=rc29135-weather5-fx100k"></script><script src="moments.js?v=rc29135-weather5-fx100k"></script><script src="trip-runtime.js?v=rc29135-weather5-fx100k"></script><script src="moments-compat.js?v=rc29135-weather5-fx100k"></script><script src="script.js?v=rc29135-weather5-fx100k"></script><script src="shopping-directory-data.js?v=rc29135-weather5-fx100k"></script><script src="guide-authority.js?v=rc29135-weather5-fx100k"></script><script src="guide-sync-runtime.js?v=rc29135-weather5-fx100k"></script><script src="guide-sync-status-ui.js?v=rc29135-weather5-fx100k"></script><script src="guide-runtime.js?v=rc29135-weather5-fx100k"></script><script src="admin.js?v=rc29135-weather5-fx100k"></script><script src="reset-runtime.js?v=rc29135-weather5-fx100k"></script><script src="publication-runtime.js?v=rc29135-weather5-fx100k"></script><script src="complete-runtime.js?v=rc29135-weather5-fx100k"></script><script src="export-runtime.js?v=rc29135-weather5-fx100k"></script><script src="currency-runtime.js?v=rc29135-weather5-fx100k"></script><script src="home-runtime.js?v=rc29135-weather5-fx100k"></script><script src="pwa.js?v=rc29135-weather5-fx100k"></script><script src="analytics-runtime.js?v=rc29135-weather5-fx100k"></script>
+<div class="trip-modal" id="tripModal"><div class="trip-sheet"><button class="trip-close" onclick="closeTripModal()" type="button">×</button><div id="tripModalContent"></div></div></div>
+<div class="guide-modal" id="guideModal"><div class="guide-sheet"><button class="guide-close" onclick="closeGuideModal()" type="button">×</button><div id="guideModalContent"></div></div></div>
+<div class="moments-modal" id="momentsModal"><div class="moments-sheet"><button class="moments-close" onclick="closeMomentsModal()" type="button">×</button><p class="kicker">MEMORY BOOK</p><h2 id="momentsTitle">Moment</h2><p class="lead modal-intro" id="momentsIntro">Add a rating, a short note and a photo at any stop. After the trip, this becomes the group’s shared memory book.</p><p><span class="status-badge" id="momentsFriend">Friend</span> <button class="mini-btn" onclick="openFriendModal()">Change Traveller</button></p><div class="moments-form"><input id="momentsRating" type="hidden" value="0"/><div class="star-row"><span class="star" onclick="setStars(1)">⭐</span><span class="star" onclick="setStars(2)">⭐</span><span class="star" onclick="setStars(3)">⭐</span><span class="star" onclick="setStars(4)">⭐</span><span class="star" onclick="setStars(5)">⭐</span></div><p class="mood-help">Choose up to 2 moods</p><div class="mood-grid" id="moodGrid"></div><textarea id="momentsText" placeholder="Something to say..."></textarea><div class="photo-input">📷 Add Photo (Camera / Photo Library)</div><button class="btn" onclick="saveMoments()">Save</button></div></div></div>
+<div class="unexpected-modal" id="unexpectedModal"><div class="unexpected-sheet"><button class="unexpected-close" onclick="closeUnexpectedModal()" type="button">×</button><p class="kicker">Moments</p><h2>Leave a Moment</h2><p class="lead">Add a rating, a short note and a photo at any stop. After the trip, this becomes the group’s shared memory book.</p><p><span class="status-badge" id="unexpectedFriend">Friend</span></p><textarea id="unexpectedText" placeholder="Capture this moment..." style="width:100%;min-height:120px;border:1px solid var(--line);border-radius:18px;background:#fffaf2;padding:14px;font:inherit;color:var(--ink)"></textarea><div class="photo-input">📷 Add Photo (Camera / Photo Library)</div><button class="btn" onclick="saveUnexpected()">Save</button></div></div>
+<div class="tools-modal" id="expenseModal"><div class="tools-sheet"><button class="tools-close" onclick="closeExpenseModal()" type="button">×</button><p class="kicker">TRIP EXPENSES</p><h2 id="expenseModalTitle">💸 What did we spend?</h2><p class="lead modal-intro" id="expenseIntro">Record each shared or personal expense. Personal Spend and Settlement update automatically.</p><div class="expense-form"><input id="expenseItem" placeholder="Item e.g. Group dinner"/><input autocomplete="off" id="expenseTotal" inputmode="numeric" pattern="[0-9]*" data-trip-currency-placeholder="" placeholder="" type="tel"/><label>Paid by</label><select class="btn" id="expensePaidBy" onchange="syncConsumedIfAuto()" data-party-options=""></select><label class="check-row"><input id="expensePersonal" onchange="updateExpenseMode()" type="checkbox"/> Personal Expense</label><div id="splitBetweenBlock"><p>Split between</p><div class="expense-split-tools"><button class="mini-btn" onclick="splitAll()" type="button">Split between all</button><button class="mini-btn" onclick="clearAllSplit()" type="button">Clear all</button></div><div data-party-split-options=""></div></div><div id="consumedByBlock" style="display:none"><label>Consumed by <span class="timestamp">(same as paid by unless changed)</span></label><select class="btn" id="expenseConsumedBy" onchange="markConsumedManual()" data-party-options=""></select></div><br/><button class="btn" id="expenseSaveButton" onclick="saveExpense()">Save Expense</button></div><p class="timestamp">After saving, this window stays open so you can enter another expense. The summary updates when you close it.</p></div></div><div class="mama-modal" id="mamaModal"><div class="guide-sheet"><button class="mama-close" onclick="closeFriendModal()" type="button">×</button><p class="kicker">TRAVELLER</p><h2>User Selection</h2><div class="category-pop-list friend-choice-list" data-party-choices=""></div></div></div></body></html>
+
+

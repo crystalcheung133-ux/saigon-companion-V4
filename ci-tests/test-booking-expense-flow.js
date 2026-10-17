@@ -1,0 +1,13 @@
+const fs=require('fs'),assert=require('assert');
+const e=fs.readFileSync('expenses.js','utf8');
+const t=fs.readFileSync('trip-runtime.js','utf8');
+assert(e.includes("window.openBookingExpense=function(bookingId)"));
+assert(!e.includes("document.getElementById('tripModal')?.classList.remove('show')"),'Add Expense must overlay Booking, not dismiss it first');
+assert(e.includes('window.bringContentOverlayToFront?.(document.getElementById(\'expenseModal\'))'),'Add Expense must become the newest foreground popup');
+assert(e.includes("if(cameFromBooking&&savedId){return;}"),'Saving Add Expense from Booking must stay on the original page anchor');
+assert(e.includes('dismissAllContentOverlays'),'Saving/closing Add Expense must dismiss the popup chain');
+assert(e.includes('id="expense-${escapeHTML(e.id)}"'));
+assert(e.includes('focusExpenseFromURL()'));
+assert(t.includes("expenses.html?expenseId=${encodeURIComponent(newest.id)}"),'Existing expense must deep-link to Transaction History');
+assert(!t.includes('expenses.html?expenseId=${encodeURIComponent(newest.id)}&returnTo='),'Existing expense page link must not preserve popup history');
+console.log('BOOKING / EXPENSE FLOW CONTRACT: PASS');

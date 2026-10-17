@@ -1,81 +1,19 @@
-/* trip-config.js - canonical trip and participant model. */
-(function(root){
-  'use strict';
-  const participants=Object.freeze({
-    defaultKey:'crystal',
-    order:Object.freeze(['christal','crystal','mero','vivian']),
-    identities:Object.freeze({
-      christal:Object.freeze({emoji:'🧸',name:'Christal'}),
-      crystal:Object.freeze({emoji:'👓',name:'Crystal'}),
-      mero:Object.freeze({emoji:'✝️',name:'Mero'}),
-      vivian:Object.freeze({emoji:'👟',name:'Vivian'})
-    })
-  });
-
-  root.CCMV_SIMPLE_BOOKING_CONFIG=Object.freeze({
-    enabled:true,
-    url:'https://dafgbqygccvctifrevpa.supabase.co',
-    anonKey:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRhZmdicXlnY2N2Y3RpZnJldnBhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyNTQyOTksImV4cCI6MjA5ODgzMDI5OX0.9dB6WV8BldV6rGze3QuisIaj3qnUV7zSzdo_eGPBbrA',
-    tripId:'ccmv-vietnam-2026',
-    tripAccessToken:'ccmv_vn_2026_7LxA9rPqK2mN8VfH5tYwQ3eUzC1JsBdR',
-    adminPartyId:'party-crystal'
-  });
-
-  root.TRIP_CONFIG=Object.freeze({
-    id:'ccmv-vietnam-2026',
-    name:'Saigon Companion',
-    destination:'Ho Chi Minh City',
-    country:'Vietnam',
-    startDate:'2026-10-30',
-    endDate:'2026-11-03',
-    storageNamespace:'ccmv-vietnam-2026',
-    tripGeneration:1,
-    version:'stage-e1-booking-polish-pack-1',
-    buildLabel:'Build: VN Stage E1 · Booking Polish Pack 1',
-    assetVersion:'vn-stage-e1-booking-polish-1',
-    features:Object.freeze({
-      /* Stage 3.2D validation flag. Legacy remains authoritative. */
-      expenseCanonicalDualWrite:false,
-      expenseCanonicalReadShadow:false,
-      bookingSupabaseFoundation:true,
-      bookingSupabaseSync:true,
-      syncCoreStageB5:true,
-      bookingSyncAdapter:true,
-      bookingSyncRuntime:true
-    }),
-    participants
-    ,parties:Object.freeze({
-      defaultPartyId:'party-crystal',
-      order:Object.freeze(['party-christal','party-crystal','party-mero','party-vivian']),
-      identities:Object.freeze({
-        'party-christal':Object.freeze({
-          partyId:'party-christal',displayName:'Christal',
-          legacyAliases:Object.freeze(['christal']),ordering:1,
-          permissions:Object.freeze({adminEligible:false})
-        }),
-        'party-crystal':Object.freeze({
-          partyId:'party-crystal',displayName:'Crystal',
-          legacyAliases:Object.freeze(['crystal']),ordering:2,
-          permissions:Object.freeze({adminEligible:false})
-        }),
-        'party-mero':Object.freeze({
-          partyId:'party-mero',displayName:'Mero',
-          legacyAliases:Object.freeze(['mero']),ordering:3,
-          permissions:Object.freeze({adminEligible:false})
-        }),
-        'party-vivian':Object.freeze({
-          partyId:'party-vivian',displayName:'Vivian',
-          legacyAliases:Object.freeze(['vivian']),ordering:4,
-          permissions:Object.freeze({adminEligible:false})
-        })
-      })
-    })
-    ,days:Object.freeze([
-      Object.freeze({number:1,emoji:'👋',date:'30 Oct',weekday:'Friday'}),
-      Object.freeze({number:2,emoji:'🍳',date:'31 Oct',weekday:'Saturday'}),
-      Object.freeze({number:3,emoji:'🌿',date:'1 Nov',weekday:'Sunday'}),
-      Object.freeze({number:4,emoji:'🏛',date:'2 Nov',weekday:'Monday'}),
-      Object.freeze({number:5,emoji:'✈️',date:'3 Nov',weekday:'Tuesday'})
-    ])
-  });
+/* trip-config.js — Saigon Companion RC29.135 on Travel Engine 25.7.3 */
+(function(root){'use strict';
+const partyIdentities=Object.freeze({"party-christal": {"partyId": "party-christal", "emoji": "🧸", "displayName": "Christal", "legacyAliases": ["christal"], "ordering": 1, "permissions": {"adminEligible": false}}, "party-crystal": {"partyId": "party-crystal", "emoji": "👓", "displayName": "Crystal", "legacyAliases": ["crystal"], "ordering": 2, "permissions": {"adminEligible": true}}, "party-mero": {"partyId": "party-mero", "emoji": "✝️", "displayName": "Mero", "legacyAliases": ["mero"], "ordering": 3, "permissions": {"adminEligible": false}}, "party-vivian": {"partyId": "party-vivian", "emoji": "👟", "displayName": "Vivian", "legacyAliases": ["vivian"], "ordering": 4, "permissions": {"adminEligible": false}}});
+const config=Object.freeze({
+ id:'ccmv-vietnam-2026',tripName:'Saigon Companion',name:'Saigon Companion',destination:'Ho Chi Minh City',country:'Vietnam',startDate:'2026-10-30',endDate:'2026-11-03',currency:root.LOCALE_CONFIG.currency,timeZone:root.LOCALE_CONFIG.timeZone,language:root.LOCALE_CONFIG.language,
+ logo:Object.freeze({splash:root.ASSET_CONFIG.branding.splashLogo,header:root.ASSET_CONFIG.branding.secondaryMark,icon192:root.ASSET_CONFIG.icons.icon192,icon512:root.ASSET_CONFIG.icons.icon512}),coverImage:root.ASSET_CONFIG.hero.coverImage,themeName:root.THEME_CONFIG.name,
+ engineName:'Travel Engine',shortName:'Saigon',navLabel:'Saigon Companion',familyLabel:'CRYSTAL · CHRISTAL · VIVIAN · MERO',
+ participants:Object.freeze({"presentation":"emoji-name","defaultKey": "crystal", "order": ["christal", "crystal", "mero", "vivian"], "identities": {"christal": {"emoji": "🧸", "code": "CHR", "name": "Christal"}, "crystal": {"emoji": "👓", "code": "CRY", "name": "Crystal"}, "mero": {"emoji": "✝️", "code": "MER", "name": "Mero"}, "vivian": {"emoji": "👟", "code": "VIV", "name": "Vivian"}}}),
+ parties:Object.freeze({defaultPartyId:'party-crystal',order:Object.freeze(['party-christal','party-crystal','party-mero','party-vivian']),identities:partyIdentities}),
+ admin:Object.freeze({user:'crystal',displayName:'Crystal',studioMessage:'Trip Studio is PIN protected. Enter the Studio PIN to continue.',completeMessage:'Complete this trip? Trip content remains available to browse, but Studio editing will be disabled until Crystal reopens the trip.',pin:'260922'}),
+ tripModules:Object.freeze({stay:true,activities:true,transport:true,rentalCar:false}),
+ tripMenuGroups:Object.freeze([Object.freeze({id:'activities-transport',title:'Activities & Transport',icon:'🎟️',sub:'Activity & transfer bookings',modules:Object.freeze(['activities','transport'])})]),
+ bookingManagement:Object.freeze({mode:'collaborative',sync:Object.freeze({enabled:true,accessToken:'ccmv_vn_2026_7LxA9rPqK2mN8VfH5tYwQ3eUzC1JsBdR',pollIntervalMs:15000})}),
+ home:Object.freeze({ariaLabel:'Saigon Companion home',reunionStory:'Four friends. Five days. One Saigon.',dateLine:'30 Oct — 3 Nov 2026',regionLine:'Ho Chi Minh City',clockLabel:'Saigon',homeCities:'Melbourne',clockSuffix:'VN',seasonLabel:'Girls trip',seasonNote:'Warm · humid · city days',welcomeMessage:'Welcome to Saigon',completedMessage:'Thanks for the moments'}),
+ guide:Object.freeze({excludedPlaceIds:Object.freeze([]),worthExcludedPlaceIds:Object.freeze([]),categoryOrder:Object.freeze(['ATTRACTIONS','DINING','SHOP','STAY','WELLNESS']),categoryLabels:Object.freeze({ATTRACTIONS:'ATTRACTIONS',DINING:'DINING',SHOP:'SHOPPING',STAY:'STAY',WELLNESS:'WELLNESS'}),categoryMap:Object.freeze({ATTRACTIONS:Object.freeze(['ATTRACTIONS']),WELLNESS:Object.freeze(['SPA','WELLNESS']),DINING:Object.freeze(['DINING','RESTAURANTS','CAFÉS']),STAY:Object.freeze(['STAY']),SHOP:Object.freeze(['SHOP']),PRACTICAL:Object.freeze(['PRACTICAL'])})}),exports:Object.freeze({expenseSummaryTitle:'SAIGON EXPENSE SUMMARY'}),heroLine1:'Saigon',heroEmphasis:'Companion',tagline:'Eat · Shop · Spa · Explore',splashSlogan:'TRAVEL TOGETHER, CAPTURE TOGETHER',splashDestination:'VIETNAM 2026',storageNamespace:'ccmv-vietnam-2026',identityStorageKey:'ccmv-vietnam-2026:traveller_identity:v1',tripGeneration:1,bookingMasterRevision:13,version:'RC29.135-25.7.3',buildLabel:'VN Companion RC29.135 · Copy Audit & Sticky Guide Close',theme:root.THEME_CONFIG.colors
+});root.TRIP_CONFIG=config;
+function applyTripIdentity(){if(typeof document==='undefined')return;document.documentElement.lang=config.language;document.querySelectorAll('[data-trip-page-title]').forEach(el=>{const p=el.getAttribute('data-trip-page-title');document.title=p?p+' · '+config.tripName:config.tripName;});document.querySelectorAll('[data-brand-text]').forEach(el=>{const k=el.getAttribute('data-brand-text'),v=config[k];if(v==null)return;if(k==='splashSlogan')el.innerHTML=String(v).replace(/\n/g,'<br>');else el.textContent=v;});document.querySelectorAll('[data-brand-logo]').forEach(img=>{const k=img.getAttribute('data-brand-logo');if(config.logo[k])img.src=config.logo[k];});document.querySelectorAll('[data-trip-icon]').forEach(link=>{const k=link.getAttribute('data-trip-icon');if(config.logo[k])link.href=config.logo[k];});document.querySelectorAll('[data-trip-apple-title]').forEach(meta=>meta.content=config.destination);document.querySelectorAll('[data-trip-theme-color]').forEach(meta=>meta.content=config.theme.primary);document.querySelectorAll('[data-trip-currency-placeholder]').forEach(input=>input.placeholder='Total '+root.LOCALE_CONFIG.currency.code);document.querySelectorAll('[data-locale-currency-placeholder]').forEach(input=>input.placeholder='0.00 '+root.LOCALE_CONFIG.currency.code);}
+root.applyTripIdentity=applyTripIdentity;if(typeof document!=='undefined'){if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',applyTripIdentity);else applyTripIdentity();}
 })(globalThis);

@@ -1,0 +1,12 @@
+const fs=require('fs'),assert=require('assert');
+const reset=fs.readFileSync('reset-runtime.js','utf8'),admin=fs.readFileSync('admin.js','utf8'),docs=fs.readFileSync('documents-runtime.js','utf8');
+['itineraryOverrides','bookingOverrides','checklist','changedPlans','adminDraft','tripCompletion','guideNavContext'].forEach(k=>assert(!reset.includes('STORAGE_CONFIG.keys.'+k),`reset must preserve ${k}`));
+assert(reset.includes('TRIP_DOCUMENTS.resetAll'),'reset must clear Documents');
+assert(reset.includes('MOMENT_SYNC.resetCloudPhotos'),'reset must clear Moment photos');
+assert(reset.includes('EXPENSE_SYNC.clearLocal'),'reset must clear Expenses');
+assert(admin.includes('Clear Trip Records'),'Studio label must describe narrow scope');
+assert(admin.includes('Delete Documents, Moments and Expenses only'),'Studio help must describe exact scope');
+assert(docs.includes('async function resetAll()'),'Documents runtime must own cloud/file reset');
+assert(docs.includes("c.from(table).delete().eq('trip_id',cfg.tripId)"),'Documents reset must delete cloud rows');
+assert(docs.includes("c.storage.from(bucket).remove(paths)"),'Documents reset must delete uploaded files');
+console.log('RC29.82 CLEAR TRIP RECORDS SCOPE: PASS');

@@ -1,0 +1,18 @@
+const fs=require('fs'),assert=require('assert');
+const trip=fs.readFileSync('trip-runtime.js','utf8');
+const docs=fs.readFileSync('documents.js','utf8');
+const exp=fs.readFileSync('expenses.js','utf8');
+const guide=fs.readFileSync('guide-runtime.js','utf8');
+const script=fs.readFileSync('script.js','utf8');
+assert(script.includes('dismissAllContentOverlays'),'Global popup-chain dismissal primitive missing');
+assert(script.includes('bringContentOverlayToFront'),'Newest-popup foreground primitive missing');
+assert(trip.includes('function navigateOutOfBooking(target)'),'Popup → Page lifecycle helper missing');
+assert(trip.includes("if(typeof window.dismissAllContentOverlays==='function')window.dismissAllContentOverlays()"),'Popup → Page must dismiss all popups first');
+assert(trip.includes('expenses.html?expenseId=${encodeURIComponent(newest.id)}'),'Booking → existing Expense must deep-link to transaction');
+assert(!trip.includes('expenses.html?expenseId=${encodeURIComponent(newest.id)}&returnTo='),'Expense page must become the new anchor; no popup return history');
+assert(!trip.includes('documents.html?document=${encodeURIComponent(d.id)}&bookingId=${encodeURIComponent(booking.id)}&returnTo='),'Documents page must become the new anchor; no popup return history');
+assert(docs.includes('returnToBookingDetail(d.linkId)'),'Document → Booking must open in-page');
+assert(!docs.includes("if(origin==='viewer') closeDocumentViewer()"),'Document Viewer → Booking must overlay instead of closing the viewer first');
+assert(exp.includes('returnToBookingDetail(bookingId)'),'Expense PAGE → Booking must open in-page');
+assert(guide.includes('openGenericBookingDetail(bookingId,booking)')||guide.includes('openActivityBookingDetail(bookingId,booking)'),'Guide → Booking must open in-page');
+console.log('cross-link page-anchor / popup-overlay contract: PASS');

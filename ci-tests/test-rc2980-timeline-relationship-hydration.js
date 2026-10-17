@@ -1,0 +1,12 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert');
+const source=fs.readFileSync('itinerary-authority.js','utf8');
+const disk={};
+const context={console,globalThis:null,MASTER_ITINERARY_REVISION:'rev-current',STORAGE_CONFIG:{keys:{itineraryOverrides:'it',adminDraft:'draft'}},STORAGE:{local:{readJSON:(k,d)=>Object.prototype.hasOwnProperty.call(disk,k)?JSON.parse(JSON.stringify(disk[k])):d,writeJSON:(k,v)=>{disk[k]=JSON.parse(JSON.stringify(v));}}},getAdminDraft:()=>null};
+context.globalThis=context;vm.createContext(context);vm.runInContext(source,context);
+const master=[{id:'pizza4ps',title:'new title',placeId:'pizza4ps',bookingId:'bk-pizza4ps',guideIds:['pizza4ps'],currencyGuide:true},{id:'custom',title:'Master custom'}];
+disk.it={masterRevision:'rev-current',dayChanges:{'2':{items:[{id:'pizza4ps',title:'User edited title',details:['keep me']},{id:'custom',title:'User custom'}]}}};
+const out=context.ITINERARY_AUTHORITY.resolveDayItems('2',master);
+assert.equal(out[0].title,'User edited title');assert.deepEqual(out[0].details,['keep me']);
+assert.equal(out[0].placeId,'pizza4ps');assert.equal(out[0].bookingId,'bk-pizza4ps');assert.deepEqual(Array.from(out[0].guideIds),['pizza4ps']);assert.equal(out[0].currencyGuide,true);
+assert.equal(out[1].title,'User custom');assert.equal(out[1].placeId,undefined);
+console.log('RC29.80 TIMELINE RELATIONSHIP HYDRATION: PASS');

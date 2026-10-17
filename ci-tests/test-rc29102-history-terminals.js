@@ -1,0 +1,15 @@
+const fs=require('fs');
+const data=fs.readFileSync('data.js','utf8'), exp=fs.readFileSync('expenses.js','utf8'), mom=fs.readFileSync('moments.js','utf8'), html=fs.readFileSync('expenses.html','utf8'), css=fs.readFileSync('styles.css','utf8');
+const a=[];const ok=(v,m)=>{if(!v)a.push(m)};
+ok(data.includes('MEL T2 01:30 → SGN T2 05:55'),'outbound terminals missing');
+ok(data.includes('SGN T2 21:10 → MEL T2 09:25 +1'),'return terminals missing');
+ok(data.includes('抵達 SGN Terminal 2'),'Day 1 SGN terminal missing');
+ok(data.includes('Tan+Son+Nhat+International+Airport+Terminal+2') && data.includes('Leave for Airport'),'Day 5 SGN terminal missing');
+ok(!html.includes('settlement-checkpoint-action'),'Settle must leave top action row');
+ok(exp.includes('expense-total-settle'),'Settle must be in Trip Total card');
+ok(exp.includes('sorted.slice(0,5)')&&exp.includes("expenseHistoryExpanded?'Show less':'Show more'"),'Expense history 5/show-more contract missing');
+ok(mom.includes('let momentsVisibleCount=5')&&mom.includes('Show more')&&mom.includes('Show less'),'Moment history 5/show-more contract missing');
+ok(exp.includes('historyNameFor(k)'),'Transaction history must use plain participant names');
+ok(exp.includes('✏️ Edit')&&exp.includes('🗑 Delete'),'Edit/Delete emoji must remain');
+ok(css.includes('.expense-total-settle{position:absolute'),'Trip Total Settle placement CSS missing');
+if(a.length){console.error(a.join('\n'));process.exit(1)}console.log('RC29.102 history + terminals PASS');

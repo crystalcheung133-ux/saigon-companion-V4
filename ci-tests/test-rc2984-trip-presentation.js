@@ -1,0 +1,14 @@
+const fs=require('fs'),assert=require('assert');
+const data=fs.readFileSync('data.js','utf8');
+const trip=fs.readFileSync('trip-runtime.js','utf8');
+const docs=fs.readFileSync('documents.html','utf8');
+assert(data.includes('Cu Chi Tunnels Half Day Tour'), 'Cu Chi canonical title missing');
+assert(!data.includes('Cu Chi Tunnels Half Day Tour with City Tour & Late Departure Option'), 'Unpurchased City Tour option must not appear in canonical booking title');
+assert(trip.includes("if(!direct.length){closeMiniMenus();return;}"), 'Empty booking categories must fail closed instead of rendering an empty category');
+assert(trip.includes("direct.length===1"), 'Single-entry booking category must direct-open its booking detail');
+assert(trip.includes("stays.length===1?`openAccommodationDetail"), 'Single Stay must direct-open accommodation booking detail');
+assert(trip.includes("&&getActivityBookings().length)push"), 'Empty Activities module must not render');
+assert(trip.includes("&&getTransportBookings().length)push"), 'Empty Transport module must not render');
+assert(!docs.includes("openGuideCategory('ACTIVITIES')"), 'Documents shell must not expose stale/empty Guide Activities category');
+assert(docs.includes("openGuideCategory('SHOP')")&&docs.includes("openGuideCategory('WELLNESS')"), 'Documents Guide menu must match current VN Guide categories');
+console.log('RC29.84 TRIP PRESENTATION: PASS');

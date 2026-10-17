@@ -1,12 +1,2 @@
-/* asset-config.js - canonical CCMV asset ownership. */
-(function(root){
-  'use strict';
-  root.ASSET_CONFIG=Object.freeze({
-    branding:Object.freeze({
-      splashLogo:'ccmv-logo-calibrated.png',
-      watermark:'logo-watermark-monogram.png',
-      headerMark:'logo-monogram-transparent.png'
-    }),
-    icons:Object.freeze({icon192:'icon-192.png',icon512:'icon-512.png'})
-  });
-})(globalThis);
+/* Saigon RC1 assets */
+(function(root){'use strict';root.ASSET_CONFIG=Object.freeze({branding:Object.freeze({primaryLogo:'ccmv-logo-calibrated.png',secondaryMark:'ccmv-logo-calibrated.png',splashLogo:'ccmv-logo-calibrated.png',splashMark:'logo-monogram-transparent.png'}),hero:Object.freeze({coverImage:null,heroImage:null,heroOverlay:null}),icons:Object.freeze({favicon:'icon-192.png',appIcon:'icon-192.png',appleIcon:'icon-192.png',icon192:'icon-192.png',icon512:'icon-512.png'}),splash:Object.freeze({background:null,assets:Object.freeze(['ccmv-logo-calibrated.png'])})});})(globalThis);

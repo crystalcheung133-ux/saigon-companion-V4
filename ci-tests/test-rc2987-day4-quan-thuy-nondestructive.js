@@ -1,0 +1,13 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert');
+const ctx={console};ctx.globalThis=ctx;vm.runInNewContext(fs.readFileSync('data.js','utf8'),ctx);
+const days=ctx.TRAVEL_DATASETS.ITINERARY_DATA;
+const d4=Array.from(days['4'].items,x=>x.id);
+const d5=Array.from(days['5'].items,x=>x.id);
+assert.deepStrictEqual(d4.slice(0,3),['quan-thuy','pink-church','thao-dien-open-list']);
+assert(d4.includes('quince-d4')&&!d4.includes('push-push')&&!d4.includes('running-bean'));
+assert(d5.includes('running-bean')&&!d5.includes('pho-vietnam'));
+assert(days['4'].items.find(x=>x.id==='pink-church').guideIds.includes('cong'));
+assert(days['5'].items.find(x=>x.id==='running-bean').guideIds.includes('running-bean'));
+assert(days['4'].items.find(x=>x.id==='thao-dien-open-list').details.some(x=>x.includes('In The Mood')));
+assert(days['4'].items.find(x=>x.id==='quince-d4').bookingId==='bk-quince');
+console.log('Day 4/5 breakfast, cafe and guide contract PASS');

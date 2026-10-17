@@ -1,181 +1,306 @@
-/* export-runtime.js — VN 3.0 Production Export Centre. */
-(function(root){
+/* Travel Engine v1.0 — RC5.0 Native Share & Preparation Checklist. */
+(function(){
   'use strict';
-  function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-  function isAllowed(){return !!(root.VN_ADMIN&&root.VN_ADMIN.isCrystal?.()&&root.VN_ADMIN.readMode?.());}
-  function tripName(){return root.TRIP_CONFIG?.tripName||root.TRIP_CONFIG?.name||'Saigon Companion';}
-  function partyLabel(k){const map=root.TRIP_CONFIG?.participants?.labels||root.TRIP_CONFIG?.parties||{};const p=map[k];return typeof p==='string'?p:(p?.label||p?.name||({christal:'Christal',crystal:'Crystal',mero:'Mero',vivian:'Vivian'}[k]||k));}
-  function sourceItinerary(){return root.VN_PRESENTATION?.itineraryData||(typeof root.ITINERARY_DATA!=='undefined'&&root.ITINERARY_DATA)||{};}
-  function sortedDays(){const source=sourceItinerary();return Object.keys(source).sort((a,b)=>Number(a)-Number(b)).map(k=>[k,source[k]||{}]);}
+  const ADMIN_CONFIG=(window.TRIP_CONFIG&&TRIP_CONFIG.admin)||null;
+  if(!ADMIN_CONFIG||!ADMIN_CONFIG.user){
+    throw new Error('Export Centre requires TRIP_CONFIG.admin.user.');
+  }
+  const ADMIN_USER=ADMIN_CONFIG.user;
+  const CHANGED_PLAN_KEY=(window.STORAGE_CONFIG&&STORAGE_CONFIG.keys.changedPlans)||'travel_engine_changed_plans_v1';
+  function isExportAdmin(){return typeof getFriend==='function'&&getFriend()===ADMIN_USER&&typeof window.isAdminMode==='function'&&window.isAdminMode();}
+  function escapeHtml(value){return String(value==null?'':value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
+  function readObject(key){const value=window.STORAGE?STORAGE.local.readJSON(key,{}):{};return value&&typeof value==='object'?value:{};}
+  /* RC15: resolved through the single canonical authority (validated saved
+     override, or master) rather than reading the raw override key. */
+  function currentItems(dayNo,day){
+    const authority=window.ITINERARY_AUTHORITY;
+    const saved=authority&&typeof authority.getDayOverrideItems==='function'?authority.getDayOverrideItems(dayNo):null;
+    return Array.isArray(saved)?saved:(day.items||[]);
+  }
+  function returnToTripStudio(){
+    closeTripExportCenter();
+    if(typeof window.openTripStudioPanel==='function') window.openTripStudioPanel();
+    else if(typeof window.openFriendModal==='function') window.openFriendModal();
+  }
+  window.returnToTripStudio=returnToTripStudio;
+
+  function buildControl(){
+    const host=document.getElementById('tripStudioExports') || document.querySelector('#mamaModal .guide-sheet');
+    if(!host||document.getElementById('tripExportControl'))return;
+    const section=document.createElement('section');section.id='tripExportControl';section.className='trip-export-control';
+    section.innerHTML='<button class="trip-export-launch" type="button" onclick="openTripExportCenter()"><span><strong>Open Export Centre</strong><small>Itinerary and expenses are available anytime.</small></span><span aria-hidden="true">›</span></button>';
+    host.appendChild(section);
+  }
+  function buildModal(){
+    if(document.getElementById('tripExportModal'))return;
+    const modal=document.createElement('div');modal.id='tripExportModal';modal.className='trip-export-modal';modal.setAttribute('aria-hidden','true');
+    modal.innerHTML=`<div class="trip-export-sheet" role="dialog" aria-modal="true" aria-labelledby="tripExportTitle"><button class="trip-export-close" type="button" onclick="returnToTripStudio()" aria-label="Close">×</button><p class="kicker">TRIP OUTPUTS</p><h2 id="tripExportTitle">Export Trip</h2><p class="lead">Share through the iPhone or Android share sheet, or create a printable copy.</p><div class="trip-export-list"><section class="trip-export-group" aria-labelledby="tripExportItineraryTitle"><div class="trip-export-group-head"><span class="trip-export-icon">🗓️</span><span><strong id="tripExportItineraryTitle">Itinerary</strong><small>Schedule, addresses and notes.</small></span></div><div class="trip-export-group-actions"><button type="button" onclick="shareItineraryNative()"><span aria-hidden="true">📤</span><strong>Share</strong></button><button type="button" onclick="exportFinalItinerary()"><span aria-hidden="true">📄</span><strong>Printable</strong></button></div></section><section class="trip-export-group" aria-labelledby="tripExportExpensesTitle"><div class="trip-export-group-head"><span class="trip-export-icon">🧾</span><span><strong id="tripExportExpensesTitle">Expenses</strong><small>One expense summary for transactions, party totals and settlements.</small></span></div><div class="trip-export-group-actions"><button type="button" onclick="openExpenseSummaryFromExport()"><span aria-hidden="true">📤</span><strong>Open Summary</strong></button></div></section><button type="button" class="coming-soon" disabled><span class="trip-export-icon">📖</span><span><strong>Memory Book</strong><small>Coming Soon</small></span></button></div></div>`;
+    modal.addEventListener('click',event=>{if(event.target===modal)returnToTripStudio();});document.body.appendChild(modal);
+  }
+  function render(){buildControl();buildModal();const control=document.getElementById('tripExportControl');if(control)control.hidden=!isExportAdmin();if(!isExportAdmin())closeTripExportCenter();}
+  window.openTripExportCenter=function(){if(!isExportAdmin())return alert('Enter Admin Mode to export the trip.');if(typeof closeFriendModal==='function')closeFriendModal();buildModal();CCMV_MODAL.setOpen('tripExportModal',true,{openClass:'open'});};
+  window.closeTripExportCenter=function(){CCMV_MODAL.setOpen('tripExportModal',false,{openClass:'open'});};
+  window.openExpenseSummaryFromExport=function(){if(!isExportAdmin())return alert('Enter Admin Mode to export the trip.');closeTripExportCenter();if(typeof window.openExpenseShareSummary==='function')window.openExpenseShareSummary();else alert('Expense summary is not available on this page.');};
+  window.exportExpenseSummary=function(){if(!isExportAdmin())return alert('Enter Admin Mode to export the trip.');if(typeof window.exportExpenseData!=='function')return alert('Expense export is not available on this page.');window.exportExpenseData();returnToTripStudio();};
+
   function itineraryShareText(){
+    const source=GenerationSelectionAdapter.view('export').itinerary;
+    const days=Object.keys(source).sort((a,b)=>Number(a)-Number(b));
+    const changedPlans=readObject(CHANGED_PLAN_KEY);
     const lines=[];
-    sortedDays().forEach(([dayNo,day])=>{
-      lines.push(`${day.kicker||`Day ${dayNo}`} — ${day.heading||day.title||''}`.trim());
+    days.forEach(dayNo=>{
+      const day=source[dayNo]||{};
+      lines.push(`${day.kicker||`Day ${dayNo}`} — ${day.heading||day.title||''}`);
       const drive=day.drive||{};
       if(drive.route) lines.push(`Drive: ${drive.route}${drive.distance?` · ${drive.distance}`:''}${drive.drivingTime?` · ${drive.drivingTime}`:''}`);
-      (day.items||[]).forEach(item=>{
+      currentItems(dayNo,day).forEach(item=>{
         lines.push(`${item.time?item.time+' ':''}${item.title||''}`.trim());
         (Array.isArray(item.details)?item.details:[]).forEach(detail=>lines.push(`  ${detail}`));
+        const changed=changedPlans[String(item.id||'')];
+        if(changed&&changed.instead) lines.push(`  Changed plan: ${changed.instead}`);
       });
       lines.push('');
     });
     return lines.join('\n').trim();
   }
-  function close(){const m=document.getElementById('vnExportCentreModal');if(!m)return;m.classList.remove('show');m.setAttribute('aria-hidden','true');document.body.classList.remove('vn-export-open');}
-  function build(){
-    if(document.getElementById('vnExportCentreModal'))return;
-    const m=document.createElement('div');m.id='vnExportCentreModal';m.className='vn-export-centre-modal';m.setAttribute('aria-hidden','true');
-    m.innerHTML=`<section class="vn-export-centre-sheet" role="dialog" aria-modal="true" aria-labelledby="vnExportCentreTitle">
-      <button type="button" class="vn-export-close" aria-label="Close Export Centre">×</button>
-      <div class="vn-export-centre-head"><p class="vn-export-kicker">TRIP OUTPUTS</p><h2 id="vnExportCentreTitle">Export Trip</h2><p>Share through the iPhone or Android share sheet, or create a printable copy.</p></div>
-      <div class="vn-export-list">
-        <section class="vn-export-group" aria-labelledby="vnExportItineraryTitle">
-          <div class="vn-export-group-head"><span class="vn-export-icon">🗓️</span><span><strong id="vnExportItineraryTitle">Itinerary</strong><small>Trip schedule, addresses and notes.</small></span></div>
-          <div class="vn-export-group-actions">
-            <button type="button" id="vnShareItinerary"><span aria-hidden="true">📤</span><strong>Share</strong></button>
-            <button type="button" id="vnExportItinerary"><span aria-hidden="true">📄</span><strong>Printable</strong></button>
-          </div>
-        </section>
-        <section class="vn-export-group" aria-labelledby="vnExportExpensesTitle">
-          <div class="vn-export-group-head"><span class="vn-export-icon">🧾</span><span><strong id="vnExportExpensesTitle">Expenses</strong><small>Transactions, party totals and settlements.</small></span></div>
-          <div class="vn-export-group-actions">
-            <button type="button" id="vnShareExpenses"><span aria-hidden="true">📤</span><strong>Share</strong></button>
-            <button type="button" id="vnExportExpenses"><span aria-hidden="true">📄</span><strong>Printable</strong></button>
-          </div>
-        </section>
-        <button type="button" id="vnExportMemory" class="is-coming-soon" disabled><span class="vn-export-icon">📖</span><span><strong>Memory Book</strong><small>Coming Soon</small></span><em>SOON</em></button>
-        <button type="button" id="vnExportReview" class="is-coming-soon" disabled><span class="vn-export-icon">⭐</span><span><strong>Trip Review</strong><small>Coming Soon</small></span><em>SOON</em></button>
-      </div>
-    </section>`;
-    m.addEventListener('click',e=>{if(e.target===m)close();});
-    m.querySelector('.vn-export-close').addEventListener('click',close);
-    m.querySelector('#vnShareItinerary').addEventListener('click',shareItinerary);
-    m.querySelector('#vnExportItinerary').addEventListener('click',exportItinerary);
-    m.querySelector('#vnShareExpenses').addEventListener('click',shareExpenses);
-    m.querySelector('#vnExportExpenses').addEventListener('click',exportExpenses);
-    document.body.appendChild(m);
-  }
-
-  function syncPostTripOutputs(){
-    ['vnExportMemory','vnExportReview'].forEach(id=>{
-      const button=document.getElementById(id);
-      if(button){button.disabled=true;button.classList.add('is-coming-soon');}
-    });
-  }
-
-  function open(){if(!isAllowed())return;build();syncPostTripOutputs();const m=document.getElementById('vnExportCentreModal');m.classList.add('show');m.setAttribute('aria-hidden','false');document.body.classList.add('vn-export-open');}
-  async function shareItinerary(){
-    if(!isAllowed())return;
-    const title=tripName();const text=itineraryShareText();if(!text)return alert('No itinerary data is available.');
+  window.shareItineraryNative=async function(){
+    if(!isExportAdmin())return alert('Enter Admin Mode to share the trip.');
+    const title=(window.TRIP_CONFIG&&TRIP_CONFIG.tripName)||'Trip Itinerary';
+    const text=itineraryShareText();
+    if(!text)return alert('No itinerary data is available.');
     try{
       if(navigator.share){
         const filename=String(title).replace(/[^a-z0-9]+/gi,'_').replace(/^_+|_+$/g,'')+'_Itinerary.txt';
         const file=new File([text],filename,{type:'text/plain'});
-        if(navigator.canShare?.({files:[file]})) await navigator.share({title,text:`${title} itinerary`,files:[file]});
+        if(navigator.canShare&&navigator.canShare({files:[file]})) await navigator.share({title,text:`${title} itinerary`,files:[file]});
         else await navigator.share({title,text});
+        returnToTripStudio();
         return;
       }
-      if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(text);alert('Itinerary copied. Paste it into WhatsApp, Mail or Messages.');return;}
-      const area=document.createElement('textarea');area.value=text;area.setAttribute('readonly','');area.style.position='fixed';area.style.opacity='0';document.body.appendChild(area);area.select();document.execCommand('copy');area.remove();alert('Itinerary copied. Paste it into WhatsApp, Mail or Messages.');
-    }catch(error){if(error?.name!=='AbortError')alert('Sharing is not available right now. Use Printable Itinerary instead.');}
-  }
-  function popupDoc(title,body){
-    const w=root.open('','_blank');if(!w){alert('Please allow pop-ups to create the PDF.');return null;}
-    w.document.write(`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title><style>@page{size:A4;margin:12mm}*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#24342c;background:#fff}.toolbar{position:sticky;top:0;z-index:5;display:flex;gap:10px;justify-content:center;padding:10px;background:#eef2ee;border-bottom:1px solid #d8dfda}.toolbar button{border:1px solid #bcc9c1;border-radius:999px;background:#fff;padding:9px 14px;font:600 14px inherit;color:#24342c}.toolbar .primary{background:#285844;color:#fff;border-color:#285844}main{max-width:820px;margin:auto;padding:18px}.cover{padding:6px 0 15px;border-bottom:2px solid #285844}.cover p,.section-kicker{margin:0 0 4px;font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:#68756f}.cover h1{margin:0;font-size:27px}.cover small{display:block;margin-top:6px;color:#68756f}.day{padding:18px 0 4px;break-before:page}.day:first-of-type{break-before:auto}.day h2{margin:0 0 10px;font-size:21px}.item{display:grid;grid-template-columns:72px 1fr;gap:10px;padding:8px 0;border-bottom:1px solid #e4e9e5;break-inside:avoid}.time{font-weight:750;color:#55705f;font-size:12px}.item h3{margin:0 0 3px;font-size:14px}.item p{margin:2px 0;font-size:11px;line-height:1.35}.report-section{margin-top:20px;break-inside:avoid}.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.summary-grid>div{padding:12px;border:1px solid #dfe7e1;border-radius:12px}.summary-grid span{display:block;font-size:10px;color:#68756f}.summary-grid strong{display:block;margin-top:4px;font-size:16px}.settlement-list{margin:8px 0 0;padding-left:20px}.settlement-list li{margin:5px 0;font-size:12px}.transaction-list{display:grid;gap:10px}.expense-transaction{padding:12px;border:1px solid #dfe7e1;border-radius:13px;break-inside:avoid}.transaction-head{display:flex;justify-content:space-between;gap:12px}.transaction-head div{display:flex;gap:8px;color:#68756f;font-size:10px}.transaction-head strong{font-size:14px}.expense-transaction h3{margin:6px 0;font-size:14px}.transaction-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 12px;font-size:11px;line-height:1.35}.allocations{grid-column:1/-1;margin:2px 0 0;padding-left:17px}.report-total{display:flex;justify-content:space-between;align-items:center;padding:14px;border:2px solid #285844;border-radius:13px}.report-total strong{font-size:19px}.party-table{width:100%;border-collapse:collapse;font-size:11px}.party-table th,.party-table td{text-align:left;padding:8px;border-bottom:1px solid #dfe7e1}.party-table th{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#68756f}@media(max-width:600px){.summary-grid{grid-template-columns:1fr}.transaction-meta{grid-template-columns:1fr}}@media print{.toolbar{display:none}main{padding:0}}</style></head><body><div class="toolbar"><button onclick="window.close()">← Back to Export Centre</button><button class="primary" onclick="window.print()">Save as PDF</button></div><main>${body}</main></body></html>`);w.document.close();return w;
-  }
-  function exportItinerary(){
-    if(!isAllowed())return;const days=sortedDays();if(!days.length)return alert('No itinerary data is available.');const title=tripName();
-    const html=days.map(([k,d])=>{const items=(d.items||[]).map(i=>`<article class="item"><div class="time">${esc(i.time||'')}</div><div><h3>${esc(i.title||'')}</h3>${(i.details||[]).map(x=>`<p>${esc(x)}</p>`).join('')}</div></article>`).join('');return `<section class="day"><p class="section-kicker">${esc(d.kicker||`Day ${k}`)}</p><h2>${esc(d.heading||d.title||'')}</h2>${items}</section>`;}).join('');
-    popupDoc(`${title} — Itinerary`,`<div class="cover"><p>CCMV VIETNAM COMPANION</p><h1>${esc(title)}</h1><small>Itinerary · Generated ${esc(new Date().toLocaleDateString())}</small></div>${html}`);
-  }
-  function readExpenses(){try{return JSON.parse(localStorage.getItem(root.STORAGE_CONFIG?.keys?.expenses||'ccmv_vietnam_expenses')||'[]')||[];}catch(_){return [];}}
-  function expenseSummary(){
-    const arr=readExpenses();const order=root.TRIP_CONFIG?.participants?.order||['christal','crystal','mero','vivian'];const spend=Object.fromEntries(order.map(k=>[k,0]));const balance=Object.fromEntries(order.map(k=>[k,0]));let total=0;
-    arr.forEach(e=>{const amount=Number(e.total||0);total+=amount;balance[e.paidBy]=(balance[e.paidBy]||0)+amount;if(e.type==='personal'){const who=e.consumedBy||(e.split||[])[0]||e.paidBy;spend[who]=(spend[who]||0)+amount;balance[who]=(balance[who]||0)-amount;}else{const split=(e.split&&e.split.length)?e.split:[e.paidBy];split.forEach(k=>{const share=e.splitMode==='custom'&&e.shares?Number(e.shares[k]||0):amount/split.length;spend[k]=(spend[k]||0)+share;balance[k]=(balance[k]||0)-share;});}});return {arr,order,spend,balance,total};
-  }
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        await navigator.clipboard.writeText(text);
+        alert('Itinerary copied. Paste it into WhatsApp, Mail or Messages.');
+        returnToTripStudio();
+        return;
+      }
+      const area=document.createElement('textarea');area.value=text;area.setAttribute('readonly','');area.style.position='fixed';area.style.opacity='0';document.body.appendChild(area);area.select();document.execCommand('copy');area.remove();alert('Itinerary copied. Paste it into WhatsApp, Mail or Messages.');returnToTripStudio();
+    }catch(error){
+      if(error&&error.name==='AbortError')return;
+      alert('Sharing is not available right now. Use Printable Itinerary instead.');
+    }
+  };
 
-  function money(value){return `${Math.round(Number(value||0)).toLocaleString()} VND`;}
-  function expenseDateParts(value){
-    if(!value)return {date:'—',time:'—'};
-    const d=new Date(value);if(Number.isNaN(d.getTime()))return {date:String(value),time:'—'};
-    return {date:d.toLocaleDateString(),time:d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})};
+  window.exportFinalItinerary=function(){
+    if(!isExportAdmin())return alert('Enter Admin Mode to export the trip.');
+    const source=GenerationSelectionAdapter.view('export').itinerary;const days=Object.keys(source).sort((a,b)=>Number(a)-Number(b));if(!days.length)return alert('No itinerary data is available.');
+    const changedPlans=readObject(CHANGED_PLAN_KEY);const title=(window.TRIP_CONFIG&&TRIP_CONFIG.tripName)||'Trip Itinerary';
+    const dayHtml=days.map(dayNo=>{const day=source[dayNo],drive=day.drive||{};const items=currentItems(dayNo,day).map(item=>{const changed=changedPlans[String(item.id||'')];const details=Array.isArray(item.details)?item.details:[];const changeHtml=changed?`<div class="change"><strong>Changed plan</strong>${changed.reason?`<p><b>Why:</b> ${escapeHtml(changed.reason)}</p>`:''}${changed.instead?`<p><b>Went instead:</b> ${escapeHtml(changed.instead)}</p>`:''}</div>`:'';return `<article><div class="time">${escapeHtml(item.time||'')}</div><div><h3>${escapeHtml(item.title||'')}</h3>${details.map(detail=>`<p>${escapeHtml(detail)}</p>`).join('')}${changeHtml}</div></article>`;}).join('');return `<section class="day"><header><p>${escapeHtml(day.kicker||`Day ${dayNo}`)}</p><h2>${escapeHtml(day.heading||day.title||'')}</h2></header>${drive.route?`<div class="drive"><strong>Today’s Drive</strong><span>${escapeHtml(drive.route)}</span>${drive.distance?`<small>${escapeHtml(drive.distance)}${drive.drivingTime?' · '+escapeHtml(drive.drivingTime):''}</small>`:''}</div>`:''}${items}</section>`;}).join('');
+    const popup=window.open('','_blank');if(!popup)return alert('Please allow pop-ups to open the itinerary.');
+    popup.document.write(`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(title)} — Shareable Itinerary</title><style>@page{size:A4;margin:11mm}*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#24342c;background:#fff}.toolbar{position:sticky;top:0;z-index:5;display:flex;gap:10px;justify-content:center;padding:10px;background:#eef2ee;border-bottom:1px solid #d8dfda}.toolbar button{border:1px solid #bcc9c1;border-radius:999px;background:#fff;padding:9px 14px;font:600 14px inherit;color:#24342c}.toolbar .primary{background:#24342c;color:#fff;border-color:#24342c}main{max-width:820px;margin:auto;padding:0 18px 24px}.cover{padding:20px 0 15px;border-bottom:2px solid #24342c}.cover p,.day header p{margin:0 0 4px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#68756f}.cover h1{margin:0;font-size:27px}.cover small{display:block;margin-top:5px;color:#68756f;font-size:11px}.day{padding:17px 0 5px;break-before:page}.day:first-of-type{break-before:auto}.day header{margin-bottom:9px}.day h2{margin:0;font-size:21px}.drive{display:grid;gap:2px;padding:8px 10px;margin-bottom:6px;border-left:3px solid #789181;background:#f5f7f4;font-size:12px}.drive small{color:#68756f}article{display:grid;grid-template-columns:66px 1fr;gap:10px;padding:7px 0;border-bottom:1px solid #e4e9e5;break-inside:avoid}.time{font-weight:700;color:#55705f;font-size:12px;padding-top:1px}article h3{margin:0 0 2px;font-size:14px}article p{margin:1px 0;line-height:1.28;font-size:11px}.change{margin-top:5px;padding:5px 7px;border-left:3px solid #c47a34;background:#fff7ed}.change strong{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#8b4c18}.change p{font-size:11px}@media print{.toolbar{display:none}main{padding:0}.day{padding-top:12px}}</style></head><body><div class="toolbar"><button type="button" onclick="goBack()">← Back to Companion</button><button class="primary" type="button" onclick="window.print()">Save as PDF</button></div><main><div class="cover"><p>TRAVEL ENGINE</p><h1>${escapeHtml(title)}</h1><small>Shareable Itinerary · Generated ${escapeHtml(new Date().toLocaleDateString())}</small></div>${dayHtml}</main><script>function goBack(){if(window.opener&&!window.opener.closed){window.opener.focus();window.close();setTimeout(()=>{if(!window.closed)history.back()},120)}else{history.back()}}<\/script></body></html>`);popup.document.close();returnToTripStudio();
+  };
+  document.addEventListener('DOMContentLoaded',render);document.addEventListener('travelengine:adminmodechange',render);document.addEventListener('travelengine:friendchange',render);
+
+  /* Expenses Share Summary - checkpoint-aware.
+     Lifetime spending always includes every real expense.
+     Current settlement includes only expenses after the latest Settle to here checkpoint.
+     Final Settlement is therefore never allowed to resurrect already-settled history. */
+  function expenseParticipantOrder(){return (window.TRIP_CONFIG&&TRIP_CONFIG.participants&&TRIP_CONFIG.participants.order)||Object.keys((window.TRIP_CONFIG&&TRIP_CONFIG.participants&&TRIP_CONFIG.participants.identities)||{});}
+  function expenseIdentity(k){const identities=(window.TRIP_CONFIG&&TRIP_CONFIG.participants&&TRIP_CONFIG.participants.identities)||{};return identities[k]||null;}
+  function expenseLabelFor(k){const id=expenseIdentity(k);return id?`${id.code} · ${id.name}`:(k||'');}
+  function expenseNameFor(k){const id=expenseIdentity(k);return id?id.name:(k||'');}
+  function readExpensesRaw(){try{return (window.STORAGE&&window.STORAGE_CONFIG)?STORAGE.local.readJSON(STORAGE_CONFIG.keys.expenses,[]):[];}catch(error){return [];}}
+  function isExpenseCheckpoint(e){return e&&e.type==='settlement_checkpoint';}
+  function realExpenses(records){return (records||[]).filter(e=>e&&!isExpenseCheckpoint(e));}
+  function latestExpenseCheckpoint(records){return (records||[]).filter(isExpenseCheckpoint).sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||'')))[0]||null;}
+  function expenseCurrency(e){return String(e.currency||(window.MONEY&&MONEY.getTripCurrency&&MONEY.getTripCurrency().code)||'').toUpperCase();}
+  function homeCurrency(){return String((window.MONEY&&MONEY.getHomeCurrency&&MONEY.getHomeCurrency())||'AUD').toUpperCase();}
+  function homeAmount(e){
+    if(Number.isFinite(Number(e.homeTotal)))return Number(e.homeTotal);
+    const total=Number(e.total||0),code=expenseCurrency(e),home=homeCurrency();
+    if(code===home)return total;
+    if(Number(e.fxRate)>0)return total*Number(e.fxRate);
+    try{const rate=MONEY.readCachedRate()?.rate;if(rate>0)return MONEY.convert(total,rate);}catch(_){}
+    return 0;
   }
-  function settlementsFromBalance(summary){
+  function expensePayerContributions(e){
+    if(e&&e.payerContributions&&typeof e.payerContributions==='object'&&Object.keys(e.payerContributions).length)return e.payerContributions;
+    return e&&e.paidBy?{[e.paidBy]:Number(e.total||0)}:{};
+  }
+  function expensePayerLabel(e){return Object.keys(expensePayerContributions(e)).map(expenseNameFor).join(' + ');}
+  function originalShares(e){
+    const total=Number(e.total||0);
+    if(e.type==='personal'){const who=e.consumedBy||((e.split||[])[0])||e.paidBy;return {[who]:total};}
+    const split=(e.split&&e.split.length)?e.split:[e.paidBy];
+    if(e.splitMode==='custom'&&e.shares){const out={};split.forEach(k=>out[k]=Number(e.shares[k]||0));return out;}
+    const each=split.length?total/split.length:0;return Object.fromEntries(split.map(k=>[k,each]));
+  }
+  function homeShares(e){
+    const raw=originalShares(e),total=Number(e.total||0),home=homeAmount(e);
+    if(!total)return Object.fromEntries(Object.keys(raw).map(k=>[k,0]));
+    return Object.fromEntries(Object.entries(raw).map(([k,v])=>[k,home*(Number(v||0)/total)]));
+  }
+  function expenseSummary(records){
+    const order=expenseParticipantOrder(),arr=realExpenses(records);
+    const paid=Object.fromEntries(order.map(k=>[k,0])),spend=Object.fromEntries(order.map(k=>[k,0])),balance=Object.fromEntries(order.map(k=>[k,0]));
+    let total=0;
+    arr.forEach(e=>{
+      const amount=homeAmount(e);total+=amount;
+      const payerParts=expensePayerContributions(e),rawTotal=Number(e.total||0)||1;
+      Object.entries(payerParts).forEach(([k,v])=>{if(!(k in paid)){paid[k]=0;spend[k]=0;balance[k]=0;}const homePaid=amount*(Number(v||0)/rawTotal);paid[k]+=homePaid;balance[k]+=homePaid;});
+      Object.entries(homeShares(e)).forEach(([k,v])=>{if(!(k in spend)){spend[k]=0;paid[k]=0;balance[k]=0;}spend[k]+=Number(v||0);balance[k]-=Number(v||0);});
+    });
+    return {order,arr,paid,spend,balance,total};
+  }
+  function expenseReportModel(){
+    const raw=readExpensesRaw(),all=realExpenses(raw),checkpoint=latestExpenseCheckpoint(raw);
+    const through=checkpoint?String(checkpoint.settledThroughAt||checkpoint.createdAt||''):'';
+    const current=checkpoint?all.filter(e=>String(e.createdAt||'')>through):all.slice();
+    const settled=checkpoint?all.filter(e=>String(e.createdAt||'')<=through):[];
+    return {raw,all,current,settled,checkpoint,lifetime:expenseSummary(all),currentSummary:expenseSummary(current)};
+  }
+  function expenseSettlements(summary){
     const creditors=summary.order.map(k=>({party:k,amount:Math.max(0,Number(summary.balance[k]||0))})).filter(x=>x.amount>.01);
     const debtors=summary.order.map(k=>({party:k,amount:Math.max(0,-Number(summary.balance[k]||0))})).filter(x=>x.amount>.01);
     const rows=[];let i=0,j=0;
-    while(i<debtors.length&&j<creditors.length){
-      const amount=Math.min(debtors[i].amount,creditors[j].amount);
-      if(amount>.01)rows.push({from:debtors[i].party,to:creditors[j].party,amount});
-      debtors[i].amount-=amount;creditors[j].amount-=amount;
-      if(debtors[i].amount<=.01)i++;if(creditors[j].amount<=.01)j++;
-    }
+    while(i<debtors.length&&j<creditors.length){const amount=Math.min(debtors[i].amount,creditors[j].amount);if(amount>.01)rows.push({from:debtors[i].party,to:creditors[j].party,amount});debtors[i].amount-=amount;creditors[j].amount-=amount;if(debtors[i].amount<=.01)i++;if(creditors[j].amount<=.01)j++;}
     return rows;
   }
-  function settlementText(summary){
-    const rows=settlementsFromBalance(summary);
-    return rows.length?rows.map(x=>`${partyLabel(x.from)} pays ${partyLabel(x.to)} ${money(x.amount)}`):['Everyone is settled.'];
+  function money(v,code=homeCurrency()){return `${Number(v||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})} ${code}`;}
+  function originalMoney(e){return money(Number(e.total||0),expenseCurrency(e));}
+  function expenseDate(e){const d=new Date(e.createdAt||e.date||Date.now());return Number.isNaN(d.getTime())?'':d.toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'});}
+  function splitDescription(e){
+    if(e.type==='personal')return `Personal - ${expenseNameFor(e.consumedBy||((e.split||[])[0])||e.paidBy)}`;
+    if(e.splitMode==='custom'&&e.shares)return Object.entries(originalShares(e)).map(([k,v])=>`${expenseNameFor(k)} ${money(v,expenseCurrency(e))}`).join(' · ');
+    return `Equal - ${((e.split&&e.split.length)?e.split:[e.paidBy]).map(expenseNameFor).join(', ')}`;
   }
-
-  function expenseShareText(){
-    const s=expenseSummary();
-    if(!s.arr.length) return '';
-    const lines=[`${tripName()} — Expense Summary`,`Trip total: ${Math.round(s.total).toLocaleString()} VND`,''];
-    s.order.forEach(k=>{
-      const bal=Math.round(s.balance[k]||0);
-      lines.push(`${partyLabel(k)}: ${bal>=0?'Receive':'Owes'} ${Math.abs(bal).toLocaleString()} VND`);
-    });
-    lines.push('','Transaction History');
-    s.arr.slice().sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||''))).forEach(e=>{
-      const who=e.type==='personal'?partyLabel(e.consumedBy||(e.split||[])[0]||e.paidBy):(e.split||[]).map(partyLabel).join(', ');
-      lines.push(`${e.item||'Expense'} — ${Math.round(Number(e.total||0)).toLocaleString()} VND · Paid by ${partyLabel(e.paidBy)} · ${e.type==='personal'?`For ${who}`:`${e.splitMode||'equal'} split: ${who}`}`);
-    });
-    return lines.join('\n');
+  function escapeXml(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+  function safeFileBase(){return String((window.TRIP_CONFIG&&TRIP_CONFIG.tripName)||'Vietnam Trip').replace(/[^a-z0-9]+/gi,'_').replace(/^_+|_+$/g,'');}
+  async function shareGeneratedFile(file,title,text){
+    if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({title,text,files:[file]});return true;}
+    const a=document.createElement('a');a.href=URL.createObjectURL(file);a.download=file.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);return false;
   }
-  async function shareExpenses(){
-    if(!isAllowed())return;
-    const title=tripName();const text=expenseShareText();if(!text)return alert('No expense data to share yet.');
+  function expenseReportHtml(model){
+    const title=(window.TRIP_CONFIG&&TRIP_CONFIG.tripName)||'Vietnam Trip';
+    const settlements=expenseSettlements(model.currentSummary);
+    const checkpointNote=model.checkpoint?`Settled to ${escapeHtml(expenseDate(model.checkpoint))}. Final Settlement below covers only transactions after this checkpoint.`:'No settlement checkpoint yet. Final Settlement covers the whole trip.';
+    const lifetimeRows=model.lifetime.order.map(k=>`<tr><td><strong>${escapeHtml(expenseNameFor(k))}</strong></td><td>${escapeHtml(money(model.lifetime.paid[k]))}</td><td>${escapeHtml(money(model.lifetime.spend[k]))}</td><td>${escapeHtml(money(model.lifetime.balance[k]))}</td></tr>`).join('');
+    const currentRows=model.currentSummary.order.map(k=>`<tr><td><strong>${escapeHtml(expenseNameFor(k))}</strong></td><td>${escapeHtml(money(model.currentSummary.paid[k]))}</td><td>${escapeHtml(money(model.currentSummary.spend[k]))}</td><td>${escapeHtml(money(model.currentSummary.balance[k]))}</td></tr>`).join('');
+    const settlementRows=settlements.length?settlements.map(x=>`<div class="settlement-row"><strong>${escapeHtml(expenseNameFor(x.from))} → ${escapeHtml(expenseNameFor(x.to))} · ${escapeHtml(money(x.amount))}</strong></div>`).join(''):'<div class="settlement-row"><strong>Everyone is settled.</strong></div>';
+    function tx(e,status){
+      const home=homeAmount(e),dual=expenseCurrency(e)!==homeCurrency()?`${originalMoney(e)} ≈ ${money(home)}`:money(home);
+      return `<article class="tx"><div class="tx-top"><span>${escapeHtml(expenseDate(e))}</span><span class="status">${status}</span></div><h3><strong>${escapeHtml(e.item||'Expense')}</strong></h3><div class="amount">${escapeHtml(dual)}</div><div class="meta"><div>💳 Paid by <strong>${escapeHtml(expensePayerLabel(e))}</strong></div><div>👥 Split: ${escapeHtml(splitDescription(e))}</div><div>✍️ Entered by: ${escapeHtml(expenseNameFor(e.createdBy||e.enteredBy||e.paidBy))}</div></div></article>`;
+    }
+    const currentTx=model.current.slice().sort((a,b)=>String(a.createdAt||'').localeCompare(String(b.createdAt||''))).map(e=>tx(e,'CURRENT')).join('');
+    const settledTx=model.settled.slice().sort((a,b)=>String(a.createdAt||'').localeCompare(String(b.createdAt||''))).map(e=>tx(e,'SETTLED')).join('');
+    return `<div class="report">
+      <header><div class="emoji">🇻🇳 🧾</div><p>VIETNAM COMPANION</p><h1>${escapeHtml(title)} Expense Statement</h1><small>Generated ${escapeHtml(new Date().toLocaleString())}</small></header>
+      <section><h2><strong>📊 SPENDING SUMMARY - LIFETIME</strong></h2><p class="note">Whole-trip record. Settle to here never removes historical spending.</p><div class="hero-total"><span>Trip total</span><strong>${escapeHtml(money(model.lifetime.total))}</strong></div><table><thead><tr><th>Traveller</th><th>Paid</th><th>Share</th><th>Net</th></tr></thead><tbody>${lifetimeRows}</tbody></table></section>
+      <section><h2><strong>🧭 CURRENT SETTLEMENT PERIOD</strong></h2><p class="note">${escapeHtml(checkpointNote)}</p><div class="hero-total"><span>Current-period spend</span><strong>${escapeHtml(money(model.currentSummary.total))}</strong></div><table><thead><tr><th>Traveller</th><th>Paid</th><th>Share</th><th>Net</th></tr></thead><tbody>${currentRows}</tbody></table></section>
+      <section><h2><strong>🤝 FINAL SETTLEMENT</strong></h2>${settlementRows}</section>
+      <section><h2><strong>🧾 CURRENT TRANSACTIONS</strong></h2>${currentTx||'<p class="note">No transactions since the latest settlement checkpoint.</p>'}</section>
+      ${model.settled.length?`<section><h2><strong>✓ SETTLED HISTORY</strong></h2><p class="note">Already covered by Settle to here. Included for record only, not in Final Settlement.</p>${settledTx}</section>`:''}
+    </div>`;
+  }
+  function expenseReportCss(){return `*{box-sizing:border-box}body{margin:0;background:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Apple Color Emoji","Segoe UI Emoji",sans-serif;color:#302820}.report{width:760px;padding:34px 38px;background:#fff}header{padding:0 0 22px;border-bottom:3px solid #4f9f6f}.emoji{font-size:26px}header p{margin:8px 0 4px;font-size:10px;font-weight:800;letter-spacing:.18em;color:#6c766f}header h1{margin:0;font-size:28px;line-height:1.1}header small{display:block;margin-top:8px;color:#7c746c}section{margin-top:24px;break-inside:avoid}h2{margin:0 0 10px;font-size:16px}p.note{margin:0 0 12px;font-size:11px;line-height:1.45;color:#6f675f}.hero-total{display:flex;justify-content:space-between;align-items:end;padding:12px 14px;border-radius:14px;background:#f1f8f2;margin-bottom:10px}.hero-total span{font-size:11px}.hero-total strong{font-size:18px}table{width:100%;border-collapse:collapse;font-size:11px}th,td{padding:8px 6px;border-bottom:1px solid #e5ddd3;text-align:right}th:first-child,td:first-child{text-align:left}.settlement-row{padding:11px 13px;margin:7px 0;border-radius:12px;background:#eef7ef;border:1px solid #cfe4d2;font-size:13px}.tx{padding:12px 14px;margin:9px 0;border:1px solid #e2d8cb;border-radius:14px;break-inside:avoid}.tx-top{display:flex;justify-content:space-between;font-size:10px;color:#7a7168}.status{font-weight:800;letter-spacing:.08em}.tx h3{margin:5px 0 3px;font-size:14px}.amount{font-size:12px;font-weight:750;color:#4b6f58}.meta{display:grid;gap:3px;margin-top:7px;font-size:11px;line-height:1.4}`;}
+  function buildExcelXml(model){
+    const settlements=expenseSettlements(model.currentSummary);
+    const rows=[];
+    const row=cells=>`<Row>${cells.map(v=>`<Cell><Data ss:Type="${typeof v==='number'?'Number':'String'}">${escapeXml(v)}</Data></Cell>`).join('')}</Row>`;
+    rows.push(row(['VIETNAM COMPANION EXPENSE SUMMARY']),row(['Lifetime Trip Total',model.lifetime.total,homeCurrency()]),row([]),row(['LIFETIME SUMMARY']),row(['Traveller','Paid','Share','Net']));
+    model.lifetime.order.forEach(k=>rows.push(row([expenseNameFor(k),model.lifetime.paid[k],model.lifetime.spend[k],model.lifetime.balance[k]])));
+    rows.push(row([]),row(['CURRENT SETTLEMENT PERIOD']),row(['Settled through',model.checkpoint?expenseDate(model.checkpoint):'No checkpoint']),row(['Traveller','Paid','Share','Net']));
+    model.currentSummary.order.forEach(k=>rows.push(row([expenseNameFor(k),model.currentSummary.paid[k],model.currentSummary.spend[k],model.currentSummary.balance[k]])));
+    rows.push(row([]),row(['FINAL SETTLEMENT']),row(['From','To','Amount',homeCurrency()]));
+    (settlements.length?settlements:[{from:'Everyone',to:'Settled',amount:0}]).forEach(x=>rows.push(row([expenseNameFor(x.from),expenseNameFor(x.to),x.amount,homeCurrency()])));
+    rows.push(row([]),row(['TRANSACTION HISTORY']),row(['Status','Date','Title','Original Amount','Currency','Home Amount',homeCurrency(),'Paid By','Split','Entered By']));
+    const through=model.checkpoint?String(model.checkpoint.settledThroughAt||model.checkpoint.createdAt||''):'';
+    model.all.slice().sort((a,b)=>String(a.createdAt||'').localeCompare(String(b.createdAt||''))).forEach(e=>rows.push(row([model.checkpoint&&String(e.createdAt||'')<=through?'SETTLED':'CURRENT',expenseDate(e),e.item||'Expense',Number(e.total||0),expenseCurrency(e),homeAmount(e),homeCurrency(),expensePayerLabel(e),splitDescription(e),expenseNameFor(e.createdBy||e.enteredBy||e.paidBy)])));
+    return `<?xml version="1.0"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="Expense Summary"><Table>${rows.join('')}</Table></Worksheet></Workbook>`;
+  }
+  function ensureHtml2Pdf(){
+    if(window.html2pdf)return Promise.resolve();
+    return new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='vendor-html2pdf-0.10.1.bundle.min.js';script.onload=resolve;script.onerror=()=>reject(new Error('PDF generator unavailable'));document.head.appendChild(script);});
+  }
+  function ensureExpensePreviewStyles(){
+    if(document.getElementById('expensePreviewStyles'))return;
+    const style=document.createElement('style');
+    style.id='expensePreviewStyles';
+    style.textContent=`
+      .expense-preview-modal{position:fixed;inset:0;z-index:10050;background:rgba(24,20,17,.58);backdrop-filter:blur(7px);display:none;overflow:auto;padding:18px}
+      .expense-preview-modal.show{display:block}
+      .expense-preview-shell{width:min(820px,100%);margin:0 auto 30px;background:#fff;border-radius:24px;box-shadow:0 24px 70px rgba(0,0,0,.22);overflow:hidden}
+      .expense-preview-toolbar{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:9px;padding:12px 14px;background:rgba(255,255,255,.96);border-bottom:1px solid #e8e0d7;backdrop-filter:blur(12px)}
+      .expense-preview-toolbar .preview-title{font-weight:850;flex:1}
+      .expense-preview-toolbar button{border:1px solid #d9cfc4;background:#fff;border-radius:12px;padding:9px 11px;font:inherit;font-weight:750;cursor:pointer}
+      .expense-preview-toolbar .primary{background:#edf7ef;border-color:#bdd9c2}
+      .expense-preview-toolbar .close{font-size:20px;line-height:1;padding:8px 11px}
+      .expense-preview-body{overflow-x:auto;background:#f5f1eb;padding:18px}
+      .expense-preview-body .report{margin:auto;box-shadow:0 6px 28px rgba(50,40,30,.10)}
+      @media(max-width:650px){
+        .expense-preview-modal{padding:0;background:#f5f1eb}
+        .expense-preview-shell{border-radius:0;margin:0;min-height:100vh}
+        .expense-preview-toolbar{flex-wrap:wrap}
+        .expense-preview-toolbar .preview-title{flex-basis:calc(100% - 48px)}
+        .expense-preview-toolbar button:not(.close){flex:1}
+        .expense-preview-body{padding:10px}
+        .expense-preview-body .report{width:760px;transform-origin:top left}
+      }`;
+    document.head.appendChild(style);
+  }
+  function fitExpensePreview(){
+    const body=document.querySelector('#expenseShareSummaryModal .expense-preview-body');
+    const report=body?.querySelector('.report');
+    if(!body||!report)return;
+    report.style.transform='';
+    report.style.marginBottom='';
+    if(window.innerWidth<=650){
+      const available=Math.max(280,body.clientWidth);
+      const scale=Math.min(1,available/760);
+      report.style.transform=`scale(${scale})`;
+      report.style.marginBottom=`-${report.offsetHeight*(1-scale)}px`;
+    }
+  }
+  window.openExpenseShareSummary=function(){
+    const model=expenseReportModel();
+    if(!model.all.length)return alert('No expense data to share yet.');
+    ensureExpensePreviewStyles();
+    let modal=document.getElementById('expenseShareSummaryModal');
+    if(!modal){modal=document.createElement('div');modal.id='expenseShareSummaryModal';modal.className='expense-preview-modal';document.body.appendChild(modal);}
+    modal.innerHTML=`<div class="expense-preview-shell">
+      <div class="expense-preview-toolbar">
+        <div class="preview-title">📤 Expense Summary Preview</div>
+        <button class="primary" type="button" aria-label="Share PDF" onclick="shareExpenseSummaryPDF()">📄 Share PDF</button>
+        <button type="button" aria-label="Share Excel" onclick="shareExpenseSummaryExcel()">📊 Share Excel</button>
+        <button class="close" type="button" aria-label="Close" onclick="closeExpenseShareSummary()">×</button>
+      </div>
+      <div class="expense-preview-body"><style>${expenseReportCss()}</style>${expenseReportHtml(model)}</div>
+    </div>`;
+    modal.classList.add('show');
+    document.documentElement.style.overflow='hidden';
+    requestAnimationFrame(fitExpensePreview);
+  };
+  window.closeExpenseShareSummary=function(){
+    document.getElementById('expenseShareSummaryModal')?.classList.remove('show');
+    document.documentElement.style.overflow='';
+  };
+  window.addEventListener('resize',fitExpensePreview);
+  window.shareExpenseSummaryExcel=async function(){
+    const model=expenseReportModel();if(!model.all.length)return alert('No expense data to share yet.');
+    const xml=buildExcelXml(model),file=new File([xml],`${safeFileBase()}_Expense_Summary.xls`,{type:'application/vnd.ms-excel'});
+    try{await shareGeneratedFile(file,'Vietnam Expense Summary','Expense summary - Excel');closeExpenseShareSummary();}catch(error){if(error?.name!=='AbortError')alert('Could not share the Excel summary.');}
+  };
+  window.shareExpenseSummaryPDF=async function(){
+    const model=expenseReportModel();if(!model.all.length)return alert('No expense data to share yet.');
+    const host=document.createElement('div');host.style.position='fixed';host.style.left='-10000px';host.style.top='0';host.innerHTML=`<style>${expenseReportCss()}</style>${expenseReportHtml(model)}`;document.body.appendChild(host);
     try{
-      if(navigator.share){
-        const filename=String(title).replace(/[^a-z0-9]+/gi,'_').replace(/^_+|_+$/g,'')+'_Expenses.txt';
-        const file=new File([text],filename,{type:'text/plain'});
-        if(navigator.canShare?.({files:[file]})) await navigator.share({title:`${title} expenses`,text:`${title} expense summary`,files:[file]});
-        else await navigator.share({title:`${title} expenses`,text});
-        return;
-      }
-      if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(text);alert('Expense summary copied. Paste it into WhatsApp, Mail or Messages.');return;}
-      const area=document.createElement('textarea');area.value=text;area.setAttribute('readonly','');area.style.position='fixed';area.style.opacity='0';document.body.appendChild(area);area.select();document.execCommand('copy');area.remove();alert('Expense summary copied. Paste it into WhatsApp, Mail or Messages.');
-    }catch(error){if(error?.name!=='AbortError')alert('Sharing is not available right now. Use Printable Expenses instead.');}
-  }
+      await ensureHtml2Pdf();
+      const element=host.querySelector('.report');
+      const blob=await html2pdf().set({margin:0,filename:`${safeFileBase()}_Expense_Summary.pdf`,image:{type:'jpeg',quality:.98},html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff'},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy']}}).from(element).outputPdf('blob');
+      const file=new File([blob],`${safeFileBase()}_Expense_Summary.pdf`,{type:'application/pdf'});
+      await shareGeneratedFile(file,'Vietnam Expense Summary','Expense summary - PDF');closeExpenseShareSummary();
+    }catch(error){if(error?.name!=='AbortError')alert('PDF could not be created right now. Check your connection and try again.');}
+    finally{host.remove();}
+  };
 
-  function exportExpenses(){
-    if(!isAllowed())return;
-    const s=expenseSummary();if(!s.arr.length)return alert('No expense data to export yet.');
-    const settlements=settlementsFromBalance(s);
-    const settlementRows=(settlements.length?settlements.map(x=>`<li><strong>${esc(partyLabel(x.from))}</strong> pays <strong>${esc(partyLabel(x.to))}</strong> <b>${esc(money(x.amount))}</b></li>`):['<li><strong>Everyone is settled.</strong></li>']).join('');
-    const partyRows=s.order.map(k=>{const bal=Number(s.balance[k]||0);return `<tr><td>${esc(partyLabel(k))}</td><td>${esc(money(s.spend[k]||0))}</td><td>${bal>=0?'Receives':'Owes'} ${esc(money(Math.abs(bal)))}</td></tr>`;}).join('');
-    const transactionRows=s.arr.slice().sort((a,b)=>String(a.createdAt||'').localeCompare(String(b.createdAt||''))).map(e=>{
-      const parts=expenseDateParts(e.createdAt);
-      const personal=e.type==='personal';
-      const split=(e.split&&e.split.length)?e.split:[e.paidBy];
-      const mode=personal?'Personal':`${e.splitMode==='custom'?'Custom':'Equal'} shared`;
-      let allocation='';
-      if(personal){allocation=`<div><b>Consumed by:</b> ${esc(partyLabel(e.consumedBy||split[0]||e.paidBy))}</div>`;}
-      else if(e.splitMode==='custom'&&e.shares){allocation=`<div><b>Split by:</b> ${esc(split.map(partyLabel).join(', '))}</div><ul class="allocations">${split.map(k=>`<li>${esc(partyLabel(k))}: ${esc(money(e.shares[k]||0))}</li>`).join('')}</ul>`;}
-      else{allocation=`<div><b>Split by:</b> ${esc(split.map(partyLabel).join(', '))}</div>`;}
-      return `<article class="expense-transaction"><div class="transaction-head"><div><span>${esc(parts.date)}</span><span>${esc(parts.time)}</span></div><strong>${esc(money(e.total||0))}</strong></div><h3>${esc(e.item||'Expense')}</h3><div class="transaction-meta"><div><b>Paid by:</b> ${esc(partyLabel(e.paidBy))}</div><div><b>Type:</b> ${esc(mode)}</div>${allocation}</div></article>`;
-    }).join('');
-    const body=`<div class="cover"><p>CCMV VIETNAM COMPANION</p><h1>Printable Expense Summary</h1><small>${esc(tripName())} · Generated ${esc(new Date().toLocaleString())}</small></div>
-      <section class="report-section"><p class="section-kicker">TRIP SUMMARY</p><div class="summary-grid"><div><span>Total transactions</span><strong>${s.arr.length}</strong></div><div><span>Total spend</span><strong>${esc(money(s.total))}</strong></div><div><span>Parties</span><strong>${s.order.length}</strong></div></div></section>
-      <section class="report-section"><p class="section-kicker">SETTLEMENT SUMMARY</p><ul class="settlement-list">${settlementRows}</ul></section>
-      <section class="report-section"><p class="section-kicker">TRANSACTION HISTORY</p><div class="transaction-list">${transactionRows}</div></section>
-      <section class="report-section report-total"><span>Total Spend</span><strong>${esc(money(s.total))}</strong></section>
-      <section class="report-section"><p class="section-kicker">PER PARTY SUMMARY</p><table class="party-table"><thead><tr><th>Party</th><th>Allocated spend</th><th>Net position</th></tr></thead><tbody>${partyRows}</tbody></table></section>
-      <section class="report-section"><p class="section-kicker">FINAL SETTLEMENT SUMMARY</p><ul class="settlement-list">${settlementRows}</ul></section>`;
-    popupDoc(`${tripName()} — Printable Expense Summary`,body);
-  }
+})();
 
-  root.VN_EXPORT_CENTRE={open,close,shareItinerary,exportItinerary,shareExpenses,exportExpenses};
-  document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
-  document.addEventListener('ccmv:tripcompletionchange',syncPostTripOutputs);
-})(globalThis);

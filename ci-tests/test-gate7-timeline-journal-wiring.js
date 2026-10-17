@@ -1,0 +1,15 @@
+const fs=require('fs'),assert=require('assert'),vm=require('vm');
+const html=fs.readFileSync('day.html','utf8');
+const script=fs.readFileSync('timeline-sync-journal.js','utf8');
+assert(html.includes('timeline-sync-journal.js?v=rc29135-weather5-fx100k'));
+assert(html.indexOf('journal.enqueueBatch(')<html.indexOf('ITINERARY_AUTHORITY.commitDayChanges(changes)'));
+const context={module:{exports:{}}};vm.runInNewContext(script,context);
+const {createTimelineJournal}=context.module.exports;
+const map=new Map(),storage={getItem:k=>map.has(k)?map.get(k):null,setItem:(k,v)=>map.set(k,v)};
+const j=createTimelineJournal(storage);
+j.enqueue({day:'4',items:[{id:'spa',time:'16:00'}]});
+j.enqueue({day:'4',items:[]});
+assert.strictEqual(j.read().changes.length,2);
+j.acknowledge(1);assert.strictEqual(j.read().changes.length,1);
+map.set('vn_timeline_pending_v1','{bad');assert.throws(()=>j.enqueue({day:'4',items:[]}));
+console.log('Gate 7 journal wiring and safety PASS');

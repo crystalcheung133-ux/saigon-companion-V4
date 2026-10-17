@@ -1,0 +1,8 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert');
+const src=fs.readFileSync('itinerary-authority.js','utf8');
+const masterOld={'2':{items:[{id:'a',time:'10:00',title:'A',details:['master note'],route:'old'},{id:'lune',time:'18:45',title:'LUNE',details:['old'],route:'old'}]}};
+const masterNew={'2':{items:[{id:'a',time:'10:00',title:'A',details:['NEW MASTER SHOULD NOT REVIVE DELETED NOTE'],route:'new route'},{id:'new',time:'17:00',title:'NEW',details:['new'],route:''},{id:'lune',time:'19:00',title:'LUNE',details:['new master'],route:'new'}]}};
+const disk={it:{masterRevision:'oldrev',dayChanges:{'2':{items:[{id:'a',time:'10:00',title:'A',details:[],route:'old'},{id:'lune',time:'18:45',title:'LUNE',details:['manual note'],route:'old'}],baseItems:masterOld['2'].items}}}};
+const c={console,globalThis:null,MASTER_ITINERARY_REVISION:'newrev',ITINERARY_DATA:masterNew,STORAGE_CONFIG:{keys:{itineraryOverrides:'it',adminDraft:'draft'}},STORAGE:{local:{readJSON:(k,d)=>disk[k]===undefined?d:JSON.parse(JSON.stringify(disk[k])),writeJSON:(k,v)=>{disk[k]=JSON.parse(JSON.stringify(v));}}},getAdminDraft:()=>null};c.globalThis=c;vm.createContext(c);vm.runInContext(src,c);
+const out=c.ITINERARY_AUTHORITY.resolveDayItems('2',masterNew['2'].items);assert.deepEqual(Array.from(out,x=>x.id),['a','new','lune']);assert.deepEqual(Array.from(out[0].details),[],'explicit manual deletion must survive master revision');assert.equal(out[0].route,'new route','untouched field should accept new master');assert.deepEqual(Array.from(out[2].details),['manual note'],'manual note must survive master revision');
+console.log('RC29.131 TIMELINE AUTHORITY REBASE: PASS');

@@ -1,0 +1,24 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const root=path.join(__dirname,'..');
+const {createTimelineJournal}=require('../timeline-sync-journal');
+const {createTripTimelineJournal}=require('../timeline-trip-journal');
+const {inspectLegacyTimelineJournal}=require('../timeline-journal-migration');
+const {prepareTimelineJournalCutover}=require('../timeline-journal-cutover');
+Object.assign(global,{createTimelineJournal,createTripTimelineJournal,inspectLegacyTimelineJournal,prepareTimelineJournalCutover});
+const {selectTimelineSaveJournal}=require('../timeline-save-journal-selector');
+function storage(){const m=new Map();return {getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>m.set(k,v),removeItem:k=>m.delete(k),keys:()=>[...m.keys()]};}
+let s=storage();selectTimelineSaveJournal(s).enqueue({day:'4',items:[{notes:'original'}]});
+assert.equal(createTimelineJournal(s).read().changes.length,1);
+assert.throws(()=>selectTimelineSaveJournal(s,{enabled:true,tripId:'trip1',confirmedTripId:'trip1',environment:'production'}),/blocked/);
+assert.equal(createTimelineJournal(s).read().changes[0].items[0].notes,'original');
+s=storage();assert.throws(()=>selectTimelineSaveJournal(s,{enabled:true,tripId:'trip1',confirmedTripId:'trip2',environment:'production'}),/Invalid/);
+assert.throws(()=>selectTimelineSaveJournal(s,{enabled:true,tripId:'trip1',confirmedTripId:'trip1',environment:'staging'}),/Invalid/);
+selectTimelineSaveJournal(s,{enabled:true,tripId:'trip1',confirmedTripId:'trip1',environment:'production'}).enqueue({day:'4',items:[{notes:'trip scoped'}]});
+assert.equal(createTimelineJournal(s).read(),null);
+assert.equal(createTripTimelineJournal(s,{tripId:'trip1'}).read().changes[0].items[0].notes,'trip scoped');
+const html=fs.readFileSync(path.join(root,'day.html'),'utf8');
+assert.match(html,/window\.selectTimelineSaveJournal\(window\.localStorage,window\.VN_TIMELINE_JOURNAL_CUTOVER\)/);
+console.log('PASS: explicit journal selector, legacy fail closed, trip isolation, page wiring');

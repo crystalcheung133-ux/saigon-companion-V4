@@ -1,0 +1,12 @@
+const fs=require('fs');
+const assert=(x,m)=>{if(!x)throw new Error(m)};
+const day=fs.readFileSync('day.html','utf8'), data=fs.readFileSync('data.js','utf8'), css=fs.readFileSync('styles.css','utf8');
+assert((day.includes('timelineStartTime(item.time,item,') || day.includes('timelineStartTime(item.time,item)')), 'Timeline cards must apply booking-aware time display');
+assert(day.includes('if(item&&item.bookingId)')&&day.includes("return hour<12?'AM':(hour<17?'PM':'Night')"), 'Non-booking timeline cards must use dayparts while bookings retain exact time');
+assert(day.includes('function mapQueryFromUrl'), 'Directions must use map query authority');
+assert(day.includes('function isTrustedVietnamLocation'), 'VN route guard missing');
+assert(day.includes("if(!to)return '';"), 'Directions must fail closed without trusted destination');
+assert(day.includes("from?`&origin=${encodeURIComponent(from)}`:''"), 'Missing-origin routes must use device location instead of guessing');
+assert(!/(Doncaster|Melbourne|Victoria)/i.test(data), 'Home-location contamination found in VN data');
+assert(css.includes('RC29.75 — NZ-style compact Timeline'), 'Compact Timeline CSS missing');
+console.log('PASS RC29.75 VN location authority + compact Timeline');

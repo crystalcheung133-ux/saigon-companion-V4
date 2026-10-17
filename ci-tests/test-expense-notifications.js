@@ -1,0 +1,12 @@
+const fs=require('fs'),assert=require('assert');
+const n=fs.readFileSync('expense-notification-runtime.js','utf8');
+const core=fs.readFileSync('core-runtime.js','utf8');
+assert(n.includes("expense.type==='shared'"),'notifications must be shared-expense only');
+assert(n.includes("createdBy||expense.paidBy"),'notification creator detection missing');
+assert(n.includes("travel_engine_expense_notice_seen_v1"),'once-per-family seen state missing');
+assert(n.includes("travelengine:expensesyncchanged"),'sync trigger missing');
+assert(core.includes("travelengine:familychange"),'family-login/change trigger missing');
+assert(n.includes('expense-notice-list'),'scrollable notification list missing');
+assert(n.includes('Got it'),'self-contained dismiss action missing');
+assert(!n.includes('View Expenses'),'notification must not navigate to generic Expenses page');
+console.log('CROSS-FAMILY EXPENSE NOTIFICATION CONTRACT: PASS');

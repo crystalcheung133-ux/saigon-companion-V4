@@ -1,0 +1,3 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert');const c={};vm.createContext(c);vm.runInContext(fs.readFileSync('data.js','utf8')+'\n;globalThis.__X={I:ITINERARY_DATA,B:BOOKINGS_DATA};',c);const {I,B}=c.__X,ids=d=>Array.from(I[String(d)].items,x=>x.id);
+assert.deepEqual(ids(1).slice(3,8),['pho-sol','shopping-nguyen-trai','qspa-d1','day1-hotel-reset','cafe-apartments-optional']);assert(ids(1).includes('omakase-tiger'));assert(ids(1).includes('cafe-apartments-evening'));assert(!ids(1).includes('post-office'));assert(!ids(1).includes('ivoire'));
+assert.deepEqual(ids(4),['quan-thuy','pink-church','thao-dien-open-list','moc-huong-d4','complex-0123-d4','quince-d4']);assert(B['bk-moc-huong-d4']?.status==='pending');console.log('OPEN DAY + ARRIVAL FLOW: PASS');

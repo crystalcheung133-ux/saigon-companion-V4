@@ -1,0 +1,13 @@
+# Travel Engine production deploy hygiene
+.github/
+ci-tests/
+docs/
+*.md
+*.sql
+*.ts
+*.zip
+SHA256SUMS.txt
+PRODUCTION-FILE-MANIFEST.txt
+VERSION.txt
+RELEASE.json
+supabase/

@@ -1,0 +1,16 @@
+const assert=require('assert'),fs=require('fs'),vm=require('vm');
+const source=fs.readFileSync('booking-sync-runtime.js','utf8');
+let raw=null,failRead=false,fetches=0;
+const root={localStorage:{getItem:()=>{if(failRead)throw Error('blocked');return raw;},setItem:(_,v)=>{raw=v;}},TRIP_CONFIG:{bookingManagement:{sync:{enabled:true,accessToken:'fixture'}}},SYNC_CONFIG:{url:'https://test.invalid',anonKey:'fixture',tripId:'fixture'},BOOKING_PERMISSIONS:{mode:()=> 'collaborative',canEdit:()=>true,currentPartyId:()=> 'test'},BOOKING_AUTHORITY:{masterRevision:()=>1,editableStateFields:[]},crypto:{randomUUID:()=> 'uuid'},navigator:{onLine:true},document:{readyState:'loading',addEventListener:()=>{},dispatchEvent:()=>{}},CustomEvent:class{},console,setInterval:()=>{},addEventListener:()=>{},fetch:async()=>{fetches++;throw Error('network');}};
+vm.createContext(root);vm.runInContext(source,root);
+assert.equal(root.BOOKING_SYNC.getStatus().synced,false,'empty journal does not prove cloud sync');
+raw='{bad json';
+assert.throws(()=>root.BOOKING_SYNC.stageDelete({id:'x'}),/BOOKING_PENDING_JOURNAL_CORRUPT/);
+const rejectedPush=root.BOOKING_SYNC.push({id:'x'});
+rejectedPush.then(()=>{throw Error('push should reject');},error=>assert.match(error.message,/BOOKING_PENDING_JOURNAL_CORRUPT/));
+assert.equal(raw,'{bad json','corrupt journal must not be overwritten');
+assert.equal(fetches,0,'corrupt journal must block cloud mutation');
+failRead=true;
+assert.throws(()=>root.BOOKING_SYNC.stageDelete({id:'x'}),/BOOKING_PENDING_STORAGE_READ_FAILED/);
+assert.equal(fetches,0);
+console.log('PHASE 11 CORRUPT JOURNAL FAIL-CLOSED PASS');

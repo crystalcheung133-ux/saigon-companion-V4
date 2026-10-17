@@ -1,0 +1,16 @@
+const fs=require('fs');
+const css=fs.readFileSync('styles.css','utf8');
+const html=fs.readFileSync('expenses.html','utf8');
+const js=fs.readFileSync('expenses.js','utf8');
+const exp=fs.readFileSync('export-runtime.js','utf8');
+const fail=[]; const ok=(v,m)=>{if(!v)fail.push(m)};
+ok(css.includes('body.expenses-page .expense-history-block .transaction-scroll{max-height:none!important;overflow:visible!important'), 'mobile history must use page scroll, not nested scroller');
+ok(!html.includes('expense-share-summary-action'), 'normal Expenses page must not expose Share Summary');
+ok(exp.includes('openExpenseSummaryFromExport')&&exp.includes('Open Summary'), 'Studio Export Centre must retain expense summary');
+ok(!html.includes('settlement-checkpoint-action'), 'top Expenses action row must not contain Settle');
+ok(js.includes('expense-total-settle')&&js.includes('>✓ Settle</button>'), 'Trip Total card must own compact Settle action');
+ok(js.includes("status.textContent='Balanced ✓'"), 'multiple payer balance must show balanced state');
+ok(js.includes("${FORMATTER.decimal(difference,2)} ${code} remaining"), 'multiple payer balance must show remaining amount');
+ok(js.includes("${FORMATTER.decimal(Math.abs(difference),2)} ${code} over"), 'multiple payer balance must show over amount');
+ok(js.includes('syncMultiplePayerTotal();\n    window.recalculateCustomSplit();'), 'editing total must refresh payer balance immediately');
+if(fail.length){console.error(fail.join('\n'));process.exit(1)} console.log('RC29.101 expense scroll/balance/actions PASS');

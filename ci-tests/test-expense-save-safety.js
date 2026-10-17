@@ -1,0 +1,13 @@
+const fs=require('fs'),assert=require('assert');
+const e=fs.readFileSync('expenses.js','utf8');
+assert(e.includes('let expenseSaveInFlight=false'));
+assert(e.includes('if(expenseSaveInFlight)return'));
+assert(e.includes('saveButton.disabled=true'));
+assert(e.includes('const operationIndex=editingExpenseIndex'));
+assert(e.indexOf('const operationIndex=editingExpenseIndex') < e.indexOf('await getExpenseRateRecord()'));
+assert(e.includes('customSharesForSave(total,split)'));
+assert(e.includes('blanks.forEach(k=>{ shares[k]=0; })'),'Blank custom shares must save as zero');
+assert(!e.includes('You may leave one amount blank for the remaining balance.'),'Obsolete blank-share alert must stay removed');
+assert(e.includes('writeExpenses(arr);'));
+assert(e.includes('closeExpenseModal();'));
+console.log('EXPENSE SAVE SAFETY CONTRACT: PASS');

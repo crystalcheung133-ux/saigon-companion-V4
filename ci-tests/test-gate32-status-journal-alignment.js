@@ -1,0 +1,12 @@
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const ui=fs.readFileSync(path.join(__dirname,'..','timeline-sync-status-ui.js'),'utf8');
+const day=fs.readFileSync(path.join(__dirname,'..','day.html'),'utf8');
+const needle='window.selectTimelineSaveJournal(window.localStorage,window.VN_TIMELINE_JOURNAL_CUTOVER)';
+assert.ok(ui.includes(needle),'status must read same selected journal as Save');
+assert.ok(day.includes(needle),'Save must use selected journal');
+assert.ok(ui.includes("e.key.startsWith('vn_timeline_pending_v2:')"),'status must refresh for scoped journal');
+assert.ok(ui.includes('cloud status unverified'));
+assert.ok(ui.includes('btn.disabled=true'));
+console.log('Gate32 status/save journal alignment PASS');

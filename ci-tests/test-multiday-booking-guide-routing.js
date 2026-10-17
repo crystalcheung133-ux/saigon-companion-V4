@@ -1,0 +1,27 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert');
+const raw=fs.readFileSync('data.js','utf8');
+const c={};vm.createContext(c);vm.runInContext(raw+'\n;globalThis.__X={B:BOOKINGS_DATA,I:ITINERARY_DATA,P:PLACES};',c);
+const {B,I,P}=c.__X,b=B['bk-qspa'];
+assert(b,'Qspa booking missing');
+assert.equal(b.type,'spa');assert.equal(b.bookingCategory,'Spa');assert.equal(b.category,'Spa');
+assert.equal(b.status,'planned');assert.equal(b.phone,'028 3535 9727');assert(/Facebook Messenger \/ Instagram/i.test(b.bookingMethod));
+assert.equal(P.qspa.phone,'028 3535 9727');
+assert(Array.isArray(b.plannedVisits)&&b.plannedVisits.length===3,'Qspa must have three planned visits');
+const expected=[['D1','day1','qspa-d1'],['D2','day2','qspa-d2'],['D3','day3','qspa-d3']];
+expected.forEach(([day,dayId,itemId],idx)=>{
+  const v=b.plannedVisits[idx];
+  assert.equal(v.day,day);assert.equal(v.dayId,dayId);assert.equal(v.timelineItemId,itemId);
+  const dayNum=dayId.replace('day','');
+  const item=I[dayNum].items.find(x=>x.id===itemId);
+  assert(item,`${day} Qspa timeline occurrence missing`);
+  assert.equal(item.bookingId,'bk-qspa',`${day} must link the canonical Qspa booking`);
+});
+const trip=fs.readFileSync('trip-runtime.js','utf8');
+const guide=fs.readFileSync('guide-runtime.js','utf8');
+const day=fs.readFileSync('day.html','utf8');
+assert(trip.includes('const visits=Array.isArray(booking&&booking.plannedVisits)'), 'Booking timeline actions are still single-day only');
+assert(trip.includes("['Phone · reference',booking.phone||booking.bookingContact||place?.phone||'']"),'Generic Booking detail does not retain phone as reference');
+assert(guide.includes("if(booking.type==='accommodation')"),'Guide booking dispatch lacks accommodation-specific branch');
+assert(guide.includes("openGenericBookingDetail(bookingId,booking)"),'Guide booking dispatch still defaults non-activity bookings to Accommodation');
+assert(day.includes("raw==='planned'?'PLANNED':'PENDING'"),'Timeline Booking badge still collapses PLANNED to PENDING');
+console.log('MULTI-DAY BOOKING + GUIDE ROUTING: PASS — one Qspa booking spans D1/D2/D3, contact is rendered, Guide routes Spa generically.');

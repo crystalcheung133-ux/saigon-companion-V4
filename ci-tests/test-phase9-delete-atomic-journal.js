@@ -1,0 +1,24 @@
+const assert=require('assert'),fs=require('fs'),vm=require('vm');
+const trip=fs.readFileSync('trip-runtime.js','utf8');
+const body=trip.slice(trip.indexOf('async function deleteBookingRecord('),trip.indexOf('window.deleteBookingRecord=deleteBookingRecord'));
+assert(body.indexOf('BOOKING_SYNC.stageDelete(booking)')<body.indexOf('BOOKING_AUTHORITY.remove(bookingId,liveTarget)'));
+assert(body.indexOf('BOOKING_AUTHORITY.remove(bookingId,liveTarget)')<body.indexOf('BOOKING_SYNC.commitStagedDelete(stage)'));
+assert(body.includes('BOOKING_SYNC.cancelStagedDelete(stage)'));
+const source=fs.readFileSync('booking-sync-runtime.js','utf8');
+let store={},throwStorage=false,writes=0;
+const root={localStorage:{getItem:k=>store[k]||null,setItem:(k,v)=>{if(throwStorage)throw Error('QUOTA');store[k]=v;}},TRIP_CONFIG:{bookingManagement:{sync:{enabled:true,accessToken:'fixture'}}},SYNC_CONFIG:{url:'https://test.invalid',anonKey:'fixture',tripId:'fixture'},BOOKING_PERMISSIONS:{mode:()=> 'collaborative',canEdit:()=>true,currentPartyId:()=> 'test'},BOOKING_AUTHORITY:{masterRevision:()=>1,editableStateFields:[],remove:()=>({ok:true}),save:()=>({ok:true})},GenerationSelectionAdapter:{view:()=>({byId:{}})},crypto:{randomUUID:()=>String(Math.random())},navigator:{onLine:true},document:{readyState:'loading',addEventListener:()=>{},dispatchEvent:()=>{}},CustomEvent:class{},console,setInterval:()=>{},addEventListener:()=>{},fetch:async()=>{writes++;throw Error('OFFLINE');}};
+vm.createContext(root);vm.runInContext(source,root);
+assert.throws(()=>{throwStorage=true;root.BOOKING_SYNC.stageDelete({id:'x'});},/QUOTA/);
+throwStorage=false;
+const stage=root.BOOKING_SYNC.stageDelete({id:'x',notes:'manual'});
+assert.equal(writes,0,'staging must never send network request');
+assert.equal(JSON.parse(store.travelengine_booking_pending_v1).x.operation,'delete');
+assert(root.BOOKING_SYNC.cancelStagedDelete(stage));
+assert(!JSON.parse(store.travelengine_booking_pending_v1).x);
+const stage2=root.BOOKING_SYNC.stageDelete({id:'x'});
+assert.equal(root.BOOKING_SYNC.recordStatus('x').state,'pending');
+root.BOOKING_SYNC.commitStagedDelete(stage2).catch(()=>{
+ assert.equal(root.BOOKING_SYNC.recordStatus('x').state,'failed');
+ assert.equal(JSON.parse(store.travelengine_booking_pending_v1).x.operation,'delete');
+ console.log('PHASE 9 DURABLE DELETE INTENT PASS');
+}).catch(e=>{console.error(e);process.exitCode=1});

@@ -1,0 +1,16 @@
+const fs=require('fs'),assert=require('assert');
+const html=fs.readFileSync('documents.html','utf8'),js=fs.readFileSync('documents.js','utf8'),rt=fs.readFileSync('documents-runtime.js','utf8');
+const categories=['Insurance','Driving & Parking','Bookings & vouchers','Travel Documents','Reference','Other'];
+categories.forEach(c=>{assert(html.includes('>'+c+'</option>'),'missing category '+c)});
+['docCategory','editDocCategory','docFiledUnder','editDocFiledUnder','docPin','editDocPin'].forEach(id=>assert(html.includes('id="'+id+'"'),'missing '+id));
+['docLinkType','docBookingLink','docTimelineDay','docTimelineEvent','editDocLinkType','editDocBookingLink','editDocTimelineDay','editDocTimelineEvent'].forEach(id=>assert(html.includes('id="'+id+'"'),'missing cascading link control '+id));
+assert(js.includes("fillTimelineEvents(prefix"),'timeline must be filtered by selected day');
+assert(js.includes("(it.time?it.time+' · ':'')+(it.title||it.id)"),'event labels must show time + title');
+assert(!js.includes("label:'Timeline · '"),'must not render whole-trip timeline in one flat selector');
+assert(js.includes("category:$('docCategory').value"),'add must persist category');
+assert(js.includes("category:$('editDocCategory').value"),'edit must persist category');
+assert(js.includes("pinned:$('docPin').checked")&&js.includes("pinned:$('editDocPin').checked"),'pin round-trip required');
+assert(js.includes("readLinkEditor('doc')")&&js.includes("readLinkEditor('editDoc')"),'link round-trip required');
+assert(js.includes('openDocumentViewer')&&js.includes('renderPdfInto'),'viewer parity required');
+assert(rt.includes('canManage')&&rt.includes('canLink'),'ownership/link authority required');
+console.log('RC29.69 DOCUMENTS PARITY + CASCADING TIMELINE UX: PASS');
