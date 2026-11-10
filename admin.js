@@ -276,7 +276,7 @@
           <div>
             <p class="trip-studio-kicker">CREATOR WORKSPACE</p>
             <h3>Trip Studio</h3>
-            <small>Manage your companion. Days saves apply immediately to this device.</small>
+            <small>Create, refine and manage this companion.</small>
           </div>
           <button type="button" class="trip-studio-close" aria-label="Close Trip Studio">×</button>
         </header>

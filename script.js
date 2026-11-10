@@ -13,10 +13,10 @@ function renderCanonicalDayNavigation(){
     return {number,icon,date,heading:day.heading||`Day ${number}`,summary};
   });
   document.querySelectorAll('#daysMenu').forEach(menu=>{
-    menu.innerHTML=model.map(day=>`<a href="day.html?day=${encodeURIComponent(day.number)}"><span><span class="menu-title">${esc(day.icon)} Day ${esc(day.number)}</span><span class="menu-sub">${esc(day.heading)}<br/>${esc(day.date)}</span></span><span>›</span></a>`).join('');
+    menu.innerHTML=model.map(day=>`<a href="day.html?day=${encodeURIComponent(day.number)}"><span><span class="menu-title">Day ${esc(day.number)}</span><span class="menu-sub">${esc(day.heading)}<br/>${esc(day.date)}</span></span><span>›</span></a>`).join('');
   });
   document.querySelectorAll('#canonicalDaySummary').forEach(summary=>{
-    summary.innerHTML=model.map(day=>`<a href="day.html?day=${encodeURIComponent(day.number)}"><strong>Day ${esc(day.number)}</strong><span><span class="day-card-title">${esc(day.icon)} ${esc(day.heading)}</span><span class="day-card-meta">${esc(day.date)}${day.summary.length?`<br/>${esc(day.summary.join(' · '))}`:''}</span></span></a>`).join('');
+    summary.innerHTML=model.map(day=>`<a href="day.html?day=${encodeURIComponent(day.number)}"><strong>Day ${esc(day.number)}</strong><span><span class="day-card-title">${esc(day.heading)}</span><span class="day-card-meta">${esc(day.date)}${day.summary.length?`<br/>${esc(day.summary.join(' · '))}`:''}</span></span></a>`).join('');
   });
 }
 document.addEventListener('DOMContentLoaded',()=>{

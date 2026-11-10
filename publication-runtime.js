@@ -145,21 +145,13 @@
       setTimeout(function(){updateButton();},5000);
     }
   }
+  // In generated local-first Trips, Save Changes is the commit boundary.
+  // Do not insert a second Publish Latest Trip action into Trip Studio.
   function installButton(){
-    // Deprecated for local-first generated trips: Days Save is the commit boundary.
-    if(root.TRIP_CONFIG&&root.TRIP_CONFIG.bookingManagement?.sync?.enabled===false)return;
-    const group=document.getElementById('tripStudioManagement');
-    if(!group||document.getElementById('preparePublicationButton'))return;
-    const button=document.createElement('button');
-    button.id='preparePublicationButton';button.type='button';button.className='trip-studio-action publication-prepare-btn';button.hidden=!(root.isAdminMode&&root.isAdminMode());
-    button.innerHTML='<span><strong>Publish Latest Trip</strong><small>'+publicationStatusText()+'</small></span><span aria-hidden="true">☁️</span>';
-    button.addEventListener('click',publish);group.appendChild(button);
+    const old=document.getElementById('preparePublicationButton');
+    if(old)old.remove();
   }
-  function reflectMode(){
-    installButton();
-    const button=document.getElementById('preparePublicationButton');
-    if(button)button.hidden=!(root.isAdminMode&&root.isAdminMode());
-  }
+  function reflectMode(){installButton();}
 
   root.TRIP_PUBLICATION=Object.freeze({buildPayload:buildPayload,validatePayload:payloadIntegrity,publish:publish,prepare:publish,getLastPublishedVersion:function(){return state.lastPublishedVersion;}});
   root.publishLatestTrip=publish;

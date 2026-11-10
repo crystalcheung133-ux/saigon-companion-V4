@@ -3007,35 +3007,106 @@ body.admin-mode .studio-on-badge:not([hidden]){display:inline-flex!important;}
   #tripStudioModal .trip-studio{max-width:430px!important;}
 }
 
-/* SEOUL FAMILY WINTER EDITION · 25.6.9 · app-level design override */
-:root{--bg:#F0F4FA!important;--paper:#F8FAFF!important;--card:#FFFEFF!important;--ink:#263951!important;--muted:#64758B!important;--line:#CEDAE9!important;--accent:#54799F!important;--green:#718CAA!important;--lav:#847FA7!important;--blue:#536D90!important;--admin-accent:#54799F!important;--admin-accent-dark:#354E70!important;--admin-line:rgba(84,121,159,.27)!important;--admin-soft:rgba(84,121,159,.12)!important;}
-html,body{background:#F0F4FA!important;color:#263951!important}
-.site-nav,body.home-bg .site-nav{background:rgba(246,249,254,.96)!important;border-bottom:1px solid #D4DDEB!important}
-.home-brand-card,body.home-bg section.home-brand-card.v37-dashboard-home{background:linear-gradient(150deg,#F9FBFF 0%,#EBF1FA 48%,#E9E4F2 100%)!important;border:1px solid #CFD8E8!important;box-shadow:0 16px 48px rgba(53,78,112,.15)!important}
-.page-hero,.module-hero{background:linear-gradient(130deg,#EAF2FB 0%,#E2EAF5 55%,#F0E9F5 100%)!important;border-color:#C9D7E9!important}
-.prose-block,.live-card,.timeline-item,.trip-sheet,.guide-sheet,.tools-sheet,.expense-card{background:#FFFEFF!important;border-color:#D3DDEA!important}
-body.home-bg .home-brand-card.v37-dashboard-home h1,body.home-bg .home-brand-card.v37-dashboard-home h1 em{color:#304A69!important;text-shadow:none!important}
-body.home-bg .home-brand-card.v37-dashboard-home .home-since,.kicker{color:#7289AA!important}
-body.home-bg .home-brand-card.v37-dashboard-home .home-trip-line span{background:#F8FAFF!important;color:#425F82!important;border-color:#D0DDEC!important}
-body.home-bg .home-live-grid .live-card small{color:#627C9D!important}
-body.home-bg .home-live-grid .live-card strong{color:#263951!important}
-body.home-bg .home-live-grid .live-card em{color:#7186A6!important}
-body.home-bg .home-day-button,.home-primary-actions .home-day-button,.btn,.primary-action{background:linear-gradient(135deg,#7595BA,#526E96)!important;border-color:#607FA8!important;color:#FFFFFF!important;box-shadow:0 8px 22px rgba(65,92,128,.20)!important}
-.app-nav{background:linear-gradient(100deg,#334D70,#526D94)!important}
-.app-nav a,.app-nav button{color:#F9FAFF!important}
-.site-nav .brand-mark{width:48px!important;height:48px!important;flex-basis:48px!important}
-.site-nav .brand-mark img{width:100%!important;height:100%!important;object-fit:contain!important;filter:none!important}
-#ccmvSplash{background:linear-gradient(160deg,#EFF5FC,#E7EDF8,#EDE6F3)!important}
-#ccmvSplash .splash-line{color:#354F72!important}
-#ccmvSplash .splash-destination{color:#8187AB!important}
-#ccmvSplash .splash-logo{max-height:58vh!important;width:min(75vw,380px)!important}
-.seoul-family-photo img{filter:drop-shadow(0 12px 22px rgba(54,78,112,.12))}
-.seoul-family-photo figcaption{color:#6D83A3!important;font-weight:800!important;letter-spacing:.08em}
-.friend-pill,.pill,.mini-btn{background:#F6F9FD!important;border-color:#CDD9E9!important;color:#344E70!important}
-@media(max-width:520px){.site-nav .brand-mark{width:40px!important;height:40px!important;flex-basis:40px!important}.seoul-family-photo img{max-height:180px!important}}
+/* TRAVEL ENGINE 25.6.10 — All editing, Expenses and Moments dialogs take the full viewport.
+   Modal overlays are appended to the document root. Navigation remains below the overlay.
+   Studio action sheet follows the reference layout: Trip Management / Export Centre /
+   Data Control; Create Booking lives on the Booking page. */
+:root{
+ --trip-overlay-layer:30000;
+ --trip-overlay-dialog-layer:30100;
+ --trip-overlay-alert-layer:30200;
+}
+html body :is(.site-nav,.app-nav,.admin-mode-banner,.admin-save-bar,.mini-menu){
+ z-index:1200!important;
+}
+html body :is(.trip-studio-modal,.timeline-editor-modal,.admin-pin-modal,
+ .trip-export-modal,.moments-modal,.unexpected-modal,.tools-modal,
+ .trip-modal,.guide-modal,.mama-modal,.expense-notice-modal,
+ .home-info-modal,.reference-viewer-modal){
+ position:fixed!important;
+ inset:0!important;
+ z-index:var(--trip-overlay-layer)!important;
+ box-sizing:border-box!important;
+}
+html body :is(.trip-studio-modal,.timeline-editor-modal,.admin-pin-modal,
+ .trip-export-modal,.moments-modal,.unexpected-modal,.tools-modal,
+ .trip-modal,.guide-modal,.mama-modal,.expense-notice-modal).show,
+html body .trip-export-modal.open{
+ top:0!important;
+ bottom:0!important;
+}
+html body.admin-mode :is(.moments-modal,.unexpected-modal,.tools-modal).show,
+html body.admin-mode #mamaModal.studio-view.show,
+html body.admin-mode :is(#tripModal,#guideModal).show{
+ top:0!important;
+ bottom:0!important;
+}
+html body #tripStudioModal.show,
+html body #studioCreateBookingSheet.show,
+html body .trip-export-modal.open,
+html body .timeline-editor-modal.show{
+ z-index:var(--trip-overlay-dialog-layer)!important;
+}
+html body .admin-pin-modal:not([hidden]),
+html body .expense-notice-modal{
+ z-index:var(--trip-overlay-alert-layer)!important;
+}
+html body :is(.moments-modal,.unexpected-modal,.tools-modal).show{
+ padding-top:calc(14px + env(safe-area-inset-top,0px))!important;
+ padding-bottom:calc(18px + env(safe-area-inset-bottom,0px))!important;
+}
+html body #mamaModal.studio-view.show{
+ padding-top:calc(14px + env(safe-area-inset-top,0px))!important;
+}
+html body #tripStudioModal{
+ overflow-y:auto!important;
+ overscroll-behavior:contain!important;
+}
+html body #studioCreateBookingSheet{
+ display:flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ padding:calc(12px + env(safe-area-inset-top,0px)) 12px calc(12px + env(safe-area-inset-bottom,0px))!important;
+}
+html body #studioCreateBookingSheet .trip-studio-modal-inner{
+ width:min(760px,100%)!important;
+ max-height:calc(100dvh - 28px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))!important;
+ overflow-y:auto!important;
+ -webkit-overflow-scrolling:touch!important;
+ border-radius:22px!important;
+}
+#bookingCreateActionHost{display:flex;justify-content:flex-end;margin-bottom:12px;}
+#bookingCreateActionHost:empty{display:none;}
+#bookingPageCreateButton[hidden]{display:none!important;}
+#bookingPageCreateButton{background:var(--theme-primary)!important;color:white!important;}
+#preparePublicationButton{display:none!important;}
+@media(max-width:560px){
+ html body #tripStudioModal .trip-studio-modal-inner{width:min(96vw,460px)!important;}
+ html body #studioCreateBookingSheet .trip-studio-modal-inner{font-size:16px!important;}
+}
 
-/* Seoul 25.6.9 Winter: Booking creation belongs to Booking page, not Studio shell. */
-.booking-create-action-host{display:flex;justify-content:flex-end;max-width:860px;margin:5px auto 0;padding:0 2px}
-.booking-create-action-host:empty{display:none}
-#bookingPageCreateButton{background:linear-gradient(135deg,#526D8C,#394F73)!important;color:#fff!important;border-color:#526D8C!important}
-#bookingPageCreateButton[hidden]{display:none!important}
+
+/* SEOUL WINTER EDITION — 25.6.10, visual palette & persistent branding */
+:root{--bg:#EEF3FA!important;--paper:#F8FAFF!important;--card:#FFFFFF!important;--ink:#293B55!important;--muted:#5E7088!important;--line:#CAD5E6!important;--accent:#536E92!important;--green:#637FA3!important;--lav:#948DBA!important;--blue:#506B94!important;--admin-accent:#536E92!important;--admin-accent-dark:#344C70!important;--admin-line:#CAD5E6!important;--admin-soft:#EAF0FA!important;}
+html,body{background:#EEF3FA!important;color:#293B55!important}
+.site-nav,body.home-bg .site-nav{background:rgba(248,250,255,.97)!important;border-bottom:1px solid #D2DDEE!important;z-index:110!important;}
+.site-nav .brand-mark,body.home-bg .site-nav .brand-mark{display:flex!important;align-items:center!important;justify-content:center!important;width:54px!important;height:54px!important;flex:0 0 54px!important;overflow:visible!important;}
+.site-nav .brand-mark img,body.home-bg .site-nav .brand-mark img{display:block!important;opacity:1!important;visibility:visible!important;width:54px!important;height:54px!important;object-fit:contain!important;filter:none!important;}
+.site-nav .brand{color:#293B55!important;gap:9px!important;}
+body.home-bg section.home-brand-card.v37-dashboard-home{background:linear-gradient(148deg,#F8FAFF 0%,#E8F0FC 52%,#E0E6F6 100%)!important;border:1px solid #C6D3E7!important;box-shadow:0 18px 46px rgba(54,79,119,.15)!important;}
+body.home-bg .home-brand-card.v37-dashboard-home h1,body.home-bg .home-brand-card.v37-dashboard-home h1 em{color:#304560!important;text-shadow:none!important;}
+body.home-bg .home-brand-card.v37-dashboard-home .home-since,body.home-bg .home-brand-card.v37-dashboard-home .home-trip-line span{color:#536E92!important;}
+body.home-bg .home-live-grid .live-card{background:#FFFFFF!important;border:1px solid #CFD9EA!important;box-shadow:0 8px 22px rgba(65,89,123,.10)!important;color:#293B55!important;}
+body.home-bg .home-live-grid .live-card small{color:#536E92!important;}
+body.home-bg .home-live-grid .live-card strong{color:#293B55!important;}
+body.home-bg .home-day-button,.btn,.primary-action{background:linear-gradient(135deg,#6C84AA,#3C587D)!important;border-color:#577094!important;color:#FFFFFF!important;}
+.page-hero,.module-hero{background:linear-gradient(130deg,#E1ECFA 0%,#EAF0FC 58%,#F4EDF9 100%)!important;border-color:#C9D6EB!important;}
+.prose-block,.timeline-item,.trip-sheet,.guide-sheet,.expense-card,.expense-dashboard-v33 .expense-total-card{background:#FFFFFF!important;border-color:#CFD9EA!important;}
+body.expenses-page,body.expenses-page main{background:#EEF3FA!important;}
+body.expenses-page .page-hero,body.expenses-page .module-hero{background:linear-gradient(135deg,#DBE6F6,#F0EFFB)!important;border-color:#C9D6EB!important;}
+.app-nav{background:linear-gradient(100deg,#425C82,#667DA5)!important;box-shadow:0 9px 25px rgba(45,66,105,.24)!important;}
+#ccmvSplash{background:#EDF3FC!important;}
+#ccmvSplash .splash-logo{width:min(76vw,380px)!important;max-height:62vh!important;object-fit:contain!important;opacity:1!important;visibility:visible!important;filter:none!important;}
+#ccmvSplash .splash-line{color:#405E88!important;}
+#ccmvSplash .splash-destination{color:#857DB0!important;}
+@media(max-width:520px){.site-nav .brand-mark,body.home-bg .site-nav .brand-mark{width:40px!important;height:40px!important;flex-basis:40px!important;}.site-nav .brand-mark img,body.home-bg .site-nav .brand-mark img{width:40px!important;height:40px!important;}body.home-bg section.home-brand-card.v37-dashboard-home{padding-top:13px!important;}}

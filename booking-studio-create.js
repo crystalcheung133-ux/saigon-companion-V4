@@ -1,4 +1,4 @@
-/* Seoul Winter Booking Page creation — local-first booking creation and link actions.
+/* Companion 25.6.9 — local-first Booking-page creation and link actions.
    Security: client-side PIN is a UI gate only. No cloud sync is claimed. */
 (function(root){'use strict';
  const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -33,7 +33,14 @@
   if(activityId){const original=dayItems(dayId);const next=original.map(a=>a.id===activityId?Object.assign({},a,{bookingId:id}):a);try{root.ITINERARY_AUTHORITY.commitDayChanges({['itineraryDay'+dayNumber]:{day:dayNumber,items:next}});}catch(err){root.BOOKING_AUTHORITY.remove(id);alert('Could not link Activity: '+err.message);return false;}}
   document.getElementById('studioCreateBookingSheet')?.remove();alert('Booking saved locally. Cloud sync is not configured for this Beta.');location.href='trip.html?bookingId='+encodeURIComponent(id);return false;
  }
- function inject(){const host=document.getElementById('bookingCreateActionHost');if(!host)return;let btn=document.getElementById('bookingPageCreateButton');if(!btn){btn=document.createElement('button');btn.id='bookingPageCreateButton';btn.className='pill';btn.type='button';btn.textContent='＋ Create Booking';btn.addEventListener('click',show);host.appendChild(btn);}btn.hidden=!editable();}
+ function inject(){
+  const host=document.getElementById('bookingCreateActionHost');
+  if(!host)return;
+  let btn=document.getElementById('bookingPageCreateButton');
+  if(!btn){btn=document.createElement('button');btn.id='bookingPageCreateButton';btn.className='pill';btn.type='button';btn.textContent='＋ Create Booking';btn.addEventListener('click',show);host.appendChild(btn);}
+  btn.hidden=!editable();
+ }
+
  document.addEventListener('travelengine:adminmodechange',()=>setTimeout(inject,0));
  document.addEventListener('DOMContentLoaded',()=>setTimeout(inject,50));
  root.CompanionStudioCreateBooking=Object.freeze({open:show,dateForDay});

@@ -8,7 +8,7 @@
   "endDate": "2027-01-29",
   "timeZone": "Asia/Seoul",
   "homeTimeZone": "Australia/Melbourne",
-  "homeLabel": "Melbourne · Australia",
+  "homeLabel": "Melbourne, Australia",
   "currency": "KRW",
   "homeCurrency": "AUD",
   "settlementCurrency": "AUD",
@@ -21,23 +21,19 @@
   "locale": "zh-HK",
   "travellers": [
     {
-      "name": "Mero",
-      "emoji": "❄️"
+      "name": "Mero"
     },
     {
-      "name": "Rocky",
-      "emoji": "🏔️"
+      "name": "Rocky"
     },
     {
-      "name": "Megan",
-      "emoji": "🧣"
+      "name": "Megan"
     },
     {
-      "name": "QQ",
-      "emoji": "⛄"
+      "name": "QQ"
     }
   ],
-  "tagline": "Four of us · Nine days · One Korea adventure",
+  "tagline": "Four of us · Nine winter days · Seoul & Yongpyong",
   "heroLine1": "Seoul Family",
   "heroEmphasis": "Companion",
   "memoryBookUrl": "",
@@ -48,7 +44,7 @@
         {
           "id": "d1-01-incheon-arrival",
           "time": "13:50",
-          "title": "抵達首爾 Incheon Arrival",
+          "title": "🚆 抵達首爾 Incheon Arrival",
           "type": "transport",
           "place": "Incheon International Airport",
           "address": "Incheon International Airport",
@@ -60,7 +56,7 @@
         {
           "id": "d1-02-check-in-l9-stay-in-hongdae",
           "time": "15:00",
-          "title": "Check in L9 Stay In Hongdae",
+          "title": "🏨 Check in L9 Stay In Hongdae",
           "type": "stay",
           "place": "Check in L9 Stay In Hongdae",
           "address": "30 Wausan-ro 29-gil, Mapo-gu, Seoul",
@@ -72,7 +68,7 @@
         {
           "id": "d1-03-hongdae-shopping-street",
           "time": "16:00",
-          "title": "弘大購物街 Hongdae Shopping Street",
+          "title": "🛍️ 弘大購物街 Hongdae Shopping Street",
           "type": "shopping",
           "place": "弘大購物街 Hongdae Shopping Street",
           "address": "Hongdae Shopping Street, Seoul",
@@ -84,7 +80,7 @@
         {
           "id": "d1-04-dinner-crab-kingdom",
           "time": "18:30",
-          "title": "Dinner - Crab Kingdom",
+          "title": "🍜 Dinner - Crab Kingdom",
           "type": "dining",
           "place": "Dinner - Crab Kingdom",
           "address": "South Korea, Seoul, Mapo-gu, Eoulmadang-ro, 136 3 2f",
@@ -101,7 +97,7 @@
         {
           "id": "d2-01-bakery-cafe",
           "time": "09:00",
-          "title": "弘大麵包店／咖啡店 Bakery & Café",
+          "title": "🍜 弘大麵包店／咖啡店 Bakery & Café",
           "type": "dining",
           "place": "弘大麵包店／咖啡店 Bakery & Café",
           "address": "Hongdae, Seoul",
@@ -113,7 +109,7 @@
         {
           "id": "d2-02-gwanghwamun-woldae",
           "time": "10:00",
-          "title": "景褔宮 - Gwanghwamun Woldae",
+          "title": "📸 景褔宮 - Gwanghwamun Woldae",
           "type": "attraction",
           "place": "景褔宮 - Gwanghwamun Woldae",
           "address": "1-67 Sejongno, Jongno District, Seoul",
@@ -122,7 +118,7 @@
         {
           "id": "d2-03-tongin-market",
           "time": "12:30",
-          "title": "通仁市場 Tongin Market",
+          "title": "🍜 通仁市場 Tongin Market",
           "type": "dining",
           "place": "通仁市場 Tongin Market",
           "address": "18 Jahamun-ro 15-gil, Jongno District, Seoul",
@@ -131,7 +127,7 @@
         {
           "id": "d2-04-seochon-seochon-area",
           "time": "14:00",
-          "title": "西村（Seochon）街區 Seochon Area",
+          "title": "📸 西村（Seochon）街區 Seochon Area",
           "type": "attraction",
           "place": "西村（Seochon）街區 Seochon Area",
           "address": "28-1 Tongui-dong, Jongno District, Seoul",
@@ -143,7 +139,7 @@
         {
           "id": "d2-05-redmangchi-seochon-gift-shop",
           "time": "14:00",
-          "title": "(redmangchi seochon) Gift shop",
+          "title": "🛍️ (redmangchi seochon) Gift shop",
           "type": "shopping",
           "place": "(redmangchi seochon) Gift shop",
           "address": "5 Hyoja-ro 7-gil, Jongno District, Seoul",
@@ -152,7 +148,7 @@
         {
           "id": "d2-06-vintage-universe-clothing-shop",
           "time": "14:00",
-          "title": "VINTAGE UNIVERSE - Clothing shop",
+          "title": "🛍️ VINTAGE UNIVERSE - Clothing shop",
           "type": "shopping",
           "place": "VINTAGE UNIVERSE - Clothing shop",
           "address": "Pirundae-ro 2-gil, 14 1層, Jongno District, South Korea",
@@ -161,7 +157,7 @@
         {
           "id": "d2-07-juuneedu-pajamas-boutique",
           "time": "17:00",
-          "title": "JUUNEEDU PAJAMAS BOUTIQUE",
+          "title": "🛍️ JUUNEEDU PAJAMAS BOUTIQUE",
           "type": "shopping",
           "place": "JUUNEEDU PAJAMAS BOUTIQUE",
           "address": "383-91 Yeonnam-dong, Mapo-gu, Seoul",
@@ -170,7 +166,7 @@
         {
           "id": "d2-08-vintage-clothing-hongdae",
           "time": "17:30",
-          "title": "쿄도빈티지 - Vintage clothing Hongdae",
+          "title": "📸 쿄도빈티지 - Vintage clothing Hongdae",
           "type": "attraction",
           "place": "쿄도빈티지 - Vintage clothing Hongdae",
           "address": "Mapo-gu, Yeonnam-dong, 227 24, South Korea",
@@ -179,7 +175,7 @@
         {
           "id": "d2-09-hotel-de-ggoodd",
           "time": "18:30",
-          "title": "Hotel De GGOODD",
+          "title": "🍜 Hotel De GGOODD",
           "type": "dining",
           "place": "Hotel De GGOODD",
           "address": "Mapo-gu, Donggyo-ro 46-gil, 7, South Korea",
@@ -193,7 +189,7 @@
         {
           "id": "d3-01-bakery-cafe-aoitori",
           "time": "09:00",
-          "title": "Bakery Cafe Aoitori 弘大鹽麵包＋咖啡",
+          "title": "🍜 Bakery Cafe Aoitori 弘大鹽麵包＋咖啡",
           "type": "dining",
           "place": "Bakery Cafe Aoitori 弘大鹽麵包＋咖啡",
           "address": "8 Wausan-ro 29-gil, Mapo-gu, Seoul",
@@ -205,7 +201,7 @@
         {
           "id": "d3-02-hongdae-shopping-street",
           "time": "10:00",
-          "title": "Hongdae Shopping Street 弘大服飾店",
+          "title": "🛍️ Hongdae Shopping Street 弘大服飾店",
           "type": "shopping",
           "place": "Hongdae Shopping Street 弘大服飾店",
           "address": "365-9 Seogyo-dong, Mapo-gu, Seoul",
@@ -217,7 +213,7 @@
         {
           "id": "d3-03-transfer-to-myeongdong",
           "time": "12:30",
-          "title": "取行李並前往明洞 Transfer to Myeongdong",
+          "title": "🚆 取行李並前往明洞 Transfer to Myeongdong",
           "type": "transport",
           "details": [
             "原計畫乘 Uber。",
@@ -227,7 +223,7 @@
         {
           "id": "d3-04-uh-suite-the-myeongdong",
           "time": "12:45",
-          "title": "UH Suite The Myeongdong",
+          "title": "🏨 UH Suite The Myeongdong",
           "type": "stay",
           "place": "UH Suite The Myeongdong",
           "address": "49 Myeongdong 8ga-gil, Jung District, Seoul",
@@ -239,7 +235,7 @@
         {
           "id": "d3-05-seowonjuk",
           "time": "13:00",
-          "title": "宋粥家（第二分店) Seowonjuk",
+          "title": "🍜 宋粥家（第二分店) Seowonjuk",
           "type": "dining",
           "place": "宋粥家（第二分店) Seowonjuk",
           "address": "62-8 Chungmuro 2(i)-ga, Jung District, Seoul",
@@ -251,7 +247,7 @@
         {
           "id": "d3-06-hetras-myeongdong",
           "time": "14:00",
-          "title": "hetras Myeongdong",
+          "title": "🛍️ hetras Myeongdong",
           "type": "shopping",
           "place": "hetras Myeongdong",
           "address": "10 Myeongdong 6-gil, Jung District, Seoul",
@@ -260,7 +256,7 @@
         {
           "id": "d3-07-myeongdong-shopping-street",
           "time": "14:30",
-          "title": "Myeongdong Shopping Street",
+          "title": "🛍️ Myeongdong Shopping Street",
           "type": "shopping",
           "place": "Myeongdong Shopping Street",
           "address": "Myeong-dong 2(i)-ga, Jung District, Seoul",
@@ -269,7 +265,7 @@
         {
           "id": "d3-08-daol-charcoal-grilling",
           "time": "19:00",
-          "title": "Daol Charcoal Grilling",
+          "title": "🍜 Daol Charcoal Grilling",
           "type": "dining",
           "place": "Daol Charcoal Grilling",
           "address": "8-11 Myeongdong 8-gil, Jung District, Seoul",
@@ -281,7 +277,7 @@
         {
           "id": "d3-09-myeongdong-sauna-golden-sauna",
           "time": "20:00",
-          "title": "Myeongdong Sauna Golden Sauna 汗蒸幕",
+          "title": "📸 Myeongdong Sauna Golden Sauna 汗蒸幕",
           "type": "attraction",
           "place": "Myeongdong Sauna Golden Sauna 汗蒸幕",
           "address": "Seoul Jung-gu Myeongdong 8ga-gil 27",
@@ -295,7 +291,7 @@
         {
           "id": "d4-01-myeongdong-breakfast",
           "time": "08:30",
-          "title": "明洞早餐 Myeongdong Breakfast",
+          "title": "🍜 明洞早餐 Myeongdong Breakfast",
           "type": "dining",
           "place": "明洞早餐 Myeongdong Breakfast",
           "address": "Myeongdong, Seoul",
@@ -307,7 +303,7 @@
         {
           "id": "d4-02-bukchon-palgyeong",
           "time": "09:45",
-          "title": "Bukchon Palgyeong",
+          "title": "📸 Bukchon Palgyeong",
           "type": "attraction",
           "place": "Bukchon Palgyeong",
           "address": "Samcheong-ro, Jongno District, Seoul",
@@ -319,7 +315,7 @@
         {
           "id": "d4-03-samcheong-dong",
           "time": "10:00",
-          "title": "三清洞 Samcheong-dong",
+          "title": "📸 三清洞 Samcheong-dong",
           "type": "attraction",
           "place": "三清洞 Samcheong-dong",
           "address": "Samcheong-dong, Jongno District, Seoul",
@@ -328,7 +324,7 @@
         {
           "id": "d4-04-cueren-samcheong-signature-store",
           "time": "11:00",
-          "title": "CUEREN Samcheong Signature Store",
+          "title": "🛍️ CUEREN Samcheong Signature Store",
           "type": "shopping",
           "place": "CUEREN Samcheong Signature Store",
           "address": "36 Bukchon-ro 5-gil, Jongno District, Seoul",
@@ -337,7 +333,7 @@
         {
           "id": "d4-05-muguok-gingseng-soup",
           "time": "12:00",
-          "title": "Muguok 無垢屋-Gingseng soup",
+          "title": "🍜 Muguok 無垢屋-Gingseng soup",
           "type": "dining",
           "place": "Muguok 無垢屋-Gingseng soup",
           "address": "South Korea, Seoul, Jongno District, Yulgok-ro 1-gil, 7 한옥",
@@ -349,7 +345,7 @@
         {
           "id": "d4-06-seosulla-gil-jongmyo-shrine-walkw",
           "time": "13:00",
-          "title": "Seosulla-gil (Jongmyo Shrine Walkway)",
+          "title": "🍜 Seosulla-gil (Jongmyo Shrine Walkway)",
           "type": "dining",
           "place": "Seosulla-gil (Jongmyo Shrine Walkway)",
           "address": "104-1 Gwonnong-dong, Jongno District, Seoul",
@@ -358,7 +354,7 @@
         {
           "id": "d4-07-ikseon-dong-hanok-village",
           "time": "14:00",
-          "title": "Ikseon-dong Hanok Village",
+          "title": "🛍️ Ikseon-dong Hanok Village",
           "type": "shopping",
           "place": "Ikseon-dong Hanok Village",
           "address": "Ikseon-dong, Jongno District, Seoul",
@@ -370,7 +366,7 @@
         {
           "id": "d4-08-haecheon-oba",
           "time": "18:30",
-          "title": "Haecheon Oba（해천어부）",
+          "title": "🍜 Haecheon Oba（해천어부）",
           "type": "dining",
           "place": "Haecheon Oba（해천어부）",
           "address": "11 Supyo-ro 28-gil, Jongno District, Seoul",
@@ -382,7 +378,7 @@
         {
           "id": "d4-09-cheonggyecheon-stream",
           "time": "OPEN",
-          "title": "清溪川散步 Cheonggyecheon Stream",
+          "title": "📸 清溪川散步 Cheonggyecheon Stream",
           "type": "attraction",
           "place": "清溪川散步 Cheonggyecheon Stream",
           "address": "Cheonggyecheon, Seoul",
@@ -400,7 +396,7 @@
         {
           "id": "d5-01-myeongdong-check-out",
           "time": "OPEN",
-          "title": "明洞住宿退房 Myeongdong Check-out",
+          "title": "🏨 明洞住宿退房 Myeongdong Check-out",
           "type": "stay",
           "place": "明洞住宿退房 Myeongdong Check-out",
           "address": "UH Suite The Myeongdong, Seoul",
@@ -413,7 +409,7 @@
         {
           "id": "d5-02-coach-mona-yongpyong-coach",
           "time": "08:45",
-          "title": "Coach 前往 MONA 龍平滑雪場 Yongpyong Coach",
+          "title": "🚌 Coach 前往 MONA 龍平滑雪場 Yongpyong Coach",
           "type": "transport",
           "details": [
             "請出發前確認車票及集合點。",
@@ -423,7 +419,7 @@
         {
           "id": "d5-03-mona-check-in",
           "time": "OPEN",
-          "title": "MONA 龍平滑雪場入住 Check-in",
+          "title": "⛷️ MONA 龍平滑雪場入住 Check-in",
           "type": "stay",
           "place": "MONA 龍平滑雪場入住 Check-in",
           "address": "MONA Yongpyong Resort, Pyeongchang",
@@ -441,7 +437,7 @@
         {
           "id": "d6-01-mona-yongpyong-skiing",
           "time": "OPEN",
-          "title": "MONA 龍平滑雪 Yongpyong Skiing",
+          "title": "⛷️ MONA 龍平滑雪 Yongpyong Skiing",
           "type": "attraction",
           "place": "MONA 龍平滑雪 Yongpyong Skiing",
           "address": "MONA Yongpyong Resort, Pyeongchang",
@@ -454,7 +450,7 @@
         {
           "id": "d6-02-resort-lunch",
           "time": "OPEN",
-          "title": "滑雪場內午餐 Resort Lunch",
+          "title": "⛷️ 滑雪場內午餐 Resort Lunch",
           "type": "dining",
           "place": "滑雪場內午餐 Resort Lunch",
           "address": "MONA Yongpyong Resort, Pyeongchang",
@@ -467,7 +463,7 @@
         {
           "id": "d6-03-mona-yongpyong-stay",
           "time": "OPEN",
-          "title": "MONA 龍平度假村住宿 Yongpyong Stay",
+          "title": "🏨 MONA 龍平度假村住宿 Yongpyong Stay",
           "type": "stay",
           "place": "MONA 龍平度假村住宿 Yongpyong Stay",
           "address": "MONA Yongpyong Resort, Pyeongchang",
@@ -485,7 +481,7 @@
         {
           "id": "d7-01-mona-yongpyong-check-out",
           "time": "OPEN",
-          "title": "MONA 龍平退房 Yongpyong Check-out",
+          "title": "🏨 MONA 龍平退房 Yongpyong Check-out",
           "type": "stay",
           "place": "MONA 龍平退房 Yongpyong Check-out",
           "address": "MONA Yongpyong Resort, Pyeongchang",
@@ -497,7 +493,7 @@
         {
           "id": "d7-02-coach-coach-to-myeongdong",
           "time": "17:00",
-          "title": "Coach 返回明洞 Coach to Myeongdong",
+          "title": "🚌 Coach 返回明洞 Coach to Myeongdong",
           "type": "transport",
           "details": [
             "車程約 3.5 小時。",
@@ -507,7 +503,7 @@
         {
           "id": "d7-03-odarijip-ganjang-gejang",
           "time": "OPEN",
-          "title": "Odarijip Ganjang Gejang（오다리집 간장게장）",
+          "title": "🍜 Odarijip Ganjang Gejang（오다리집 간장게장）",
           "type": "dining",
           "place": "Odarijip Ganjang Gejang（오다리집 간장게장）",
           "address": "Myeongdong, Seoul",
@@ -520,7 +516,7 @@
         {
           "id": "d7-04-rest-at-hotel",
           "time": "OPEN",
-          "title": "返回住宿休息 Rest at Hotel",
+          "title": "✨ 返回住宿休息 Rest at Hotel",
           "type": "custom",
           "place": "返回住宿休息 Rest at Hotel",
           "address": "UH Suite The Myeongdong, Seoul",
@@ -538,7 +534,7 @@
         {
           "id": "d8-01-depart-from-myeongdong",
           "time": "09:00",
-          "title": "由明洞住宿出發 Depart from Myeongdong",
+          "title": "🚆 由明洞住宿出發 Depart from Myeongdong",
           "type": "transport",
           "details": [
             "Route: UH Suite The Myeongdong → Seongsu-dong"
@@ -547,7 +543,7 @@
         {
           "id": "d8-02-seongsu-dong-cafe-street",
           "time": "09:30",
-          "title": "Seongsu-dong Café Street 咖啡店",
+          "title": "🍜 Seongsu-dong Café Street 咖啡店",
           "type": "dining",
           "place": "Seongsu-dong Café Street 咖啡店",
           "address": "Seongsui-ro, Seongdong-gu, Seoul",
@@ -556,7 +552,7 @@
         {
           "id": "d8-03-miffy-store",
           "time": "10:30",
-          "title": "Miffy Store-聖水洞特色店",
+          "title": "🛍️ Miffy Store-聖水洞特色店",
           "type": "shopping",
           "place": "Miffy Store-聖水洞特色店",
           "address": "5 Yeonmujang 13-gil, Seongdong-gu, Seoul",
@@ -565,7 +561,7 @@
         {
           "id": "d8-04-nyu-nyu",
           "time": "11:00",
-          "title": "NYU NYU",
+          "title": "🛍️ NYU NYU",
           "type": "shopping",
           "place": "NYU NYU",
           "address": "Yeonmujang-gil, 89 2-3F, Seongdong-gu, Seoul",
@@ -574,7 +570,7 @@
         {
           "id": "d8-05-brandy-melville-korea",
           "time": "11:30",
-          "title": "Brandy Melville Korea",
+          "title": "🛍️ Brandy Melville Korea",
           "type": "shopping",
           "place": "Brandy Melville Korea",
           "address": "101-1 Yeonmujang-gil, Seongdong-gu, Seoul",
@@ -583,7 +579,7 @@
         {
           "id": "d8-06-somunnan-seongsu-gamjatang",
           "time": "12:30",
-          "title": "Somunnan Seongsu Gamjatang",
+          "title": "🍜 Somunnan Seongsu Gamjatang",
           "type": "dining",
           "place": "Somunnan Seongsu Gamjatang",
           "address": "45 Yeonmujang-gil, Seongdong-gu, Seoul",
@@ -595,7 +591,7 @@
         {
           "id": "d8-07-n-seoul-tower-sunset",
           "time": "OPEN",
-          "title": "南山首爾塔・日落景觀 N Seoul Tower Sunset",
+          "title": "🌇 南山首爾塔・日落景觀 N Seoul Tower Sunset",
           "type": "attraction",
           "place": "南山首爾塔・日落景觀 N Seoul Tower Sunset",
           "address": "N Seoul Tower, Seoul",
@@ -608,7 +604,7 @@
         {
           "id": "d8-08-eel-sidae-namdaemun-branch",
           "time": "OPEN",
-          "title": "Eel Sidae Namdaemun Branch",
+          "title": "🍜 Eel Sidae Namdaemun Branch",
           "type": "dining",
           "place": "Eel Sidae Namdaemun Branch",
           "address": "Namdaemun, Seoul",
@@ -626,7 +622,7 @@
         {
           "id": "d9-01-event",
           "time": "09:00",
-          "title": "明洞住宿退房及寄存行李",
+          "title": "🏨 明洞住宿退房及寄存行李",
           "type": "stay",
           "place": "明洞住宿退房及寄存行李",
           "address": "UH Suite The Myeongdong, Seoul",
@@ -635,7 +631,7 @@
         {
           "id": "d9-02-gwangjang-market-breakfast",
           "time": "OPEN",
-          "title": "廣藏市場早餐 Gwangjang Market Breakfast",
+          "title": "🍜 廣藏市場早餐 Gwangjang Market Breakfast",
           "type": "dining",
           "place": "廣藏市場早餐 Gwangjang Market Breakfast",
           "address": "Gwangjang Market, Seoul",
@@ -647,7 +643,7 @@
         {
           "id": "d9-03-buy-quilts",
           "time": "OPEN",
-          "title": "廣藏市場購買棉被 Buy Quilts",
+          "title": "🛍️ 廣藏市場購買棉被 Buy Quilts",
           "type": "shopping",
           "place": "廣藏市場購買棉被 Buy Quilts",
           "address": "Gwangjang Market, Seoul",
@@ -660,7 +656,7 @@
         {
           "id": "d9-04-president-bbq",
           "time": "12:00",
-          "title": "대통령삼겹살 大統領烤肉 President BBQ",
+          "title": "🍜 대통령삼겹살 大統領烤肉 President BBQ",
           "type": "dining",
           "place": "대통령삼겹살 大統領烤肉 President BBQ",
           "address": "Near Doota Mall, Dongdaemun, Seoul",
@@ -669,7 +665,7 @@
         {
           "id": "d9-05-doota-mall-dongdaemun-shopping",
           "time": "OPEN",
-          "title": "東大門／Doota Mall 購物 Dongdaemun Shopping",
+          "title": "🛍️ 東大門／Doota Mall 購物 Dongdaemun Shopping",
           "type": "shopping",
           "place": "東大門／Doota Mall 購物 Dongdaemun Shopping",
           "address": "Doota Mall, Dongdaemun, Seoul",
@@ -681,7 +677,7 @@
         {
           "id": "d9-06-last-shopping-in-myeongdong",
           "time": "17:00",
-          "title": "明洞最後購物 Last Shopping in Myeongdong",
+          "title": "🛍️ 明洞最後購物 Last Shopping in Myeongdong",
           "type": "shopping",
           "place": "明洞最後購物 Last Shopping in Myeongdong",
           "address": "Myeongdong, Seoul",
@@ -690,7 +686,7 @@
         {
           "id": "d9-07-to-incheon-airport-t1",
           "time": "OPEN",
-          "title": "前往仁川機場第一航廈 To Incheon Airport T1",
+          "title": "✈️ 前往仁川機場第一航廈 To Incheon Airport T1",
           "type": "transport",
           "details": [
             "Original schedule: 約20:00",
@@ -700,7 +696,7 @@
         {
           "id": "d9-08-spa-at-home-t1",
           "time": "OPEN",
-          "title": "SPA at Home（仁川 T1）",
+          "title": "✨ SPA at Home（仁川 T1）",
           "type": "custom",
           "place": "SPA at Home（仁川 T1）",
           "address": "Incheon International Airport T1",
@@ -712,7 +708,7 @@
         {
           "id": "d9-09-flight-departure",
           "time": "OPEN",
-          "title": "凌晨航班起飛 Flight Departure",
+          "title": "✈️ 凌晨航班起飛 Flight Departure",
           "type": "transport",
           "place": "Incheon International Airport",
           "address": "Incheon International Airport",
@@ -728,7 +724,7 @@
   "bookings": [
     {
       "id": "bkg-cathay-pacific-cx410-hkgicn-1",
-      "title": "Cathay Pacific CX410 HKG–ICN",
+      "title": "✈️ Cathay Pacific CX410 HKG–ICN",
       "type": "transport",
       "status": "pending",
       "date": "2027-01-21",
@@ -742,7 +738,7 @@
     },
     {
       "id": "bkg-l9-stay-in-hongdae-1",
-      "title": "L9 Stay In Hongdae",
+      "title": "🏨 L9 Stay In Hongdae",
       "type": "accommodation",
       "status": "pending",
       "date": "2027-01-21",
@@ -758,7 +754,7 @@
     },
     {
       "id": "bkg-uh-suite-the-myeongdong-first-sta-3",
-      "title": "UH Suite The Myeongdong (first stay)",
+      "title": "🏨 UH Suite The Myeongdong (first stay)",
       "type": "accommodation",
       "status": "pending",
       "date": "2027-01-23",
@@ -774,7 +770,7 @@
     },
     {
       "id": "bkg-myeongdong-yongpyong-coach-5",
-      "title": "Myeongdong → Yongpyong Coach",
+      "title": "🚌 Myeongdong → Yongpyong Coach",
       "type": "transport",
       "status": "pending",
       "date": "2027-01-25",
@@ -787,7 +783,7 @@
     },
     {
       "id": "bkg-mona-yongpyong-resort-5",
-      "title": "MONA Yongpyong Resort",
+      "title": "🏨 MONA Yongpyong Resort",
       "type": "accommodation",
       "status": "pending",
       "date": "2027-01-25",
@@ -803,7 +799,7 @@
     },
     {
       "id": "bkg-yongpyong-myeongdong-coach-7",
-      "title": "Yongpyong → Myeongdong Coach",
+      "title": "🚌 Yongpyong → Myeongdong Coach",
       "type": "transport",
       "status": "pending",
       "date": "2027-01-27",
@@ -816,7 +812,7 @@
     },
     {
       "id": "bkg-uh-suite-the-myeongdong-return-st-7",
-      "title": "UH Suite The Myeongdong (return stay)",
+      "title": "🏨 UH Suite The Myeongdong (return stay)",
       "type": "accommodation",
       "status": "pending",
       "date": "2027-01-27",
@@ -832,7 +828,7 @@
     },
     {
       "id": "bkg-return-flight-from-icn-number-tbc-9",
-      "title": "Return flight from ICN (number TBC)",
+      "title": "✈️ Return flight from ICN (number TBC)",
       "type": "transport",
       "status": "pending",
       "date": "2027-01-29",
@@ -844,6 +840,5 @@
       "specialNotes": "Not confirmed in source itinerary; please verify reservation details."
     }
   ],
-  "themeName": "Seoul Winter · Snow Blue & Lavender",
-  "logo": "mero-seoul-winter-logo.png"
+  "localStudioPin": "000000"
 }
