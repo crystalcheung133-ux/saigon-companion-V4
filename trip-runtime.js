@@ -103,7 +103,7 @@ function buildAccommodationListHTML(){
     const price=priceParts.join(' · ')||'Price not added yet';
     const statusLabel=bookingStatusText(booking)||'';
     const statusClass=String(booking.status||'').replace(/[^a-z0-9-]/gi,'').toLowerCase();
-    return `<button class="accommodation-picker-row" type="button" role="listitem" onclick="openAccommodationDetail('${escapeTripHTML(booking.id)}')"><span class="accommodation-picker-icon" aria-hidden="true">🏨</span><span class="accommodation-picker-copy"><strong>${escapeTripHTML(booking.title)}</strong><small>${escapeTripHTML(booking.stayDates||booking.date||'')}</small><span class="accommodation-picker-price">${escapeTripHTML(price)}</span></span><span class="accommodation-picker-meta accommodation-picker-meta--stack">${statusLabel?`<span class="accommodation-status-badge accommodation-status-badge--${escapeTripHTML(statusClass)}">${escapeTripHTML(statusLabel)}</span>`:''}<span class="accommodation-night-line">${escapeTripHTML(nightsLabel)} <b aria-hidden="true">›</b></span></span></button>`;
+    return `<button class="accommodation-picker-row" type="button" role="listitem" onclick="openAccommodationDetail('${escapeTripHTML(booking.id)}')"><span class="accommodation-picker-icon" aria-hidden="true">🏨</span><span class="accommodation-picker-copy"><strong>${escapeTripHTML(booking.title)}</strong><small>${escapeTripHTML(booking.stayDates||booking.date||'')}</small>${price?`<span class="accommodation-picker-price">${escapeTripHTML(price)}</span>`:''}</span><span class="accommodation-picker-meta accommodation-picker-meta--stack">${statusLabel?`<span class="accommodation-status-badge accommodation-status-badge--${escapeTripHTML(statusClass)}">${escapeTripHTML(statusLabel)}</span>`:''}<span class="accommodation-night-line">${escapeTripHTML(nightsLabel)} <b aria-hidden="true">›</b></span></span></button>`;
   }).join('')+'</div>';
 }
 function bookingBrowseNavigationHTML(bookings,index,openFunction){
@@ -319,7 +319,7 @@ function buildTransportBookingListHTML(){
   if(!bookings.length)return '<p class="timestamp">No transport bookings have been added yet.</p>';
   return '<div class="accommodation-picker transport-booking-picker" role="list">'+bookings.map(function(booking){
     const price=booking.netTotalAUD||booking.netPrice||booking.totalAmount||booking.price||'';
-    return `<button class="accommodation-picker-row transport-booking-row" type="button" role="listitem" onclick="openGenericBookingDetail('${escapeTripHTML(booking.id)}')"><span class="accommodation-picker-icon" aria-hidden="true">🚐</span><span class="accommodation-picker-copy"><strong>${escapeTripHTML(booking.title)}</strong><small>Day ${escapeTripHTML(bookingDayNumber(booking)||'')} · ${escapeTripHTML(booking.date||'')}</small>${price?`<span class="accommodation-picker-price">${escapeTripHTML(price)}</span>`:''}</span><span class="accommodation-picker-meta"><span class="activity-status-badge">${escapeTripHTML(bookingStatusText(booking))}</span><b aria-hidden="true">›</b></span></button>`;
+    return `<button class="accommodation-picker-row transport-booking-row" type="button" role="listitem" onclick="openGenericBookingDetail('${escapeTripHTML(booking.id)}')"><span class="accommodation-picker-icon" aria-hidden="true">🚐</span><span class="accommodation-picker-copy"><strong>${escapeTripHTML(booking.title)}</strong><small>Day ${escapeTripHTML(bookingDayNumber(booking)||'')} · ${escapeTripHTML(booking.date||'')}</small>${price?`${price?`<span class="accommodation-picker-price">${escapeTripHTML(price)}</span>`:''}`:''}</span><span class="accommodation-picker-meta"><span class="activity-status-badge">${escapeTripHTML(bookingStatusText(booking))}</span><b aria-hidden="true">›</b></span></button>`;
   }).join('')+'</div>';
 }
 
@@ -430,7 +430,7 @@ function bookingEditFields(booking){
     bookingField('Payment / deposit status','paymentStatus',booking.paymentStatus),bookingField('Total / balance','price',booking.price),
     bookingField('Website / booking link','website',booking.website,{wide:true,inputmode:'url'}),
     bookingField('Phone','phone',booking.phone),bookingField('Email','email',booking.email,{type:'email'}),
-    bookingField('Notes / cancellation / important information','importantInfo',bookingImportantInfo(booking),{type:'textarea'})
+    bookingField('Notes','notes',booking.notes,{type:'textarea'}),bookingField('Cancellation / important information','cancellation',booking.cancellation,{type:'textarea'})
   ];
   if(booking.type==='accommodation')common.splice(3,0,
     bookingField('Stay dates','stayDates',booking.stayDates,{wide:true}),
@@ -445,6 +445,21 @@ function bookingEditFields(booking){
     bookingField('Discount','discount',booking.discount),bookingField('Pickup / meeting point','pickupNote',booking.pickupNote||booking.pickupAddress,{type:'textarea'}),
     bookingField('Drop-off','dropOff',booking.dropOff,{type:'textarea'}),bookingField('Lunch','lunchStatus',booking.lunchStatus,{type:'textarea'})
   );
+  // Show every additional user-facing scalar field, including legacy/imported data.
+  // Internal IDs, sync metadata and derived read-only fields are not editable.
+  const rendered=new Set(['status','date','title','bookingName','reference','bookingVia','bookingViaOther','paymentStatus','price','website','phone','email','importantInfo','stayDates','roomType','checkIn','checkOut','address','checkInInstructions','time','dayId','tourType','guests','adults','children','originalTotal','discount','pickupNote','dropOff','lunchStatus']);
+  const internal=/^(?:id|type|placeId|activityId|bookingId|timelineItemId|eventId|origin|_.*|updatedAt|updatedBy|createdAt|createdBy|revision|masterRevision|bookingWay|platform|bookingViaOther|notes|cancellation|displayStatus|dayId|priceCurrency|status)$/;
+  const standardOptional=['time','bookingNumber','referenceLabel','guestSummary','host','parking','totalAmount','depositAmount','depositCurrency','depositPaid','balanceDue','payAtPickup','discountLabel','discountAmount','cashbackAmount','cashback','netTotalAUD','netPrice','fxNote','chargeDate','bookingUrl','pickupAddress','pickupDateTime','returnDateTime','dropOff','transportProvider','seat','vehicle','roomCount','mealPlan','contactName','operatorName'];
+  [...new Set([...Object.keys(booking),...standardOptional])].sort().forEach(function(key){
+    if(rendered.has(key)||internal.test(key))return;
+    const value=booking[key];
+    if(typeof value!=='string'&&typeof value!=='number')return;
+    // Even a currently blank, known optional field remains editable in Studio.
+    const label=key.replace(/([a-z])([A-Z])/g,'$1 $2').replace(/^./,c=>c.toUpperCase());
+    common.push(bookingField(label,key,value,{wide:String(value||'').length>65,type:String(value||'').length>100?'textarea':'text'}));
+  });
+  // Previously combined importantInfo erased the cancellation field on save.
+  // Both are independently editable and retain their own stored values.
   return common.join('');
 }
 function openBookingEdit(bookingId){
@@ -749,7 +764,7 @@ function buildBookingCategoryListHTML(category){
     if(booking.cashbackAmount||booking.cashback)priceParts.push(`Cashback ${booking.cashbackAmount||booking.cashback}`);
     if(booking.netTotalAUD||booking.netPrice)priceParts.push(`Net ${booking.netTotalAUD||booking.netPrice}`);
     const price=priceParts.join(' · ');
-    return `<button class="accommodation-picker-row booking-category-row" type="button" role="listitem" onclick="openGenericBookingDetail('${escapeTripHTML(booking.id)}')"><span class="accommodation-picker-icon" aria-hidden="true">${bookingEntityIcon(booking,category)}</span><span class="accommodation-picker-copy"><strong>${escapeTripHTML(booking.title)}</strong><small>${bookingDayNumber(booking)?`Day ${escapeTripHTML(bookingDayNumber(booking))} · `:''}${escapeTripHTML(booking.date||'')}${booking.time?` · ${escapeTripHTML(booking.time)}`:''}</small>${price?`<span class="accommodation-picker-price">${escapeTripHTML(price)}</span>`:''}</span><span class="accommodation-picker-meta"><span class="activity-status-badge">${escapeTripHTML(bookingStatusText(booking))}</span><b aria-hidden="true">›</b></span></button>`;
+    return `<button class="accommodation-picker-row booking-category-row" type="button" role="listitem" onclick="openGenericBookingDetail('${escapeTripHTML(booking.id)}')"><span class="accommodation-picker-icon" aria-hidden="true">${bookingEntityIcon(booking,category)}</span><span class="accommodation-picker-copy"><strong>${escapeTripHTML(booking.title)}</strong><small>${bookingDayNumber(booking)?`Day ${escapeTripHTML(bookingDayNumber(booking))} · `:''}${escapeTripHTML(booking.date||'')}${booking.time?` · ${escapeTripHTML(booking.time)}`:''}</small>${price?`${price?`<span class="accommodation-picker-price">${escapeTripHTML(price)}</span>`:''}`:''}</span><span class="accommodation-picker-meta"><span class="activity-status-badge">${escapeTripHTML(bookingStatusText(booking))}</span><b aria-hidden="true">›</b></span></button>`;
   }).join('')+'</div>';
 }
 function openBookingCategoryCard(category){

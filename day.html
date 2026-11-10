@@ -307,7 +307,7 @@
   }
   function ensureEditor(){
     if(document.getElementById('timelineEditorModal'))return;
-    const modal=document.createElement('div');modal.id='timelineEditorModal';modal.className='timeline-editor-modal';modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');modal.innerHTML=`<div class="timeline-editor-sheet"><header class="timeline-editor-head"><p class="kicker">ADMIN MODE</p><h2 id="timelineEditorHeading">Edit activity</h2><button class="timeline-editor-close" onclick="closeTimelineEditor()" aria-label="Close editor">×</button></header><div class="timeline-editor-scroll"><label>Time<input id="timelineEditTime" placeholder="e.g. 10:30 or Flexible"></label><label>Title<input id="timelineEditTitle" placeholder="Activity title"></label><label>Details<textarea id="timelineEditDetails" rows="5" placeholder="One detail per line"></textarea></label><label>To next stop / route<textarea id="timelineEditRoute" rows="3"></textarea></label><label id="timelineAddPositionRow" hidden>Insert position<select id="timelineAddPosition"></select><small class="timeline-field-help">Choose where this new activity appears in the day.</small></label></div><footer class="timeline-editor-actions"><button class="admin-discard-btn" onclick="closeTimelineEditor()">Cancel</button><button class="admin-save-btn" id="timelineEditorApply" onclick="applyTimelineEdit()">Apply</button></footer></div>`;document.body.appendChild(modal);
+    const modal=document.createElement('div');modal.id='timelineEditorModal';modal.className='timeline-editor-modal';modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');modal.innerHTML=`<div class="timeline-editor-sheet"><header class="timeline-editor-head"><p class="kicker">ADMIN MODE</p><h2 id="timelineEditorHeading">Edit activity</h2><button class="timeline-editor-close" onclick="closeTimelineEditor()" aria-label="Close editor">×</button></header><div class="timeline-editor-scroll"><label>Time<input id="timelineEditTime" placeholder="e.g. 10:30 or Flexible"></label><label>Title<input id="timelineEditTitle" placeholder="Activity title"></label><label>Details<textarea id="timelineEditDetails" rows="5" placeholder="One detail per line"></textarea></label><label>To next stop / route<textarea id="timelineEditRoute" rows="3"></textarea></label><label>Map URL<input id="timelineEditMap" type="url" placeholder="https://maps.google.com/..."></label><label>Place ID<input id="timelineEditPlaceId" placeholder="Optional linked Guide place"></label><label>Additional activity fields (JSON)<textarea id="timelineEditExtra" rows="5" placeholder="Optional fields such as guideIds, routeOptions and summary"></textarea></label><label id="timelineAddPositionRow" hidden>Insert position<select id="timelineAddPosition"></select><small class="timeline-field-help">Choose where this new activity appears in the day.</small></label></div><footer class="timeline-editor-actions"><button class="admin-discard-btn" onclick="closeTimelineEditor()">Cancel</button><button class="admin-save-btn" id="timelineEditorApply" onclick="applyTimelineEdit()">Apply</button></footer></div>`;document.body.appendChild(modal);
     modal.addEventListener('click',event=>{if(event.target===modal)event.preventDefault();});
     document.addEventListener('keydown',event=>{
       if(event.key!=='Escape')return;
@@ -337,6 +337,9 @@
       title:document.getElementById('timelineEditTitle')?.value||'',
       details:document.getElementById('timelineEditDetails')?.value||'',
       route:document.getElementById('timelineEditRoute')?.value||'',
+      map:document.getElementById('timelineEditMap')?.value||'',
+      placeId:document.getElementById('timelineEditPlaceId')?.value||'',
+      extra:document.getElementById('timelineEditExtra')?.value||'',
       position:document.getElementById('timelineAddPosition')?.value||''
     });
   }
@@ -348,6 +351,10 @@
     document.getElementById('timelineEditTitle').value=item.title||'';
     document.getElementById('timelineEditDetails').value=(item.details||[]).join('\n');
     document.getElementById('timelineEditRoute').value=item.route||'';
+    document.getElementById('timelineEditMap').value=item.map||'';
+    document.getElementById('timelineEditPlaceId').value=item.placeId||'';
+    const reserved=new Set(['id','dayId','time','title','details','route','map','placeId','bookingId']);
+    document.getElementById('timelineEditExtra').value=JSON.stringify(Object.fromEntries(Object.entries(item).filter(([k])=>!reserved.has(k))),null,2);
     populateAddPositions();
     lockEditorBackground();
     document.getElementById('timelineEditorModal').classList.add('show');
@@ -404,6 +411,21 @@
     base.title=title;
     base.details=document.getElementById('timelineEditDetails').value.split('\n').map(x=>x.trim()).filter(Boolean);
     base.route=document.getElementById('timelineEditRoute').value.trim();
+    base.map=document.getElementById('timelineEditMap').value.trim();
+    // Preserve advanced/legacy displayed Activity content through an editable JSON field.
+    // Protect identity and links, and reject malformed data before mutating the timeline.
+    let extra={};
+    try{extra=JSON.parse(document.getElementById('timelineEditExtra').value||'{}');
+      if(!extra||typeof extra!=='object'||Array.isArray(extra))throw Error('Expected an object');
+      const forbidden=['id','dayId','time','title','details','route','map','placeId','bookingId','__proto__','constructor','prototype'];
+      if(Object.keys(extra).some(k=>forbidden.includes(k)))throw Error('Reserved field included');
+    }catch(e){alert('Invalid additional activity fields JSON: '+e.message);return;}
+    const protectedFields=new Set(['id','dayId','time','title','details','route','map','placeId','bookingId']);
+    Object.keys(base).forEach(k=>{if(!protectedFields.has(k)&&!Object.prototype.hasOwnProperty.call(extra,k))delete base[k];});
+    Object.keys(extra).forEach(k=>{base[k]=extra[k];});
+    base.placeId=document.getElementById('timelineEditPlaceId').value.trim()||null;
+    if(base.placeId&&!DAY_PLACES[base.placeId]){alert('Place ID must match an existing Guide place.');return;}
+    base.nonPlace=!base.placeId;
     if(duplicating){
       const insertAt=Math.max(0,Math.min(duplicateSourceIndex+1,workingItems.length));
       workingItems.splice(insertAt,0,base);

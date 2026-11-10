@@ -7,11 +7,98 @@
    module loads.
    ============================================================================ */
 const PRODUCTION_GUIDE=GenerationSelectionAdapter.view('guide');
+// Local-first Guide Studio overlay for the 25.6.6 prototype. The canonical
+// production projection stays frozen; the view below is an editable clone.
+const GUIDE_STUDIO_KEY=String(TRIP_CONFIG.storageNamespace)+':guide_studio_fields:v1';
+const GUIDE_STUDIO_VIEW={places:JSON.parse(JSON.stringify(PRODUCTION_GUIDE.places))};
+try {
+  const persisted=JSON.parse(localStorage.getItem(GUIDE_STUDIO_KEY)||'{}');
+  Object.keys(persisted).forEach(key=>{
+    if(GUIDE_STUDIO_VIEW.places[key]&&persisted[key]&&typeof persisted[key]==='object')
+      Object.assign(GUIDE_STUDIO_VIEW.places[key],persisted[key]);
+  });
+}catch(e){console.warn('Guide Studio local overlay unavailable',e);}
+function guideStudioEscape(value){return String(value==null?'':value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function guideStudioForm(key){
+  if(!(window.isAdminMode&&window.isAdminMode()))return '';
+  const g=GUIDE_STUDIO_VIEW.places[key];if(!g)return '';
+  const optional=['sub','desc','address','phone','website','maps','hours','price','transport','signature','worth','tips','highlights','status','categoryLabel','instagramUrl','facebookUrl','bookingUrl','parking','source'];
+  const controls=[...new Set([...Object.keys(g),...optional])].filter(field=>!['key','id','createdAt','updatedAt','updatedBy'].includes(field)).sort().map(field=>{
+    const value=g[field];
+    if(value!=null && typeof value==='object'){
+      return `<label class="booking-edit-field booking-edit-field--wide"><span>${guideStudioEscape(field)} (JSON)</span><textarea data-guide-field="${guideStudioEscape(field)}" data-guide-json="1" rows="3">${guideStudioEscape(JSON.stringify(value,null,2))}</textarea></label>`;
+    }
+    return `<label class="booking-edit-field booking-edit-field--wide"><span>${guideStudioEscape(field)}</span><textarea data-guide-field="${guideStudioEscape(field)}" rows="2">${guideStudioEscape(value)}</textarea></label>`;
+  }).join('');
+  return `<button class="pill guide-studio-open" type="button" onclick="openGuideStudio('${guideStudioEscape(key)}')">Edit Guide</button><div class="guide-studio-edit" id="guideStudioEditor" hidden><p class="kicker">Trip Studio · Guide</p><p class="timestamp">Only non-empty fields appear in the reader. Edits save locally; Export/Import transfers them to another device.</p><div class="booking-edit-grid">${controls}</div><button class="pill" type="button" onclick="saveGuideStudio('${guideStudioEscape(key)}')">Save Guide</button><button class="pill" type="button" onclick="exportGuideStudio()">Export Guide edits</button><button class="pill" type="button" onclick="importGuideStudio()">Import Guide edits</button></div>`;
+}
+function openGuideStudio(){const e=document.getElementById('guideStudioEditor');if(e)e.hidden=false;}
+function saveGuideStudio(key){
+  const editor=document.getElementById('guideStudioEditor'),record=GUIDE_STUDIO_VIEW.places[key];if(!editor||!record)return;
+  const values={};
+  for(const input of editor.querySelectorAll('[data-guide-field]')){
+    const field=input.getAttribute('data-guide-field');let val=input.value.trim();
+    if(input.dataset.guideJson==='1'){
+      try{val=val?JSON.parse(val):null;}catch(e){alert('Invalid JSON in '+field);input.focus();return;}
+    }
+    values[field]=val;
+  }
+  try{
+    const all=JSON.parse(localStorage.getItem(GUIDE_STUDIO_KEY)||'{}');
+    all[key]=Object.assign({},all[key]||{},values);
+    localStorage.setItem(GUIDE_STUDIO_KEY,JSON.stringify(all));
+    Object.assign(record,values);
+    openGuideModal(key);
+  }catch(error){alert('Guide could not be saved locally: '+error.message);}
+}
+window.openGuideStudio=openGuideStudio;window.saveGuideStudio=saveGuideStudio;
+// Portable Guide Studio overrides: deliberately manual, not represented as cloud sync.
+// Export/import uses trip identity to prevent accidentally mixing two trips.
+function exportGuideStudio(){
+  if(!(window.isAdminMode&&window.isAdminMode()))return;
+  let edits={};try{edits=JSON.parse(localStorage.getItem(GUIDE_STUDIO_KEY)||'{}');}catch(e){alert('Could not read Guide edits');return;}
+  const payload={format:'companion-guide-edits',version:1,tripId:String(TRIP_CONFIG.storageNamespace),exportedAt:new Date().toISOString(),edits};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=payload.tripId+'-guide-edits.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);
+}
+function importGuideStudio(){
+  if(!(window.isAdminMode&&window.isAdminMode()))return;
+  const input=document.createElement('input');input.type='file';input.accept='.json,application/json';
+  input.onchange=async()=>{
+    const file=input.files&&input.files[0];if(!file)return;
+    try{
+      if(file.size>1024*1024)throw Error('Guide edit file is too large');
+      const payload=JSON.parse(await file.text());
+      if(payload.format!=='companion-guide-edits'||payload.version!==1||payload.tripId!==String(TRIP_CONFIG.storageNamespace))throw Error('File does not belong to this trip');
+      if(!payload.edits||typeof payload.edits!=='object'||Array.isArray(payload.edits))throw Error('Invalid Guide edits');
+      const current=JSON.parse(localStorage.getItem(GUIDE_STUDIO_KEY)||'{}');let count=0;
+      for(const [key,fields] of Object.entries(payload.edits)){
+        if(!Object.prototype.hasOwnProperty.call(GUIDE_STUDIO_VIEW.places,key)||!fields||typeof fields!=='object'||Array.isArray(fields))continue;
+        const allowed={};for(const [field,value] of Object.entries(fields)){
+          if(['key','id','createdAt','updatedAt','updatedBy','__proto__','constructor','prototype'].includes(field))continue;
+          if(!Object.prototype.hasOwnProperty.call(GUIDE_STUDIO_VIEW.places[key],field)&&!['sub','desc','address','phone','website','maps','hours','price','transport','signature','worth','tips','highlights','status','categoryLabel','instagramUrl','facebookUrl','bookingUrl','parking','source'].includes(field))continue;
+          if(value!==null&&typeof value!=='string'&&typeof value!=='number'&&typeof value!=='boolean'&&!Array.isArray(value)&&typeof value!=='object')continue;
+          allowed[field]=value;
+        }
+        if(Object.keys(allowed).length){current[key]=Object.assign({},current[key]||{},allowed);count++;}
+      }
+      if(!count)throw Error('No matching Guide fields found');
+      if(!confirm('Import edits for '+count+' Guide places? Existing local fields with the same names will be replaced.'))return;
+      localStorage.setItem(GUIDE_STUDIO_KEY,JSON.stringify(current));
+      for(const [key,fields] of Object.entries(current))if(GUIDE_STUDIO_VIEW.places[key])Object.assign(GUIDE_STUDIO_VIEW.places[key],fields);
+      alert('Imported '+count+' Guide places.');location.reload();
+    }catch(e){alert('Guide import failed: '+e.message);}
+  };
+  input.click();
+}
+window.exportGuideStudio=exportGuideStudio;window.importGuideStudio=importGuideStudio;
+
+
 
 function visitDayHTML(key){
   const days=GUIDE_NAVIGATION.dayLinks(key);
   if(!days.length) return '';
-  const place=PRODUCTION_GUIDE.places[key]||{};
+  const place=GUIDE_STUDIO_VIEW.places[key]||{};
   if(place.cat==='STAY') return '';
   const buttons=days.map(([label,href])=>`<a class="day-jump-button" href="${href}">${label} →</a>`).join('');
   return `<div class="quick-info-row visit-row"><span class="quick-info-icon">📅</span><span><span class="quick-info-label">Visit Day</span><span class="quick-info-value day-link-row">${buttons}</span></span></div>`;
@@ -56,7 +143,7 @@ function openGuideGroupFromDay(keys,itemId){
   window.GUIDE_MODAL_RETURN_SCROLL_Y=window.scrollY||window.pageYOffset||0;
   window.GUIDE_MODAL_RETURN_ITEM_ID=itemId||null;
   const excluded=new Set(TRIP_CONFIG.guide?.excludedPlaceIds||[]);
-  const clean=[...new Set((Array.isArray(keys)?keys:[]).filter(key=>key&&typeof PRODUCTION_GUIDE.places!=='undefined'&&PRODUCTION_GUIDE.places[key]&&!excluded.has(key)))];
+  const clean=[...new Set((Array.isArray(keys)?keys:[]).filter(key=>key&&typeof GUIDE_STUDIO_VIEW.places!=='undefined'&&GUIDE_STUDIO_VIEW.places[key]&&!excluded.has(key)))];
   if(!clean.length)return;
   closeMiniMenus();
   if(clean.length===1){openGuideModal(clean[0]);return;}
@@ -121,7 +208,7 @@ window.addEventListener('hashchange',applyGuideHashView);
 document.addEventListener('DOMContentLoaded',applyGuideHashView);
 function openRequestedGuideCard(){
  const key=NAVIGATION.getQuery('placeId','') || NAVIGATION.getQuery('legacyPlaceId','');
- if(!key || !PRODUCTION_GUIDE.places[key]) return;
+ if(!key || !GUIDE_STUDIO_VIEW.places[key]) return;
  window.setTimeout(function(){
   openGuideModal(key);
   const sheet=document.querySelector('#guideModal .guide-sheet');
@@ -160,7 +247,7 @@ function guideCategoryItems(cat){
  const sourceRows=guideCategorySources(cat).flatMap(source=>PRODUCTION_GUIDE.categories[source]||[]);
  const seen=new Set();
  return sourceRows
-  .map(item=>{const key=typeof item==='string'?item:item&&item.key;if(!key||seen.has(key))return null;seen.add(key);return PRODUCTION_GUIDE.places[key]?Object.assign({key},PRODUCTION_GUIDE.places[key]):null;})
+  .map(item=>{const key=typeof item==='string'?item:item&&item.key;if(!key||seen.has(key))return null;seen.add(key);return GUIDE_STUDIO_VIEW.places[key]?Object.assign({key},GUIDE_STUDIO_VIEW.places[key]):null;})
   .filter(item=>{
     if(!item||excluded.has(item.key))return false;
     if(guideSemanticCategory(cat)==='STAY'&&window.BOOKING_AUTHORITY){
@@ -207,7 +294,7 @@ function guideStayStatusHTML(item){
 function guideListRow(item){
  // Guide is experiential content. Booking operations remain in Trip · Accommodation.
  const action=`openGuideModal('${item.key}')`;
- const status=item.cat==='STAY'?guideStayStatusHTML(item):guideStatusHTML(Object.assign({key:item.key},PRODUCTION_GUIDE.places[item.key]||{}));
+ const status=item.cat==='STAY'?guideStayStatusHTML(item):guideStatusHTML(Object.assign({key:item.key},GUIDE_STUDIO_VIEW.places[item.key]||{}));
  const booking=(item.cat==='STAY'&&window.BOOKING_AUTHORITY)?BOOKING_AUTHORITY.byPlace(item.key):null;
  const subtitle=booking?[booking.stayDates||'',booking.nights?`${booking.nights} night${Number(booking.nights)===1?'':'s'}`:''].filter(Boolean).join(' · '):(item.sub||'');
  return `<button onclick="${action}"><span><span class="guide-list-title">${item.emoji} ${item.title}</span><span class="guide-list-sub">${subtitle}</span></span><span class="guide-list-meta">${status}<span class="guide-list-chevron">›</span></span></button>`;
@@ -256,11 +343,11 @@ function guideStatusHTML(g){
  const explicit=String(g.status||'').toLowerCase();
  const status=(linked&&String(linked.status||'').toLowerCase()==='confirmed')||explicit==='booked'
   ?'BOOKED'
-  :((explicit==='optional'||(!explicit&&optionalPattern.test(audit)))?'OPTIONAL':'PLANNED');
- return `<span class="guide-status guide-status-${status.toLowerCase()}">${status}</span>`;
+  :((explicit==='optional'||(!explicit&&optionalPattern.test(audit)))?'OPTIONAL':(explicit?explicit.toUpperCase():''));
+ return status?`<span class="guide-status guide-status-${status.toLowerCase()}">${guideStudioEscape(status)}</span>`:'';
 }
 function copyGuideAddress(key){
- const g=PRODUCTION_GUIDE.places[key]; if(!g?.address)return;
+ const g=GUIDE_STUDIO_VIEW.places[key]; if(!g?.address)return;
  const text=`${g.title}\n${g.address}`;
  const done=()=>{if(typeof showToast==='function')showToast('Address copied');};
  if(navigator.clipboard?.writeText){navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done));}
@@ -310,7 +397,7 @@ function quickInfoInnerHTML(g,key){
  const parkingHTML=parking?`<div class="recommended-parking"><div class="recommended-parking-head"><span>🚗</span><span><strong>Recommended Parking</strong><small>${parking.name||''}</small></span></div><div class="recommended-parking-grid"><p><span>📍</span><span>${parking.address||''}</span></p><p><span>🚶</span><span>${parking.walk||''}</span></p><p><span>💰</span><span>${parking.fee||''}</span></p></div>${parking.note?`<p class="recommended-parking-note">${parking.note}</p>`:''}${parking.maps?`<a class="map-button recommended-parking-nav" href="${parking.maps}" target="_blank" rel="noopener">🧭 Navigate to Parking</a>`:''}</div>`:'';
  const detailStatus=g.cat==='STAY'?guideStayStatusHTML(Object.assign({key},g)):guideStatusHTML(Object.assign({key},g));
  const coreSections=guideCoreSections(g,key);
- return `<div class="quick-info-top"><span class="category-tag">${g.categoryLabel||g.cat||'Guide'}</span>${roleBadge}${detailStatus}</div><div class="quick-info-grid">${addressRow}${phoneRow}${hoursRow}${priceRow}${bookingRow}${visitDayHTML(key)}</div>${coreSections}${reminderRow}${parkingHTML}<div class="quick-info-actions">${navButton}${bookingButton}</div>`;
+ return `<div class="quick-info-top"><span class="category-tag">${guideStudioEscape(g.categoryLabel||g.cat||'')}</span>${roleBadge}${detailStatus}</div><div class="quick-info-grid">${addressRow}${phoneRow}${hoursRow}${priceRow}${bookingRow}${visitDayHTML(key)}</div>${coreSections}${reminderRow}${parkingHTML}<div class="quick-info-actions">${navButton}${bookingButton}</div>`;
 }
 
 function quickInfoHTML(g,key){
@@ -332,7 +419,7 @@ function guideNavButtons(key,mode){
  return `<div class="guide-browse-meta">${nav.position} / ${nav.total}</div><div class="guide-next-row">${prev}${next}</div>`;
 }
 function openAdjacentPlace(key){
- if(!PRODUCTION_GUIDE.places[key])return;
+ if(!GUIDE_STUDIO_VIEW.places[key])return;
  NAVIGATION.go(placeHref(key));
 }
 
@@ -462,7 +549,7 @@ let guideAlternativeKeys=[];
 function openGuideAlternatives(keys,itemId){
  guideAlternativeKeys=[...keys];
  const rows=guideAlternativeKeys.map(key=>{
-  const g=PRODUCTION_GUIDE.places[key];
+  const g=GUIDE_STUDIO_VIEW.places[key];
   return `<button type="button" onclick="openGuideModal('${key}',{fromAlternatives:true})"><span><span class="guide-list-title">${g.emoji||''} ${g.title||''}</span><span class="guide-list-sub">${g.sub||''}</span></span><span class="guide-list-chevron">›</span></button>`;
  }).join('');
  $('guideModalContent').innerHTML=`<p class="kicker">Guide</p><h2>Options</h2><div class="category-pop-list">${rows}</div>`;
@@ -481,10 +568,10 @@ function routeStopsHTML(g){
 }
 
 function openGuideModal(key,options){
- const g=PRODUCTION_GUIDE.places[key];if(!g)return;
+ const g=GUIDE_STUDIO_VIEW.places[key];if(!g)return;
  const opts=options||{};
  const back=opts.fromAlternatives?guideAlternativeBackButton():'';
- $('guideModalContent').innerHTML=`<div class="guide-onepage">${back}<p class="kicker">Guide</p><h2>${g.emoji} ${g.title}</h2><p class="guide-onepage-sub"><strong>${g.sub||''}</strong></p>${quickInfoHTML(g,key)}${routeStopsHTML(g)}${guideNavButtons(key)}</div>`;
+ $('guideModalContent').innerHTML=`<div class="guide-onepage">${back}<p class="kicker">Guide</p><h2>${g.emoji?g.emoji+' ':''}${g.title}</h2>${g.sub?`<p class="guide-onepage-sub"><strong>${guideStudioEscape(g.sub)}</strong></p>`:''}${quickInfoHTML(g,key)}${routeStopsHTML(g)}${guideStudioForm(key)}${guideNavButtons(key)}</div>`;
  closeMiniMenus();
  $('guideModal').classList.add('show');
  const sheet=document.querySelector('#guideModal .guide-sheet');
@@ -512,27 +599,27 @@ function closeGuideModal(){
 }
 
 function renderPlacePage(key){
-  const g = PRODUCTION_GUIDE.places[key];
+  const g = GUIDE_STUDIO_VIEW.places[key];
   const mount = document.getElementById('placeMain');
   if(!g || !mount) return;
   mount.innerHTML = `
 <button class="place-detail-close" type="button" aria-label="Close place detail" onclick="closePlaceDetail()">×</button>
-<div class="page-hero"><p class="kicker">Guide</p><h1>${g.emoji} ${g.title}</h1><p class="lead">${g.sub||''}</p></div>
+<div class="page-hero"><p class="kicker">Guide</p><h1>${g.emoji?g.emoji+' ':''}${g.title}</h1>${g.sub?`<p class="lead">${guideStudioEscape(g.sub)}</p>`:''}</div>
 <section aria-label="Guide details" class="quick-info-card">${quickInfoInnerHTML(g,key)}</section>
-${routeStopsHTML(g)}${guideNavButtons(key,'page')}`;
+${routeStopsHTML(g)}${guideStudioForm(key)}${guideNavButtons(key,'page')}`;
   document.title = `${g.title} · ${TRIP_CONFIG.tripName}`;
 }
 
 function renderPlaceGroupPage(keys){
-  const clean=[...new Set((Array.isArray(keys)?keys:[]).filter(key=>key&&PRODUCTION_GUIDE.places[key]))];
+  const clean=[...new Set((Array.isArray(keys)?keys:[]).filter(key=>key&&GUIDE_STUDIO_VIEW.places[key]))];
   const mount=document.getElementById('placeMain');
   if(!clean.length||!mount) return;
   // Defensive auto-routing for old/shared links containing a single id.
   if(clean.length===1){ renderPlacePage(clean[0]); return; }
   const cards=clean.map((key,index)=>{
-    const g=PRODUCTION_GUIDE.places[key];
+    const g=GUIDE_STUDIO_VIEW.places[key];
     return `<article class="place-group-card" id="guide-${key}">
-      <div class="page-hero place-group-hero"><p class="kicker">Option ${index+1}</p><h1>${g.emoji} ${g.title}</h1><p class="lead">${g.sub||''}</p></div>
+      <div class="page-hero place-group-hero"><p class="kicker">Option ${index+1}</p><h1>${g.emoji?g.emoji+' ':''}${g.title}</h1>${g.sub?`<p class="lead">${guideStudioEscape(g.sub)}</p>`:''}</div>
             <section aria-label="Guide details" class="quick-info-card">${quickInfoInnerHTML(g,key)}</section>
       ${routeStopsHTML(g)}
     </article>`;
