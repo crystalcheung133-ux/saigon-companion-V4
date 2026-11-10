@@ -205,16 +205,38 @@ function bookingExpenseActionHTML(booking){
   if(!hasPayment)return '';
   return `<div class="trip-action-row trip-action-row--booking-compact booking-expense-buttons booking-expense-buttons--compact"><button class="pill trip-action-btn trip-action-btn--expense" type="button" onclick="openBookingExpense('${escapeTripHTML(booking.id)}')">Add payment to Expenses</button></div>`;
 }
+// Contact deep links are built only from verified field values. No empty controls.
+function bookingContactLink(kind,value){
+  const raw=String(value==null?'':value).trim();if(!raw)return '';
+  if(kind==='phone'){
+    const number=raw.replace(/[^0-9+]/g,'');
+    return /^\+?[0-9]{5,16}$/.test(number)?'tel:'+number:'';
+  }
+  if(kind==='whatsapp'){
+    const digits=raw.replace(/[^0-9]/g,'');
+    return /^[0-9]{7,15}$/.test(digits)?'https://wa.me/'+digits:'';
+  }
+  if(kind==='email')return /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(raw)?'mailto:'+raw:'';
+  if(kind==='website'||kind==='maps'){
+    try{const u=new URL(raw);return ['https:','http:'].includes(u.protocol)?u.href:'';}catch(_){return '';}
+  }
+  return '';
+}
+function bookingContactActionHTML(label,kind,value,cssClass){
+  const url=bookingContactLink(kind,value);if(!url)return '';
+  const external=kind==='website'||kind==='maps'||kind==='whatsapp';
+  return `<a class="pill trip-action-btn ${cssClass||''}" href="${escapeTripHTML(url)}"${external?' target="_blank" rel="noopener noreferrer"':''}>${label}</a>`;
+}
 function bookingActionButtonsHTML(booking,place,options={}){
   const includeDay=options.includeDay!==false;
-  const whatsappContact=String(booking&&booking.whatsapp||'').trim();
-  const whatsappDigits=whatsappContact.replace(/[^0-9]/g,'');
-  const whatsapp=(whatsappContact&&whatsappDigits)?`https://wa.me/${whatsappDigits}`:'';
   const buttons=[
     includeDay?bookingDayButtonHTML(booking):'',
-    booking&&booking.bookingUrl?`<a class="pill trip-action-btn trip-action-btn--book" href="${escapeTripHTML(booking.bookingUrl)}" target="_blank" rel="noopener">Book Online</a>`:'',
-    whatsapp?`<a class="pill trip-action-btn trip-action-btn--whatsapp" href="${escapeTripHTML(whatsapp)}" target="_blank" rel="noopener">WhatsApp</a>`:'',
-    booking&&booking.email?`<a class="pill trip-action-btn trip-action-btn--email" href="mailto:${escapeTripHTML(booking.email)}">Email</a>`:'',
+    bookingContactActionHTML('Book Online','website',booking&&booking.bookingUrl,'trip-action-btn--book'),
+    bookingContactActionHTML('Call','phone',(booking&&booking.phone)||(place&&place.phone),'trip-action-btn--phone'),
+    bookingContactActionHTML('WhatsApp','whatsapp',(booking&&booking.whatsapp)||(place&&place.whatsapp),'trip-action-btn--whatsapp'),
+    bookingContactActionHTML('Email','email',(booking&&booking.email)||(place&&place.email),'trip-action-btn--email'),
+    bookingContactActionHTML('Website','website',(booking&&booking.website)||(place&&place.website),'trip-action-btn--website'),
+    bookingContactActionHTML('Directions','maps',(booking&&booking.mapUrl)||(booking&&booking.maps)||(place&&place.maps)||(place&&place.mapUrl),'trip-action-btn--maps'),
     bookingEditButtonHTML(booking)
   ].filter(Boolean);
   return buttons.length?`<div class="trip-action-row trip-action-row--booking-compact">${buttons.join('')}</div>`:'';
@@ -223,8 +245,10 @@ function bookingContactSectionsHTML(booking,place){
   const phone=(booking&&booking.phone)||(place&&place.phone)||'';
   const email=(booking&&booking.email)||(place&&place.email)||'';
   const website=(booking&&booking.website)||(place&&place.website)||'';
+  // Contact details remain readable as text as well as actionable in the row above.
   const contact=[phone,email].filter(Boolean).join('\n');
-  const websiteHTML=website?`<a href="${escapeTripHTML(website)}" target="_blank" rel="noopener">${escapeTripHTML(website)}</a>`:'';
+  const url=bookingContactLink('website',website);
+  const websiteHTML=url?`<a href="${escapeTripHTML(url)}" target="_blank" rel="noopener noreferrer">${escapeTripHTML(website)}</a>`:'';
   return bookingSectionHTML('Booking contact',contact)+bookingSectionHTML('Website',websiteHTML,{html:true});
 }
 function buildAccommodationDetailHTML(booking){
@@ -429,7 +453,7 @@ function bookingEditFields(booking){
     bookingField('Other booking method / platform','bookingViaOther',via==='Other'?rawVia:'',{wide:true}),
     bookingField('Payment / deposit status','paymentStatus',booking.paymentStatus),bookingField('Total / balance','price',booking.price),
     bookingField('Website / booking link','website',booking.website,{wide:true,inputmode:'url'}),
-    bookingField('Phone','phone',booking.phone),bookingField('Email','email',booking.email,{type:'email'}),
+    bookingField('Phone','phone',booking.phone),bookingField('WhatsApp','whatsapp',booking.whatsapp),bookingField('Email','email',booking.email,{type:'email'}),bookingField('Map URL','mapUrl',booking.mapUrl||booking.maps,{wide:true,inputmode:'url'}),
     bookingField('Notes','notes',booking.notes,{type:'textarea'}),bookingField('Cancellation / important information','cancellation',booking.cancellation,{type:'textarea'})
   ];
   if(booking.type==='accommodation')common.splice(3,0,
@@ -447,7 +471,7 @@ function bookingEditFields(booking){
   );
   // Show every additional user-facing scalar field, including legacy/imported data.
   // Internal IDs, sync metadata and derived read-only fields are not editable.
-  const rendered=new Set(['status','date','title','bookingName','reference','bookingVia','bookingViaOther','paymentStatus','price','website','phone','email','importantInfo','stayDates','roomType','checkIn','checkOut','address','checkInInstructions','time','dayId','tourType','guests','adults','children','originalTotal','discount','pickupNote','dropOff','lunchStatus']);
+  const rendered=new Set(['status','date','title','bookingName','reference','bookingVia','bookingViaOther','paymentStatus','price','website','phone','whatsapp','email','mapUrl','importantInfo','stayDates','roomType','checkIn','checkOut','address','checkInInstructions','time','dayId','tourType','guests','adults','children','originalTotal','discount','pickupNote','dropOff','lunchStatus']);
   const internal=/^(?:id|type|placeId|activityId|bookingId|timelineItemId|eventId|origin|_.*|updatedAt|updatedBy|createdAt|createdBy|revision|masterRevision|bookingWay|platform|bookingViaOther|notes|cancellation|displayStatus|dayId|priceCurrency|status)$/;
   const standardOptional=['time','bookingNumber','referenceLabel','guestSummary','host','parking','totalAmount','depositAmount','depositCurrency','depositPaid','balanceDue','payAtPickup','discountLabel','discountAmount','cashbackAmount','cashback','netTotalAUD','netPrice','fxNote','chargeDate','bookingUrl','pickupAddress','pickupDateTime','returnDateTime','dropOff','transportProvider','seat','vehicle','roomCount','mealPlan','contactName','operatorName'];
   [...new Set([...Object.keys(booking),...standardOptional])].sort().forEach(function(key){

@@ -22,7 +22,7 @@ function guideStudioEscape(value){return String(value==null?'':value).replace(/&
 function guideStudioForm(key){
   if(!(window.isAdminMode&&window.isAdminMode()))return '';
   const g=GUIDE_STUDIO_VIEW.places[key];if(!g)return '';
-  const optional=['sub','desc','address','phone','website','maps','hours','price','transport','signature','worth','tips','highlights','status','categoryLabel','instagramUrl','facebookUrl','bookingUrl','parking','source'];
+  const optional=['sub','desc','address','phone','whatsapp','email','website','maps','hours','price','transport','signature','worth','tips','highlights','status','categoryLabel','instagramUrl','facebookUrl','bookingUrl','parking','source'];
   const controls=[...new Set([...Object.keys(g),...optional])].filter(field=>!['key','id','createdAt','updatedAt','updatedBy'].includes(field)).sort().map(field=>{
     const value=g[field];
     if(value!=null && typeof value==='object'){
@@ -76,7 +76,7 @@ function importGuideStudio(){
         if(!Object.prototype.hasOwnProperty.call(GUIDE_STUDIO_VIEW.places,key)||!fields||typeof fields!=='object'||Array.isArray(fields))continue;
         const allowed={};for(const [field,value] of Object.entries(fields)){
           if(['key','id','createdAt','updatedAt','updatedBy','__proto__','constructor','prototype'].includes(field))continue;
-          if(!Object.prototype.hasOwnProperty.call(GUIDE_STUDIO_VIEW.places[key],field)&&!['sub','desc','address','phone','website','maps','hours','price','transport','signature','worth','tips','highlights','status','categoryLabel','instagramUrl','facebookUrl','bookingUrl','parking','source'].includes(field))continue;
+          if(!Object.prototype.hasOwnProperty.call(GUIDE_STUDIO_VIEW.places[key],field)&&!['sub','desc','address','phone','whatsapp','email','website','maps','hours','price','transport','signature','worth','tips','highlights','status','categoryLabel','instagramUrl','facebookUrl','bookingUrl','parking','source'].includes(field))continue;
           if(value!==null&&typeof value!=='string'&&typeof value!=='number'&&typeof value!=='boolean'&&!Array.isArray(value)&&typeof value!=='object')continue;
           allowed[field]=value;
         }
@@ -368,9 +368,28 @@ function guideCoreSections(g,key){
  return compactGuideSections(normalized);
 }
 
+function guideContactLink(kind,value){
+ const raw=String(value==null?'':value).trim();if(!raw)return '';
+ if(kind==='phone'){
+  const v=raw.replace(/[^0-9+]/g,'');return /^\+?[0-9]{5,16}$/.test(v)?'tel:'+v:'';
+ }
+ if(kind==='whatsapp'){
+  const v=raw.replace(/[^0-9]/g,'');return /^[0-9]{7,15}$/.test(v)?'https://wa.me/'+v:'';
+ }
+ if(kind==='email')return /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(raw)?'mailto:'+raw:'';
+ if(kind==='website'||kind==='maps'){
+  try{const u=new URL(raw);return ['http:','https:'].includes(u.protocol)?u.href:'';}catch(_){return '';}
+ }
+ return '';
+}
+function guideContactButton(label,kind,value,klass='utility-button'){
+ const url=guideContactLink(kind,value);if(!url)return '';
+ const external=['whatsapp','website','maps'].includes(kind);
+ return `<a class="${klass}" href="${guideStudioEscape(url)}"${external?' target="_blank" rel="noopener noreferrer"':''}>${label}</a>`;
+}
 function quickInfoInnerHTML(g,key){
  const phoneRow=g.phone?`<div class="quick-info-row"><span class="quick-info-icon">☎️</span><span><span class="quick-info-label">Phone</span><span class="quick-info-value">${g.phone}</span></span></div>`:'';
- const callButton=g.phone?`<a class="utility-button" href="tel:${String(g.phone).replace(/[^+\d]/g,'')}">☎️ Call</a>`:'';
+ const callButton=guideContactButton('☎️ Call','phone',g.phone);
  const unknown=/^(see|look at|refer to)\s+trip\s+info$|^check (current|live)|^prices? may vary$|^contact venue/i;
  const placePrice=String(g.price||'').trim();
  const accommodationBooking=(g.cat==='STAY'&&window.BOOKING_AUTHORITY)?BOOKING_AUTHORITY.byPlace(key):null;
@@ -385,7 +404,7 @@ function quickInfoInnerHTML(g,key){
  const address=String(g.address||'').trim();
  const addressRow=address?`<div class="quick-info-row"><span class="quick-info-icon">📍</span><span><span class="quick-info-label">Address</span><span class="quick-info-value">${address}</span></span></div>`:'';
  const copyButton=address?`<button class="utility-button" type="button" onclick="copyGuideAddress('${key}')">📍 Copy Address</button>`:'';
- const navButton=g.maps?`<a class="map-button" href="${g.maps}" target="_blank" rel="noopener">🧭 Navigate</a>`:'';
+ const navButton=guideContactButton('🧭 Navigate','maps',g.maps,'map-button');
  const roleBadge=g.itineraryRole?`<span class="itinerary-role-badge">${g.itineraryRole}</span>`:'';
  const reminder=String(g.visitorReminder||'').trim();
  const reminderRow=(reminder&&g.cat!=='ACTIVITIES')?`<p class="visitor-reminder"><strong>Reminder:</strong> ${reminder}</p>`:'';
@@ -397,7 +416,7 @@ function quickInfoInnerHTML(g,key){
  const parkingHTML=parking?`<div class="recommended-parking"><div class="recommended-parking-head"><span>🚗</span><span><strong>Recommended Parking</strong><small>${parking.name||''}</small></span></div><div class="recommended-parking-grid"><p><span>📍</span><span>${parking.address||''}</span></p><p><span>🚶</span><span>${parking.walk||''}</span></p><p><span>💰</span><span>${parking.fee||''}</span></p></div>${parking.note?`<p class="recommended-parking-note">${parking.note}</p>`:''}${parking.maps?`<a class="map-button recommended-parking-nav" href="${parking.maps}" target="_blank" rel="noopener">🧭 Navigate to Parking</a>`:''}</div>`:'';
  const detailStatus=g.cat==='STAY'?guideStayStatusHTML(Object.assign({key},g)):guideStatusHTML(Object.assign({key},g));
  const coreSections=guideCoreSections(g,key);
- return `<div class="quick-info-top"><span class="category-tag">${guideStudioEscape(g.categoryLabel||g.cat||'')}</span>${roleBadge}${detailStatus}</div><div class="quick-info-grid">${addressRow}${phoneRow}${hoursRow}${priceRow}${bookingRow}${visitDayHTML(key)}</div>${coreSections}${reminderRow}${parkingHTML}<div class="quick-info-actions">${navButton}${bookingButton}</div>`;
+ return `<div class="quick-info-top"><span class="category-tag">${guideStudioEscape(g.categoryLabel||g.cat||'')}</span>${roleBadge}${detailStatus}</div><div class="quick-info-grid">${addressRow}${phoneRow}${hoursRow}${priceRow}${bookingRow}${visitDayHTML(key)}</div>${coreSections}${reminderRow}${parkingHTML}<div class="quick-info-actions">${navButton}${callButton}${guideContactButton('WhatsApp','whatsapp',g.whatsapp)}${guideContactButton('Email','email',g.email)}${guideContactButton('Website','website',g.website)}${bookingButton}</div>`;
 }
 
 function quickInfoHTML(g,key){

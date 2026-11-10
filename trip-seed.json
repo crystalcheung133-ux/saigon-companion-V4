@@ -1,5 +1,5 @@
 {
-  "id": "sample-kyoto-2027",
+  "id": "kyoto-contact-test",
   "name": "Kyoto Friends Trip 2027",
   "destination": "Kyoto",
   "country": "Japan",
@@ -87,7 +87,12 @@
       "platform": "TBC",
       "price": "TBC",
       "checkIn": "15:00",
-      "checkOut": "10:00"
+      "checkOut": "10:00",
+      "phone": "+81 75 555 0199",
+      "whatsapp": "+81 90 1111 2222",
+      "email": "booking@example.com",
+      "website": "https://example.com",
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=Kyoto"
     }
   ]
 }
