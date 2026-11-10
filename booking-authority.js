@@ -41,7 +41,7 @@
   }
   function mergeOverride(base,override){
     if(!override||typeof override!=='object')return clone(base);
-    if(recordRevision(override)===masterRevision())return canonicalStatusRecord(Object.assign({},clone(base),clone(override)));
+    if(override.origin==='studio'||recordRevision(override)===masterRevision())return canonicalStatusRecord(Object.assign({},clone(base),clone(override)));
     return mergeStaleState(base,override);
   }
   function read(){
@@ -61,7 +61,8 @@
     });
     const state=read();
     Object.keys(state.overrides).forEach(function(id){
-      if(!output[id]||!state.overrides[id]||typeof state.overrides[id]!=='object')return;
+      if(!state.overrides[id]||typeof state.overrides[id]!=='object')return;
+      if(!output[id]){if(state.overrides[id].origin==='studio')output[id]=Object.assign({},clone(state.overrides[id]),{id:id});return;}
       output[id]=Object.assign({},mergeOverride(output[id],state.overrides[id]),{id:id});
     });
     (state.deletedIds||[]).forEach(function(id){delete output[id];});
@@ -83,7 +84,8 @@
     const opts=arguments[3]||{};
     const source=target||master();
     const base=canonicalBase(id,source);
-    if(!id||!base||!record||typeof record!=='object')return {ok:false,reason:'invalid-booking'};
+    if(!id||!record||typeof record!=='object'||(!base&&record.origin!=='studio'))return {ok:false,reason:'invalid-booking'};
+    if(!base&&resolvedSource(source)[id]&&!(arguments[3]||{}).editing)return {ok:false,reason:'already-exists'};
     const current=resolvedSource(source)[id]||base;
     const complete=canonicalStatusRecord(stamp(Object.assign({},current,clone(record),{id:id})));
     const state=read();
@@ -98,7 +100,7 @@
   function remove(id,target){
     const opts=arguments[2]||{};
     const source=target||master();
-    if(!id||!canonicalBase(id,source))return {ok:false,reason:'invalid-booking'};
+    if(!id||!resolvedSource(source)[id])return {ok:false,reason:'invalid-booking'};
     const state=read();
     delete state.overrides[id];
     if(!state.deletedIds.includes(id))state.deletedIds.push(id);

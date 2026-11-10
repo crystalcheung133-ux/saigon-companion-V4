@@ -519,6 +519,8 @@ window.returnToBookingDetail=returnToBookingDetail;
 async function deleteBookingRecord(bookingId){
   if(!(window.BOOKING_PERMISSIONS&&BOOKING_PERMISSIONS.canEdit()))return false;
   const booking=getBookingById(bookingId);if(!booking||!window.BOOKING_AUTHORITY||typeof BOOKING_AUTHORITY.remove!=='function')return false;
+  const linked=typeof window.getBookingExpenseLinks==='function'?window.getBookingExpenseLinks(bookingId):[];
+  if(linked.length){alert('This Booking has '+linked.length+' linked Expense transaction(s). Delete or edit those Transactions first to preserve the expense record.');return false;}
   if(!window.confirm('Delete this booking from the current trip?'))return false;
   const liveTarget=typeof PRODUCTION_BOOKINGS!=='undefined'&&PRODUCTION_BOOKINGS&&PRODUCTION_BOOKINGS.byId?PRODUCTION_BOOKINGS.byId:null;
   try{
@@ -595,7 +597,7 @@ async function saveBookingEdit(event,bookingId){
   const outcome=await commitBookingSave(next,{
     syncEnabled:!!(window.BOOKING_SYNC&&BOOKING_SYNC.enabled()),
     syncPush:function(payload){return BOOKING_SYNC.push(payload);},
-    localSave:function(payload){return BOOKING_AUTHORITY.save(bookingId,payload,liveTarget);}
+    localSave:function(payload){return BOOKING_AUTHORITY.save(bookingId,payload,liveTarget,{editing:current.origin==='studio'});}
   });
   if(!outcome.ok){
     if(saveButton){saveButton.disabled=false;saveButton.textContent='Save Booking';}
