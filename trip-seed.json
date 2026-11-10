@@ -7,11 +7,11 @@
   "startDate": "2027-01-21",
   "endDate": "2027-01-29",
   "timeZone": "Asia/Seoul",
-  "homeTimeZone": "Asia/Hong_Kong",
-  "homeLabel": "Hong Kong (provisional)",
+  "homeTimeZone": "Australia/Melbourne",
+  "homeLabel": "Melbourne · Australia",
   "currency": "KRW",
-  "homeCurrency": "HKD",
-  "settlementCurrency": "HKD",
+  "homeCurrency": "AUD",
+  "settlementCurrency": "AUD",
   "currencySymbol": "₩",
   "geo": {
     "lat": 37.5665,
@@ -21,16 +21,20 @@
   "locale": "zh-HK",
   "travellers": [
     {
-      "name": "Mero"
+      "name": "Mero",
+      "emoji": "❄️"
     },
     {
-      "name": "Rocky"
+      "name": "Rocky",
+      "emoji": "🏔️"
     },
     {
-      "name": "Megan"
+      "name": "Megan",
+      "emoji": "🧣"
     },
     {
-      "name": "QQ"
+      "name": "QQ",
+      "emoji": "⛄"
     }
   ],
   "tagline": "Four of us · Nine days · One Korea adventure",
@@ -839,5 +843,7 @@
       "notes": "Departure 2027-01-30 at 01:55, after Day 9. Flight number, destination and carrier not supplied.",
       "specialNotes": "Not confirmed in source itinerary; please verify reservation details."
     }
-  ]
+  ],
+  "themeName": "Seoul Winter · Snow Blue & Lavender",
+  "logo": "mero-seoul-winter-logo.png"
 }

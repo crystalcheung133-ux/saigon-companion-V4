@@ -146,6 +146,8 @@
     }
   }
   function installButton(){
+    // Deprecated for local-first generated trips: Days Save is the commit boundary.
+    if(root.TRIP_CONFIG&&root.TRIP_CONFIG.bookingManagement?.sync?.enabled===false)return;
     const group=document.getElementById('tripStudioManagement');
     if(!group||document.getElementById('preparePublicationButton'))return;
     const button=document.createElement('button');

@@ -1,4 +1,4 @@
-/* Companion 25.6.9 — local-first Studio booking creation and link actions.
+/* Seoul Winter Booking Page creation — local-first booking creation and link actions.
    Security: client-side PIN is a UI gate only. No cloud sync is claimed. */
 (function(root){'use strict';
  const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -11,7 +11,7 @@
  function options(items,selected){return items.map(([v,t])=>`<option value="${esc(v)}" ${String(v)===String(selected)?'selected':''}>${esc(t)}</option>`).join('');}
  function dateForDay(day){const m=String(day||'').match(/^day(\d+)$/);if(!m)return '';const a=String(root.TRIP_CONFIG.startDate).split('-').map(Number);return new Date(Date.UTC(a[0],a[1]-1,a[2]+Number(m[1])-1)).toISOString().slice(0,10);}
  function show(){
-  if(!editable()){alert('Open Trip Studio first.');return;}
+  if(!editable()){alert('Open Studio Mode to create a Booking.');return;}
   let shade=document.getElementById('studioCreateBookingSheet');if(!shade){shade=document.createElement('div');shade.id='studioCreateBookingSheet';shade.className='trip-studio-modal show';shade.style.zIndex='100050';shade.innerHTML='<div class="trip-studio-modal-inner" style="max-height:90dvh;overflow:auto;padding:22px"><button type="button" id="createBookingClose" class="pill">Close</button><h2>Create Booking</h2><form id="studioCreateBookingForm" class="booking-edit-form"><div id="createBookingInputs" class="booking-edit-grid"></div><button class="pill" type="submit">Save new Booking</button></form></div>';document.body.append(shade);shade.querySelector('#createBookingClose').onclick=()=>shade.remove();shade.addEventListener('click',e=>{if(e.target===shade)shade.remove()});shade.querySelector('form').onsubmit=save;}
   const days=Object.keys(itinerary()).sort((a,b)=>Number(a.replace(/\D/g,''))-Number(b.replace(/\D/g,'')));
   const dayOptions=[['','No day'],...days.map(d=>['day'+dayKey(d),`Day ${dayKey(d)}`])];
@@ -33,7 +33,7 @@
   if(activityId){const original=dayItems(dayId);const next=original.map(a=>a.id===activityId?Object.assign({},a,{bookingId:id}):a);try{root.ITINERARY_AUTHORITY.commitDayChanges({['itineraryDay'+dayNumber]:{day:dayNumber,items:next}});}catch(err){root.BOOKING_AUTHORITY.remove(id);alert('Could not link Activity: '+err.message);return false;}}
   document.getElementById('studioCreateBookingSheet')?.remove();alert('Booking saved locally. Cloud sync is not configured for this Beta.');location.href='trip.html?bookingId='+encodeURIComponent(id);return false;
  }
- function inject(){const host=document.getElementById('tripStudioManagement')||document.getElementById('adminModeControl');if(!host||document.getElementById('studioCreateBookingButton'))return;const btn=document.createElement('button');btn.id='studioCreateBookingButton';btn.className='pill';btn.textContent='＋ Create Booking';btn.addEventListener('click',show);host.appendChild(btn);host.hidden=false;}
+ function inject(){const host=document.getElementById('bookingCreateActionHost');if(!host)return;let btn=document.getElementById('bookingPageCreateButton');if(!btn){btn=document.createElement('button');btn.id='bookingPageCreateButton';btn.className='pill';btn.type='button';btn.textContent='＋ Create Booking';btn.addEventListener('click',show);host.appendChild(btn);}btn.hidden=!editable();}
  document.addEventListener('travelengine:adminmodechange',()=>setTimeout(inject,0));
  document.addEventListener('DOMContentLoaded',()=>setTimeout(inject,50));
  root.CompanionStudioCreateBooking=Object.freeze({open:show,dateForDay});

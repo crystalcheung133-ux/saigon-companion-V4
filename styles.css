@@ -3006,3 +3006,36 @@ body.admin-mode .studio-on-badge:not([hidden]){display:inline-flex!important;}
   #tripStudioModal .trip-studio-modal-inner{width:min(96vw,430px)!important;}
   #tripStudioModal .trip-studio{max-width:430px!important;}
 }
+
+/* SEOUL FAMILY WINTER EDITION · 25.6.9 · app-level design override */
+:root{--bg:#F0F4FA!important;--paper:#F8FAFF!important;--card:#FFFEFF!important;--ink:#263951!important;--muted:#64758B!important;--line:#CEDAE9!important;--accent:#54799F!important;--green:#718CAA!important;--lav:#847FA7!important;--blue:#536D90!important;--admin-accent:#54799F!important;--admin-accent-dark:#354E70!important;--admin-line:rgba(84,121,159,.27)!important;--admin-soft:rgba(84,121,159,.12)!important;}
+html,body{background:#F0F4FA!important;color:#263951!important}
+.site-nav,body.home-bg .site-nav{background:rgba(246,249,254,.96)!important;border-bottom:1px solid #D4DDEB!important}
+.home-brand-card,body.home-bg section.home-brand-card.v37-dashboard-home{background:linear-gradient(150deg,#F9FBFF 0%,#EBF1FA 48%,#E9E4F2 100%)!important;border:1px solid #CFD8E8!important;box-shadow:0 16px 48px rgba(53,78,112,.15)!important}
+.page-hero,.module-hero{background:linear-gradient(130deg,#EAF2FB 0%,#E2EAF5 55%,#F0E9F5 100%)!important;border-color:#C9D7E9!important}
+.prose-block,.live-card,.timeline-item,.trip-sheet,.guide-sheet,.tools-sheet,.expense-card{background:#FFFEFF!important;border-color:#D3DDEA!important}
+body.home-bg .home-brand-card.v37-dashboard-home h1,body.home-bg .home-brand-card.v37-dashboard-home h1 em{color:#304A69!important;text-shadow:none!important}
+body.home-bg .home-brand-card.v37-dashboard-home .home-since,.kicker{color:#7289AA!important}
+body.home-bg .home-brand-card.v37-dashboard-home .home-trip-line span{background:#F8FAFF!important;color:#425F82!important;border-color:#D0DDEC!important}
+body.home-bg .home-live-grid .live-card small{color:#627C9D!important}
+body.home-bg .home-live-grid .live-card strong{color:#263951!important}
+body.home-bg .home-live-grid .live-card em{color:#7186A6!important}
+body.home-bg .home-day-button,.home-primary-actions .home-day-button,.btn,.primary-action{background:linear-gradient(135deg,#7595BA,#526E96)!important;border-color:#607FA8!important;color:#FFFFFF!important;box-shadow:0 8px 22px rgba(65,92,128,.20)!important}
+.app-nav{background:linear-gradient(100deg,#334D70,#526D94)!important}
+.app-nav a,.app-nav button{color:#F9FAFF!important}
+.site-nav .brand-mark{width:48px!important;height:48px!important;flex-basis:48px!important}
+.site-nav .brand-mark img{width:100%!important;height:100%!important;object-fit:contain!important;filter:none!important}
+#ccmvSplash{background:linear-gradient(160deg,#EFF5FC,#E7EDF8,#EDE6F3)!important}
+#ccmvSplash .splash-line{color:#354F72!important}
+#ccmvSplash .splash-destination{color:#8187AB!important}
+#ccmvSplash .splash-logo{max-height:58vh!important;width:min(75vw,380px)!important}
+.seoul-family-photo img{filter:drop-shadow(0 12px 22px rgba(54,78,112,.12))}
+.seoul-family-photo figcaption{color:#6D83A3!important;font-weight:800!important;letter-spacing:.08em}
+.friend-pill,.pill,.mini-btn{background:#F6F9FD!important;border-color:#CDD9E9!important;color:#344E70!important}
+@media(max-width:520px){.site-nav .brand-mark{width:40px!important;height:40px!important;flex-basis:40px!important}.seoul-family-photo img{max-height:180px!important}}
+
+/* Seoul 25.6.9 Winter: Booking creation belongs to Booking page, not Studio shell. */
+.booking-create-action-host{display:flex;justify-content:flex-end;max-width:860px;margin:5px auto 0;padding:0 2px}
+.booking-create-action-host:empty{display:none}
+#bookingPageCreateButton{background:linear-gradient(135deg,#526D8C,#394F73)!important;color:#fff!important;border-color:#526D8C!important}
+#bookingPageCreateButton[hidden]{display:none!important}
