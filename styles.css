@@ -3110,3 +3110,8 @@ body.expenses-page .page-hero,body.expenses-page .module-hero{background:linear-
 #ccmvSplash .splash-line{color:#405E88!important;}
 #ccmvSplash .splash-destination{color:#857DB0!important;}
 @media(max-width:520px){.site-nav .brand-mark,body.home-bg .site-nav .brand-mark{width:40px!important;height:40px!important;flex-basis:40px!important;}.site-nav .brand-mark img,body.home-bg .site-nav .brand-mark img{width:40px!important;height:40px!important;}body.home-bg section.home-brand-card.v37-dashboard-home{padding-top:13px!important;}}
+
+/* SEOUL WINTER LOGO RELEASE 25610-winter-logo-r3: stable home/splash image at every launch */
+body.home-bg .site-nav .brand-mark, body.home-bg .site-nav .brand-mark img {display:flex!important;visibility:visible!important;opacity:1!important;}
+body.home-bg .site-nav .brand-mark img {display:block!important;width:100%!important;height:100%!important;object-fit:contain!important;filter:none!important;transform:none!important;}
+#ccmvSplash .splash-logo {display:block!important;visibility:visible!important;opacity:1!important;animation:none!important;transform:none!important;filter:none!important;object-fit:contain!important;}
