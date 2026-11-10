@@ -19,13 +19,12 @@
   'use strict';
 
   const config = root.SYNC_CONFIG || {};
-  const PREVIEW_LOCAL_ONLY = true;
   const LOG = '[Supabase]';
   const state = { client: null, sessionPromise: null, lastError: null };
 
   function configured() {
     return !!(
-      !PREVIEW_LOCAL_ONLY && config.enabled &&
+      config.enabled &&
       config.url &&
       config.anonKey &&
       typeof config.hasCredentials === 'function' &&
@@ -42,7 +41,7 @@
     if (typeof root.supabase?.createClient !== 'function') {
       // The official SDK (loaded via CDN <script> before this file) did not load.
       const err = new Error(
-        'Supabase JS SDK not found on window.supabase — check the vendored SDK <script> tag (vendor-supabase-js-*.umd.js)'
+        'Supabase JS SDK not found on window.supabase — check the CDN <script> tag and network access'
       );
       console.error(LOG, err.message);
       throw err;

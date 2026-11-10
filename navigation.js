@@ -88,8 +88,6 @@
   }
 
   function go(target){
-    // Programmatic popup → page follows the same close-all contract as links.
-    try{global.dismissAllContentOverlays?.();}catch(e){}
     global.location.href=target;
   }
 

@@ -61,7 +61,7 @@
   }
   function publicationStatusText(){
     const current=state.lastPublishedVersion||currentRemoteVersion();
-    return current>0?'Latest published version: v'+current+'.':'Publish the saved Timeline directly to every Companion.';
+    return current>0?'Latest published version: v'+current+'.':'Publish the saved trip directly to every Companion.';
   }
   function updateButton(status){
     const button=document.getElementById('preparePublicationButton');

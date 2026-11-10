@@ -421,9 +421,6 @@
     window.MOMENT_SYNC?.queueSync();
     renderMoments();
   };
-  let momentsVisibleCount=5;
-  window.showMoreMoments=function(){momentsVisibleCount=Number.MAX_SAFE_INTEGER;renderMoments();};
-  window.showLatestMoments=function(){momentsVisibleCount=5;renderMoments();};
   window.renderMoments = function(){
     const box=document.getElementById('momentsTimeline'); if(!box) return;
     let arr=readJson(STORAGE_CONFIG.keys.momentsList,[]);
@@ -440,16 +437,15 @@
     }
     arr.sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||'')));
     if(!arr.length){box.innerHTML='<p>No Moments yet.</p>';return;}
-    const visible=arr.slice(0,momentsVisibleCount);
-    box.innerHTML=visible.map(e=>`<div class="moments-entry">
+    box.innerHTML=arr.map(e=>`<div class="moments-entry">
       <strong>${escapeHTML(e.itemTitle||'Moment')}</strong>
       <p class="timestamp">${escapeHTML(e.friendLabel||'')} · ${formatTime(e.createdAt)}${e.editedAt?` · Edited ${formatTime(e.editedAt)}`:''}</p>
-      ${(e.photoUrl||prototypePhotoUrls.get(e.id)) ? `<img class="moment-prototype-photo" loading="lazy" decoding="async" src="${escapeHTML(e.photoUrl||prototypePhotoUrls.get(e.id))}" alt="Moment photo">` : (e.photoPending?`<p class="moment-photo-note">📸 Photo saved offline · waiting to sync</p>`:(e.photoPrototype?`<p class="moment-photo-note">📸 Photo preview unavailable on this device</p>`:''))}
+      ${(e.photoUrl||prototypePhotoUrls.get(e.id)) ? `<img class="moment-prototype-photo" src="${escapeHTML(e.photoUrl||prototypePhotoUrls.get(e.id))}" alt="Moment photo">` : (e.photoPending?`<p class="moment-photo-note">📸 Photo saved offline · waiting to sync</p>`:(e.photoPrototype?`<p class="moment-photo-note">📸 Photo preview unavailable on this device</p>`:''))}
       <p class="moment-mood">${moodLabel(e.moods||[])}</p>
       <p class="moment-stars">${'⭐'.repeat(e.rating||0)}</p>
       <p class="moment-copy">${escapeHTML(e.text||'')}</p>
       ${canManageMoment(e)?`<div class="entry-actions"><button class="mini-btn" onclick="editMoment('${e.id||e.itemKey}')">✏️ Edit</button><button class="mini-btn" onclick="deleteMoment('${e.id||e.itemKey}')">🗑 Delete</button></div>`:`<p class="timestamp entry-owner-note">Added by ${escapeHTML(e.friendLabel||momentOwner(e)||'Traveller')} · View only</p>`}
-    </div>`).join('')+(arr.length>visible.length?`<div class="moments-load-more"><button class="btn" type="button" onclick="showMoreMoments()">Show more</button><p class="timestamp">Showing ${visible.length} of ${arr.length}</p></div>`:(arr.length>5?`<div class="moments-load-more"><button class="mini-btn" type="button" onclick="showLatestMoments()">Show less</button><p class="timestamp">Showing all ${arr.length}</p></div>`:''));
+    </div>`).join('');
   };
   /* Stage 4C-6: removed legacy v3.2 window.saveExpense; canonical handler is later in this file. */
 

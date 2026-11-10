@@ -10,7 +10,6 @@
       day: 'day.html',
       place: 'place.html',
       moments: 'moments.html',
-      documents: 'documents.html',
       expenses: 'expenses.html',
       memory: 'memory.html',
       offline: 'offline.html'
@@ -38,7 +37,6 @@
       'day.html',
       'place.html',
       'moments.html',
-      'documents.html',
       'expenses.html',
       'memory.html',
     ])

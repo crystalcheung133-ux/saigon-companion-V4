@@ -29,56 +29,19 @@
   if(code===0)return ['☀️','Clear']; if(code<=3)return ['⛅','Partly cloudy']; if(code<=48)return ['🌫️','Foggy'];
   if(code<=67)return ['🌧️','Rain']; if(code<=77)return ['🌨️','Snow']; if(code<=82)return ['🌦️','Showers']; if(code<=86)return ['🌨️','Snow showers']; return ['⛈️','Thunderstorms'];
  }
- let weatherCache=null;
- function renderWeatherForecast(){
-  const list=document.getElementById('weatherForecastList');
-  const place=document.getElementById('weatherForecastPlace');
-  const updated=document.getElementById('weatherForecastUpdated');
-  if(!list)return;
-  if(!weatherCache){list.textContent='Forecast unavailable. Please reconnect and try again.';return;}
-  const {data,stop,fetchedAt}=weatherCache;
-  if(place)place.textContent=stop.name+' · Vietnam time';
-  list.replaceChildren();
-  const daily=data.daily||{};
-  (daily.time||[]).slice(0,5).forEach(function(date,i){
-   const row=document.createElement('div');row.className='weather-forecast-row';
-   const left=document.createElement('span');
-   const day=new Date(date+'T12:00:00Z');
-   left.textContent=new Intl.DateTimeFormat('en-AU',{weekday:'short',day:'numeric',month:'short',timeZone:'UTC'}).format(day);
-   const code=weatherCode(Number(daily.weather_code?.[i]));
-   const desc=document.createElement('span');desc.textContent=code[0]+' '+code[1];
-   const temps=document.createElement('strong');
-   const lo=Number(daily.temperature_2m_min?.[i]),hi=Number(daily.temperature_2m_max?.[i]);
-   temps.textContent=(Number.isFinite(lo)&&Number.isFinite(hi))?Math.round(lo)+'–'+Math.round(hi)+'°C':'--°C';
-   const rain=document.createElement('small');
-   const probability=daily.precipitation_probability_max?.[i];
-   rain.textContent=probability==null?'Rain --':'Rain '+Math.round(Number(probability))+'%';
-   row.append(left,desc,temps,rain);list.appendChild(row);
-  });
-  if(updated)updated.textContent='Open-Meteo · Updated '+new Intl.DateTimeFormat('en-AU',{dateStyle:'medium',timeStyle:'short',timeZone:TRIP_CONFIG.timeZone}).format(new Date(fetchedAt))+' (Vietnam time)';
- }
  async function updateWeather(now){
-  const d=tripDay(now);const stop=weatherStops[dayWeatherIndex[d]||0];
-  const label=document.getElementById('homeWeatherLabel');const value=document.getElementById('homeWeatherValue');
-  const meta=document.getElementById('homeWeatherMeta');const icon=document.getElementById('homeWeatherIcon');
-  if(!stop)return;
+  const d=tripDay(now); const stop=weatherStops[dayWeatherIndex[d]||0];
+  const card=document.getElementById('homeWeatherCard'); const label=document.getElementById('homeWeatherLabel');
+  const value=document.getElementById('homeWeatherValue'); const meta=document.getElementById('homeWeatherMeta'); const icon=document.getElementById('homeWeatherIcon');
+  if(!stop) return;
+  if(card)card.href='https://www.google.com/search?q='+encodeURIComponent(stop.q);
   if(label)label.textContent=(d?'Day '+d:'Today')+' · '+stop.name;
   try{
-   const url=`https://api.open-meteo.com/v1/forecast?latitude=${stop.lat}&longitude=${stop.lon}&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=${encodeURIComponent(TRIP_CONFIG.timeZone)}&forecast_days=5`;
-   const response=await fetch(url,{cache:'no-store'});if(!response.ok)throw new Error('weather');
-   const w=await response.json();if(!Array.isArray(w.daily?.time)||!w.daily.time.length)throw new Error('forecast');
-   weatherCache={data:w,stop,fetchedAt:Date.now()};renderWeatherForecast();
-   const [symbol,text]=weatherCode(Number(w.current?.weather_code));
-   const min=Number(w.daily.temperature_2m_min?.[0]),max=Number(w.daily.temperature_2m_max?.[0]);
-   const rain=w.daily.precipitation_probability_max?.[0];
-   if(icon)icon.textContent=symbol;
-   if(value)value.textContent=(Number.isFinite(min)&&Number.isFinite(max))?`${Math.round(min)}–${Math.round(max)}°C · ${text}`:text;
-   if(meta)meta.textContent=rain==null?'5-day forecast ›':`Rain ${rain}% · 5 days ›`;
-  }catch(error){
-   if(value)value.textContent=weatherCache?'Last saved forecast':'Weather unavailable';
-   if(meta)meta.textContent='View forecast ›';
-   renderWeatherForecast();
-  }
+   const url=`https://api.open-meteo.com/v1/forecast?latitude=${stop.lat}&longitude=${stop.lon}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=${encodeURIComponent(TRIP_CONFIG.timeZone)}&forecast_days=1`;
+   const response=await fetch(url,{cache:'no-store'}); if(!response.ok)throw new Error('weather'); const w=await response.json();
+   const [symbol,text]=weatherCode(Number(w.current?.weather_code)); const min=Math.round(w.daily?.temperature_2m_min?.[0]); const max=Math.round(w.daily?.temperature_2m_max?.[0]); const rain=w.daily?.precipitation_probability_max?.[0];
+   if(icon)icon.textContent=symbol; if(value)value.textContent=`${min}–${max}°C · ${text}`; if(meta)meta.textContent=Number.isFinite(Number(rain))?`Rain ${rain}% · Details ›`:'Open details ›';
+  }catch(error){ if(value)value.textContent='Open today’s forecast'; if(meta)meta.textContent='Live details ›'; }
  }
  function updateHomeDash(){
   const now=new Date(); const diff=Math.ceil((target-now)/86400000); const c=document.getElementById('countdownText');
@@ -111,7 +74,9 @@
   const isWithin=currentDate>=startDate && currentDate<=confirmedEnd;
   const day=isWithin && typeof window.tripDayNumber==='function' ? window.tripDayNumber() : (isBefore?1:maxDay);
   const button=document.getElementById('homeTodayButton');
-  if(button){
+  if(button && TRIP_CONFIG.archive && TRIP_CONFIG.archive.enabled && !isBefore && !isWithin){
+    button.href=TRIP_CONFIG.archive.memoryUrl;button.textContent='📖 Our Memories';button.target='_blank';button.rel='noopener noreferrer';
+  } else if(button){
     button.href=NAVIGATION.build('day',{query:{day}});
     button.textContent=isWithin?`Let's go · Day ${day}`:(isBefore?`Let's go · Day 1`:`Open Day ${day}`);
   }

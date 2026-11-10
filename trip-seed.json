@@ -1,0 +1,93 @@
+{
+  "id": "sample-kyoto-2027",
+  "name": "Kyoto Friends Trip 2027",
+  "destination": "Kyoto",
+  "country": "Japan",
+  "countryCode": "JP",
+  "startDate": "2027-03-12",
+  "endDate": "2027-03-13",
+  "timeZone": "Asia/Tokyo",
+  "homeTimeZone": "Australia/Melbourne",
+  "currency": "JPY",
+  "homeCurrency": "AUD",
+  "settlementCurrency": "AUD",
+  "travellers": [
+    {
+      "name": "Alex"
+    },
+    {
+      "name": "Sam"
+    }
+  ],
+  "geo": {
+    "lat": 35.0116,
+    "lon": 135.7681
+  },
+  "tagline": "Two friends. Two days. Kyoto.",
+  "memoryBookUrl": "",
+  "days": [
+    {
+      "title": "Arrival & Gion",
+      "activities": [
+        {
+          "id": "arrival-kyoto",
+          "time": "10:00",
+          "title": "Arrive in Kyoto",
+          "type": "custom",
+          "notes": "Meet at the station"
+        },
+        {
+          "id": "gion-walk",
+          "time": "14:00",
+          "title": "Gion Walk",
+          "place": "Gion",
+          "address": "Gion, Higashiyama, Kyoto, Japan",
+          "category": "ATTRACTIONS"
+        },
+        {
+          "id": "hotel-checkin",
+          "time": "16:00",
+          "title": "Check in — Kyoto Hotel",
+          "place": "Kyoto Hotel",
+          "address": "Shimogyo-ku, Kyoto, Japan",
+          "category": "STAY"
+        }
+      ]
+    },
+    {
+      "title": "Temples & Food",
+      "activities": [
+        {
+          "id": "fushimi-stop",
+          "time": "09:00",
+          "title": "Fushimi Inari",
+          "place": "Fushimi Inari Taisha",
+          "address": "68 Fukakusa Yabunouchicho, Fushimi Ward, Kyoto, Japan",
+          "category": "ATTRACTIONS"
+        },
+        {
+          "id": "lunch-stop",
+          "time": "12:30",
+          "title": "Lunch",
+          "type": "custom"
+        }
+      ]
+    }
+  ],
+  "bookings": [
+    {
+      "id": "kyoto-hotel-booking",
+      "title": "Kyoto Hotel",
+      "type": "accommodation",
+      "status": "pending",
+      "date": "2027-03-12",
+      "activityId": "hotel-checkin",
+      "time": "16:00",
+      "address": "Shimogyo-ku, Kyoto, Japan",
+      "platform": "TBC",
+      "price": "TBC",
+      "checkIn": "15:00",
+      "checkOut": "10:00"
+    }
+  ]
+}

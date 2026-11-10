@@ -83,7 +83,7 @@ function getBookingsByCategory(category){
     return false;
   }).sort(function(a,b){return String(a.date||'').localeCompare(String(b.date||''))||String(a.time||'').localeCompare(String(b.time||''));});
 }
-let activeBookingDetail=null;
+var activeBookingDetail=null;
 function bookingReferenceLabel(booking){
   return booking&&booking.referenceLabel?booking.referenceLabel:'Booking reference';
 }
@@ -121,24 +121,22 @@ function accommodationDetailNavigationHTML(bookingId){
 }
 function normalizedBookingStatus(booking){
   const raw=String((booking&&booking.status)||'pending').toLowerCase();
-  return raw==='confirmed'?'confirmed':(raw==='planned'?'planned':'pending');
+  return raw==='confirmed'?'confirmed':'pending';
 }
 function bookingStatusText(booking){
   const raw=String((booking&&booking.status)||'').replace(/-/g,' ').trim().toUpperCase();
   if(raw==='OPEN'||raw==='UNBOOKED'||raw==='DECIDE LATER'||raw==='TBD')return 'OPEN';
-  const normalized=normalizedBookingStatus(booking);
-  return normalized==='confirmed'?'CONFIRMED':(normalized==='planned'?'PLANNED':'PENDING');
+  return normalizedBookingStatus(booking)==='confirmed'?'CONFIRMED':'PENDING';
 }
 function bookingDayNumber(booking){
   const raw=String((booking&&booking.dayId)||'').replace('day','').replace(/\D/g,'');
   return raw||'';
 }
 function bookingPlace(booking){
-  const base=(booking&&booking.placeId&&typeof PRODUCTION_TRIP.places!=='undefined')?PRODUCTION_TRIP.places[booking.placeId]||null:null;
-  return base&&window.GUIDE_AUTHORITY?GUIDE_AUTHORITY.resolve(booking.placeId,base):base;
+  return (booking&&booking.placeId&&typeof PRODUCTION_TRIP.places!=='undefined')?PRODUCTION_TRIP.places[booking.placeId]||null:null;
 }
 function bookingAddress(booking,place){
-  return (place&&place.address)||(booking&&booking.address)||(booking&&booking.pickupAddress)||'';
+  return (booking&&booking.address)||(booking&&booking.pickupAddress)||(place&&place.address)||'';
 }
 function bookingFactGridHTML(rows){
   return rows.filter(function(row){return row&&row[1]!==undefined&&row[1]!==null&&String(row[1]).trim()!=='';})
@@ -170,11 +168,10 @@ function bookingDepositDisplay(booking){
 }
 function accommodationPaymentHTML(booking){
   const status=bookingHumanValue(booking.paymentLabel||booking.paymentStatus||'');
-  const paidInFull=/^(paid|paid in full|fully paid)$/i.test(String(status||'').trim());
   const rows=[
     ['Charge date',bookingHumanValue(booking.chargeDate||'')],
     ['Total',bookingHumanValue(booking.totalAmount||'')],
-    ['Deposit',paidInFull?'':bookingDepositDisplay(booking)],
+    ['Deposit',bookingDepositDisplay(booking)],
     ['Balance due',bookingHumanValue(booking.balanceDue||booking.payAtPickup||'')],
     [booking.discountLabel||'Discount',bookingHumanValue(booking.discountAmount||'')],
     ['Cashback',bookingHumanValue(booking.cashbackAmount||booking.cashback||'')],
@@ -184,31 +181,12 @@ function accommodationPaymentHTML(booking){
   return `<section class="accommodation-payment-block"><div class="accommodation-payment-head"><h3>Payment</h3>${status?`<span>${escapeTripHTML(String(status).toUpperCase())}</span>`:''}</div>${rows.length?`<dl>${rows.map(function(row,index){return `<div class="${index===rows.length-1?'payment-net-row':''}"><dt>${escapeTripHTML(row[0])}</dt><dd>${escapeTripHTML(row[1])}</dd></div>`;}).join('')}</dl>`:''}${booking.fxNote?`<p class="payment-fx-note">${escapeTripHTML(booking.fxNote)}</p>`:''}</section>`;
 }
 function bookingGuideButtonHTML(booking){
-  return booking&&booking.placeId?`<button class="pill trip-action-btn trip-action-btn--guide" type="button" onclick="openGuideModal('${escapeTripHTML(booking.placeId)}')">View Guide</button>`:'';
-}
-function navigateOutOfBooking(target){
-  if(typeof window.dismissAllContentOverlays==='function')window.dismissAllContentOverlays();
-  else document.getElementById('tripModal')?.classList.remove('show');
-  closeMiniMenus();
-  requestAnimationFrame(function(){ NAVIGATION.go(target); });
-  return false;
-}
-window.navigateOutOfBooking=navigateOutOfBooking;
-function bookingCrossLinkButton(label,target,className){
-  return `<button class="pill trip-action-btn ${className||''}" type="button" onclick="return navigateOutOfBooking('${escapeTripHTML(target)}')">${label}</button>`;
+  return booking&&booking.placeId?`<button class="pill trip-action-btn trip-action-btn--guide" type="button" onclick="openGuideModal('${escapeTripHTML(booking.placeId)}')">Guide</button>`:'';
 }
 function bookingDayButtonHTML(booking){
-  const visits=Array.isArray(booking&&booking.plannedVisits)?booking.plannedVisits:[];
-  const multi=visits.map(function(row){
-    const rawDay=String(row&&((row.dayId||row.day))||'').replace(/^day/i,'').replace(/^d/i,'').replace(/\D/g,'');
-    if(!rawDay)return '';
-    const anchor=row&&row.timelineItemId?`#${escapeTripHTML(row.timelineItemId)}`:'';
-    return bookingCrossLinkButton(`D${escapeTripHTML(rawDay)} Timeline`,`day.html?day=${escapeTripHTML(rawDay)}${anchor}`,'trip-action-btn--day');
-  }).filter(Boolean);
-  if(multi.length)return [...new Set(multi)].join('');
   const dayNumber=bookingDayNumber(booking);if(!dayNumber)return '';
   const anchor=booking.timelineItemId?`#${escapeTripHTML(booking.timelineItemId)}`:'';
-  return bookingCrossLinkButton(`Day ${escapeTripHTML(dayNumber)} Timeline`,`day.html?day=${escapeTripHTML(dayNumber)}${anchor}`,'trip-action-btn--day');
+  return `<a class="pill trip-action-btn trip-action-btn--day" href="day.html?day=${escapeTripHTML(dayNumber)}${anchor}">Day ${escapeTripHTML(dayNumber)} Timeline</a>`;
 }
 function bookingExpenseActionHTML(booking){
   if(!booking||!booking.id||typeof window.openBookingExpense!=='function')return '';
@@ -218,7 +196,7 @@ function bookingExpenseActionHTML(booking){
   const viewHref=newest?.id?`expenses.html?expenseId=${encodeURIComponent(newest.id)}`:`expenses.html?bookingId=${encodeURIComponent(booking.id)}`;
   if(linked){
     const label=linked===1?'View Expense':`View ${linked} Expenses`;
-    return `<div class="trip-action-row trip-action-row--booking-compact booking-expense-buttons booking-expense-buttons--compact">${bookingCrossLinkButton(label,viewHref,'trip-action-btn--expense')}</div>`;
+    return `<div class="trip-action-row trip-action-row--booking-compact booking-expense-buttons booking-expense-buttons--compact"><a class="pill trip-action-btn trip-action-btn--expense" href="${viewHref}">${label}</a></div>`;
   }
   const hasPayment=Boolean(
     booking.depositPaid||booking.depositAmount||booking.paymentStatus||
@@ -232,16 +210,12 @@ function bookingActionButtonsHTML(booking,place,options={}){
   const whatsappContact=String(booking&&booking.whatsapp||'').trim();
   const whatsappDigits=whatsappContact.replace(/[^0-9]/g,'');
   const whatsapp=(whatsappContact&&whatsappDigits)?`https://wa.me/${whatsappDigits}`:'';
-  const messenger=String(booking&&booking.messengerUrl||place&&place.messengerUrl||'').trim();
-  const instagram=String(booking&&booking.instagramUrl||place&&place.instagramUrl||'').trim();
   const buttons=[
-    booking&&booking.bookingUrl?`<a class="pill trip-action-btn trip-action-btn--book" href="${escapeTripHTML(booking.bookingUrl)}" target="_blank" rel="noopener">${escapeTripHTML(booking.bookingLabel||'Book Online')}</a>`:'',
-    messenger?`<a class="pill trip-action-btn trip-action-btn--messenger" href="${escapeTripHTML(messenger)}" target="_blank" rel="noopener">Messenger</a>`:'',
-    instagram?`<a class="pill trip-action-btn trip-action-btn--instagram" href="${escapeTripHTML(instagram)}" target="_blank" rel="noopener">Instagram</a>`:'',
+    includeDay?bookingDayButtonHTML(booking):'',
+    booking&&booking.bookingUrl?`<a class="pill trip-action-btn trip-action-btn--book" href="${escapeTripHTML(booking.bookingUrl)}" target="_blank" rel="noopener">Book Online</a>`:'',
     whatsapp?`<a class="pill trip-action-btn trip-action-btn--whatsapp" href="${escapeTripHTML(whatsapp)}" target="_blank" rel="noopener">WhatsApp</a>`:'',
     booking&&booking.email?`<a class="pill trip-action-btn trip-action-btn--email" href="mailto:${escapeTripHTML(booking.email)}">Email</a>`:'',
-    bookingGuideButtonHTML(booking),
-    includeDay?bookingDayButtonHTML(booking):''
+    bookingEditButtonHTML(booking)
   ].filter(Boolean);
   return buttons.length?`<div class="trip-action-row trip-action-row--booking-compact">${buttons.join('')}</div>`:'';
 }
@@ -253,13 +227,6 @@ function bookingContactSectionsHTML(booking,place){
   const websiteHTML=website?`<a href="${escapeTripHTML(website)}" target="_blank" rel="noopener">${escapeTripHTML(website)}</a>`:'';
   return bookingSectionHTML('Booking contact',contact)+bookingSectionHTML('Website',websiteHTML,{html:true});
 }
-
-function bookingDocumentsHTML(booking){
- if(!booking||!window.TRIP_DOCUMENTS)return '';
- const docs=TRIP_DOCUMENTS.read().filter(d=>d.linkType==='booking'&&String(d.linkId)===String(booking.id));
- if(!docs.length)return '';
- return `<section class="accommodation-section booking-documents"><h3>Documents</h3><div class="trip-action-row trip-action-row--booking-compact">${docs.map(d=>{const target=`documents.html?document=${encodeURIComponent(d.id)}&bookingId=${encodeURIComponent(booking.id)}`;return bookingCrossLinkButton(`📎 ${escapeTripHTML(d.title||'Document')}`,target,'booking-document-btn');}).join('')}</div></section>`;
-}
 function buildAccommodationDetailHTML(booking){
   if(!booking)return '<p class="timestamp">Accommodation booking not found.</p>';
   const place=bookingPlace(booking);
@@ -270,6 +237,7 @@ function buildAccommodationDetailHTML(booking){
   const arrival=[booking.checkIn||'',booking.checkOut||''].filter(Boolean).join(' → ');
   const reference=[booking.bookingName?`Booked under · ${booking.bookingName}`:'',booking.reference?`${bookingReferenceLabel(booking)} · ${booking.reference}`:''].filter(Boolean).join('\n');
   const facts=bookingFactGridHTML([
+    ['Status',bookingStatusText(booking)],
     ['Room',booking.roomType||''],
     ['Guests',booking.guestSummary||''],
     ['Host',booking.host||''],
@@ -282,10 +250,9 @@ function buildAccommodationDetailHTML(booking){
   const sections=[
     accommodationPaymentHTML(booking),
     bookingSectionHTML('Important',operationalNotes),
-    bookingSectionHTML('Address',address),
-    bookingDocumentsHTML(booking)
+    bookingSectionHTML('Address',address)
   ].join('');
-  return `<article class="fact stay-booking accommodation-detail-card accommodation-detail-card--compact"><div class="accommodation-detail-head"><div><span>${escapeTripHTML(booking.stayDates||booking.date||'')}</span></div>${bookingFixedHeaderActionsHTML(booking,nightsLabel?`<span class="accommodation-night-badge">${escapeTripHTML(nightsLabel)}</span>`:'')}</div><div class="accommodation-facts">${facts}</div>${sections}${bookingActionButtonsHTML(booking,place,{includeDay:false})}${bookingExpenseActionHTML(booking)}${accommodationDetailNavigationHTML(booking.id)}</article>`;
+  return `<article class="fact stay-booking accommodation-detail-card accommodation-detail-card--compact"><div class="accommodation-detail-head"><div><span>${escapeTripHTML(booking.stayDates||booking.date||'')}</span></div>${nightsLabel?`<span class="accommodation-night-badge">${escapeTripHTML(nightsLabel)}</span>`:''}</div><div class="accommodation-facts">${facts}</div>${sections}${bookingActionButtonsHTML(booking,place,{includeDay:false})}${bookingExpenseActionHTML(booking)}${accommodationDetailNavigationHTML(booking.id)}</article>`;
 }
 
 function openAccommodationList(){
@@ -325,17 +292,16 @@ function buildActivityBookingDetailHTML(booking){
   if(!booking)return '<p class="timestamp">Activity booking not found.</p>';
   const place=bookingPlace(booking);
   const facts=bookingFactGridHTML([
-    ['Time',booking.time||''],
+    ['Status',String(booking.status||'').toUpperCase()],['Day',bookingDayNumber(booking)?'Day '+bookingDayNumber(booking):''],['Date',booking.date||''],['Time',booking.time||''],
     ['Tour type',booking.tourType||''],['Guests',booking.guests?`${booking.guests} · ${booking.adults||0} adults · ${booking.children||0} children`:''],
-    ['Booked under',displayBookingName(booking.bookingName)], [bookingReferenceLabel(booking),booking.reference||''],['Booked via',booking.bookingViaOther||booking.bookingWay||booking.platform||'']
+    ['Booked under',booking.bookingName||''],[bookingReferenceLabel(booking),booking.reference||''],['Booked via',booking.bookingViaOther||booking.bookingWay||booking.platform||'']
   ]);
   const pickup=[booking.pickupNote||booking.pickupAddress||'',booking.dropOff||''].filter(Boolean).join('\n');
   const sections=[
     accommodationPaymentHTML(booking),activityFamilyBreakdownHTML(booking),bookingSectionHTML('Pickup & drop-off',pickup),bookingSectionHTML('Lunch',booking.lunchStatus||''),
-    bookingSectionHTML('Cancellation',booking.cancellation||''),bookingSectionHTML('Notes',booking.notes||''),
-    bookingDocumentsHTML(booking)
+    bookingSectionHTML('Cancellation',booking.cancellation||''),bookingSectionHTML('Notes',booking.notes||'')
   ].join('');
-  return `<article class="fact stay-booking accommodation-detail-card activity-booking-detail"><div class="accommodation-detail-head booking-compact-head"><div><span>${escapeTripHTML(booking.date||'')}</span></div>${bookingFixedHeaderActionsHTML(booking,`<span class="accommodation-night-badge activity-confirmed-badge">${escapeTripHTML(bookingStatusText(booking))}</span>`)}</div><div class="accommodation-facts">${facts}</div>${sections}${bookingActionButtonsHTML(booking,place)}${bookingExpenseActionHTML(booking)}${activityDetailNavigationHTML(booking.id)}</article>`;
+  return `<article class="fact stay-booking accommodation-detail-card activity-booking-detail"><div class="accommodation-detail-head"><div><strong>${escapeTripHTML(booking.title)}</strong><span>${escapeTripHTML(booking.date||'')}</span></div><span class="accommodation-night-badge activity-confirmed-badge">${escapeTripHTML(bookingStatusText(booking))}</span></div><div class="accommodation-facts">${facts}</div>${sections}${bookingActionButtonsHTML(booking,place)}${bookingExpenseActionHTML(booking)}${activityDetailNavigationHTML(booking.id)}</article>`;
 }
 function openActivityBookingDetail(bookingId,bookingOverride,showSaved){
   activeBookingDetail={type:'activity',id:bookingId};
@@ -343,7 +309,7 @@ function openActivityBookingDetail(bookingId,bookingOverride,showSaved){
   const booking=bookingOverride||getBookingById(bookingId);
   const content=document.getElementById('tripModalContent');const modal=document.getElementById('tripModal');if(!content||!modal)return;
   content.innerHTML=`<div class="trip-onepage accommodation-onepage-detail"><button class="accommodation-back" type="button" onclick="openTripCard('activities')">‹ All activities</button><p class="kicker">Trip · Activities</p><h2>${escapeTripHTML(booking?booking.title:'Activity Booking')}</h2>${showSaved?'<p class="timestamp booking-save-success" role="status">Saved ✓</p>':''}${buildActivityBookingDetailHTML(booking)}<p class="timestamp trip-build-summary">${tripSyncSummary()}</p></div>`;
-  modal.classList.add('show');window.bringContentOverlayToFront?.(modal);const sheet=document.querySelector('#tripModal .trip-sheet');if(sheet)sheet.scrollTop=0;
+  modal.classList.add('show');const sheet=document.querySelector('#tripModal .trip-sheet');if(sheet)sheet.scrollTop=0;
 }
 
 
@@ -371,55 +337,22 @@ function bookingCategoryLabel(booking){
   if(type==='transport'||type==='rentalcar')return 'Transport';
   return 'Activities';
 }
-function bookingPlannedVisitsHTML(booking){
-  const rows=Array.isArray(booking&&booking.plannedVisits)?booking.plannedVisits:[];
-  if(!rows.length)return '';
-  return `<section class="accommodation-section booking-planned-visits"><h3>Planned visits</h3><div class="accommodation-facts">${rows.map(function(row){
-    const dayDate=[row.day||'',row.date||''].filter(Boolean).join(' · ');
-    const labelTime=[row.label||'',row.time||''].filter(Boolean).join(' · ');
-    return `<div class="accommodation-fact"><small>${escapeTripHTML(dayDate)}</small><strong>${escapeTripHTML(labelTime)}</strong><span>${escapeTripHTML(row.duration||'')}</span></div>`;
-  }).join('')}</div></section>`;
-}
-function bookingAlternativeGuidesHTML(booking){
-  const rows=Array.isArray(booking&&booking.alternativeGuides)?booking.alternativeGuides:[];
-  if(!rows.length)return '';
-  return `<section class="accommodation-section booking-alternative-guides"><h3>Optional alternatives</h3><div class="trip-action-row trip-action-row--booking-compact">${rows.map(function(row){
-    const day=row.day?`${escapeTripHTML(row.day)} · `:'';
-    const note=row.note?`<small>${day}${escapeTripHTML(row.note)}</small>`:`<small>${day}Guide only</small>`;
-    return `<button class="pill trip-action-btn trip-action-btn--guide" type="button" onclick="openGuideModal('${escapeTripHTML(row.placeId||'')}')"><span>${escapeTripHTML(row.label||'Alternative')}</span>${note}</button>`;
-  }).join('')}</div></section>`;
-}
-function displayBookingName(value){
-  const raw=String(value||'').trim();
-  if(!raw)return '';
-  /* Defensive display cleanup for legacy saved records that accidentally appended payment text. */
-  return raw.replace(/\s+(?:AUD|VND)\s+[\d,.]+.*$/i,'').trim();
-}
 function buildGenericBookingDetailHTML(booking){
   if(!booking)return '<p class="timestamp">Booking not found.</p>';
   const place=bookingPlace(booking);
-  const hasPlannedVisits=Array.isArray(booking.plannedVisits)&&booking.plannedVisits.length>0;
-  const plannedDaySummary=hasPlannedVisits
-    ? [...new Set(booking.plannedVisits.map(row=>String(row.day||'').trim()).filter(Boolean))].join(' · ')
-    : '';
   const facts=bookingFactGridHTML([
-    ...(!hasPlannedVisits?[['Time',booking.time||'']]:[]),
-    ['Booked under',displayBookingName(booking.bookingName)],[bookingReferenceLabel(booking),booking.reference||''],
-    ['Booking method',booking.bookingMethod||booking.bookingViaOther||booking.bookingWay||booking.platform||''],
-    ['Phone · reference',booking.phone||booking.bookingContact||place?.phone||'']
+    ['Status',bookingStatusText(booking)],['Day',bookingDayNumber(booking)?'Day '+bookingDayNumber(booking):''],['Date',booking.date||''],['Time',booking.time||''],
+    ['Booked under',booking.bookingName||''],[bookingReferenceLabel(booking),booking.reference||''],['Booking method',booking.bookingMethod||booking.bookingViaOther||booking.bookingWay||booking.platform||''],
+    ['WhatsApp',booking.whatsapp||''],['Email',booking.email||'']
   ]);
   const payment=normalizedBookingStatus(booking)==='confirmed'?accommodationPaymentHTML(booking):'';
   const sections=[
     payment,
     bookingSectionHTML('Address',bookingAddress(booking,place)),
-    bookingSectionHTML('Notes',booking.id==='bk-qspa' ? [booking.notes||'', '💳 MEMBERSHIP DISCOUNT — 50% OFF\nMembership holder: Lai Mong Hang\nRegistered phone: +61 411 600 494'].filter(Boolean).join('\n\n') : (booking.notes||'')),
-    bookingSectionHTML('Cancellation',booking.cancellation||''),
-    bookingPlannedVisitsHTML(booking),
-    bookingAlternativeGuidesHTML(booking),
-    bookingDocumentsHTML(booking)
+    bookingSectionHTML('Notes',booking.notes||''),
+    bookingSectionHTML('Cancellation',booking.cancellation||'')
   ].join('');
-  const sharedPlan=plannedDaySummary?`<div class="booking-shared-plan"><strong>${escapeTripHTML(bookingStatusText(booking))}</strong><span>${escapeTripHTML(plannedDaySummary)}</span></div>`:'';
-  return `<article class="fact stay-booking accommodation-detail-card generic-booking-detail"><div class="accommodation-detail-head"><div><strong>${escapeTripHTML(booking.title)}</strong><span>${escapeTripHTML(booking.date||'')}</span></div>${bookingFixedHeaderActionsHTML(booking,`<span class="accommodation-night-badge">${escapeTripHTML(bookingStatusText(booking))}</span>`)}</div>${sharedPlan}<div class="accommodation-facts">${facts}</div>${bookingActionButtonsHTML(booking,place)}${sections}${bookingExpenseActionHTML(booking)}${genericBookingDetailNavigationHTML(booking)}</article>`;
+  return `<article class="fact stay-booking accommodation-detail-card generic-booking-detail"><div class="accommodation-detail-head"><div><strong>${escapeTripHTML(booking.title)}</strong><span>${escapeTripHTML(booking.date||'')}</span></div><span class="accommodation-night-badge">${escapeTripHTML(bookingStatusText(booking))}</span></div><div class="accommodation-facts">${facts}</div>${sections}${bookingActionButtonsHTML(booking,place)}${bookingExpenseActionHTML(booking)}${genericBookingDetailNavigationHTML(booking)}</article>`;
 }
 function openGenericBookingDetail(bookingId,bookingOverride,showSaved){
   const booking=bookingOverride||getBookingById(bookingId);if(!booking)return;
@@ -427,7 +360,7 @@ function openGenericBookingDetail(bookingId,bookingOverride,showSaved){
   closeMiniMenus();
   const content=document.getElementById('tripModalContent');const modal=document.getElementById('tripModal');if(!content||!modal)return;
   content.innerHTML=`<div class="trip-onepage accommodation-onepage-detail"><button class="accommodation-back" type="button" onclick="openBookingCategoryCard('${escapeTripHTML(bookingCategoryLabel(booking))}')">‹ All ${escapeTripHTML(bookingCategoryLabel(booking).toLowerCase())}</button><p class="kicker">Trip · ${escapeTripHTML(bookingCategoryLabel(booking))}</p><h2>${escapeTripHTML(booking.title||'Booking')}</h2>${showSaved?'<p class="timestamp booking-save-success" role="status">Saved ✓</p>':''}${buildGenericBookingDetailHTML(booking)}<p class="timestamp trip-build-summary">${tripSyncSummary()}</p></div>`;
-  modal.classList.add('show');window.bringContentOverlayToFront?.(modal);const sheet=document.querySelector('#tripModal .trip-sheet');if(sheet)sheet.scrollTop=0;
+  modal.classList.add('show');const sheet=document.querySelector('#tripModal .trip-sheet');if(sheet)sheet.scrollTop=0;
 }
 
 
@@ -465,10 +398,6 @@ function bookingEditButtonHTML(booking){
   return booking&&studioActive&&window.BOOKING_PERMISSIONS&&BOOKING_PERMISSIONS.canEdit()
     ?`<button class="pill trip-action-btn booking-edit-btn trip-action-btn--edit" type="button" onclick="openBookingEdit('${escapeTripHTML(booking.id)}')">${escapeTripHTML(BOOKING_PERMISSIONS.editLabel())}</button>`:'';
 }
-function bookingFixedHeaderActionsHTML(booking,badgeHTML){
-  const edit=bookingEditButtonHTML(booking);
-  return `<div class="booking-detail-head-actions">${badgeHTML||''}${edit}</div>`;
-}
 function bookingField(label,name,value,options){
   const opts=options||{};
   const val=value==null?'':String(value);
@@ -486,64 +415,44 @@ function bookingViaValue(booking){
   return choices.includes(raw)?raw:(raw?'Other':'');
 }
 function bookingImportantInfo(booking){
-  return [booking.cancellation||'',booking.checkInInstructions||'',booking.lunchStatus||'',booking.notes||''].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join('\n');
-}
-function bookingPlannedVisitEditFields(booking){
-  const visits=Array.isArray(booking&&booking.plannedVisits)?booking.plannedVisits:[];
-  if(!visits.length)return '';
-  return `<section class="booking-edit-planned-visits booking-edit-field--wide"><div class="booking-edit-section-head"><strong>Planned visits</strong><small>Edit each visit used by this multi-day booking.</small></div>${visits.map(function(row,index){
-    const prefix=`plannedVisit_${index}_`;
-    return `<fieldset class="booking-edit-visit"><legend>Visit ${index+1}</legend><div class="booking-edit-visit-grid">${bookingField('Day',prefix+'day',row.day)}${bookingField('Date',prefix+'date',row.date)}${bookingField('Time',prefix+'time',row.time)}${bookingField('Visit label',prefix+'label',row.label,{wide:true})}${bookingField('Duration',prefix+'duration',row.duration)}</div></fieldset>`;
-  }).join('')}</section>`;
+  return [booking.cancellation||'',booking.notes||''].filter(Boolean).join('\n');
 }
 function bookingEditFields(booking){
-  const place=bookingPlace(booking)||{};
-  const sharedWebsite=place.website||place.url||booking.website||'';
-  const sharedPhone=place.phone||booking.phone||'';
-  const sharedAddress=place.address||booking.address||'';
   const via=bookingViaValue(booking);
   const rawVia=String(booking.bookingViaOther||booking.bookingWay||booking.platform||'').trim();
   const common=[
-    bookingField('Status','status',normalizedBookingStatus(booking),{type:'select',choices:['pending','planned','confirmed']}),
+    bookingField('Status','status',normalizedBookingStatus(booking),{type:'select',choices:['pending','confirmed']}),
     bookingField('Date','date',booking.date),
     bookingField('Booking title','title',booking.title,{wide:true}),
     bookingField('Booked under','bookingName',booking.bookingName),bookingField('Booking reference','reference',booking.reference),
     bookingField('Booked via','bookingVia',via,{type:'select',choices:['','Official website','Trip.com','Booking.com','Agoda','Expedia','Klook','KKday','Airbnb','Luxury Escapes','WhatsApp','Email','Phone','Walk-in','Other']}),
     bookingField('Other booking method / platform','bookingViaOther',via==='Other'?rawVia:'',{wide:true}),
-    bookingField('Payment / deposit status','paymentStatus',booking.paymentStatus),
-    ...(booking.type==='accommodation'?[]:[bookingField('Total / balance','price',booking.price)]),
-    bookingField('Website / booking link','website',sharedWebsite,{wide:true,inputmode:'url'}),
-    bookingField('Phone','phone',sharedPhone),bookingField('Email','email',booking.email,{type:'email'}),
+    bookingField('Payment / deposit status','paymentStatus',booking.paymentStatus),bookingField('Total / balance','price',booking.price),
+    bookingField('Website / booking link','website',booking.website,{wide:true,inputmode:'url'}),
+    bookingField('Phone','phone',booking.phone),bookingField('Email','email',booking.email,{type:'email'}),
     bookingField('Notes / cancellation / important information','importantInfo',bookingImportantInfo(booking),{type:'textarea'})
   ];
   if(booking.type==='accommodation')common.splice(3,0,
     bookingField('Stay dates','stayDates',booking.stayDates,{wide:true}),
     bookingField('Room','roomType',booking.roomType,{wide:true}),
     bookingField('Check-in','checkIn',booking.checkIn),bookingField('Check-out','checkOut',booking.checkOut),
-    bookingField('Total amount','totalAmount',booking.totalAmount||booking.price),
-    bookingField('Cashback amount','cashbackAmount',booking.cashbackAmount||booking.cashback),
-    bookingField('Net cost','netTotalAUD',booking.netTotalAUD||booking.netPrice),
-    bookingField('Address','address',sharedAddress,{type:'textarea'})
-  );
-  if(['restaurant','spa','transport'].includes(booking.type))common.splice(3,0,
-    bookingField('Time','time',booking.time),bookingField('Related day','dayId',booking.dayId)
+    bookingField('Address','address',booking.address,{type:'textarea'}),bookingField('Arrival instructions','checkInInstructions',booking.checkInInstructions,{type:'textarea'})
   );
   if(booking.type==='activity')common.splice(3,0,
     bookingField('Time','time',booking.time),bookingField('Related day','dayId',booking.dayId),bookingField('Tour type','tourType',booking.tourType,{wide:true}),
     bookingField('Guests','guests',booking.guests,{type:'number',inputmode:'numeric'}),bookingField('Adults','adults',booking.adults,{type:'number',inputmode:'numeric'}),
     bookingField('Children','children',booking.children,{type:'number',inputmode:'numeric'}),bookingField('Original total','originalTotal',booking.originalTotal),
     bookingField('Discount','discount',booking.discount),bookingField('Pickup / meeting point','pickupNote',booking.pickupNote||booking.pickupAddress,{type:'textarea'}),
-    bookingField('Drop-off','dropOff',booking.dropOff,{type:'textarea'})
+    bookingField('Drop-off','dropOff',booking.dropOff,{type:'textarea'}),bookingField('Lunch','lunchStatus',booking.lunchStatus,{type:'textarea'})
   );
-  const plannedVisitFields=bookingPlannedVisitEditFields(booking);
-  return common.join('')+plannedVisitFields;
+  return common.join('');
 }
 function openBookingEdit(bookingId){
   if(!(window.BOOKING_PERMISSIONS&&BOOKING_PERMISSIONS.canEdit()))return;
   const booking=getBookingById(bookingId);if(!booking)return;
   const content=document.getElementById('tripModalContent');const modal=document.getElementById('tripModal');if(!content||!modal)return;
   activeBookingDetail={type:booking.type,id:bookingId};
-  content.innerHTML=`<div class="trip-onepage booking-edit-onepage"><button class="accommodation-back" type="button" onclick="requestBookingEditClose('${escapeTripHTML(bookingId)}')">‹ Booking details</button><p class="kicker">Trip Studio · Booking</p><h2>Edit ${escapeTripHTML(booking.title)}</h2><form id="bookingEditForm" class="booking-edit-form" novalidate onsubmit="return saveBookingEdit(event,'${escapeTripHTML(bookingId)}')"><div class="booking-edit-grid">${bookingEditFields(booking)}</div><div id="bookingSyncNotice" aria-live="polite"></div><div class="booking-edit-actions"><button class="pill" type="button" onclick="requestBookingEditClose('${escapeTripHTML(bookingId)}')">Cancel</button><button class="pill booking-delete-btn" type="button" onclick="deleteBookingRecord('${escapeTripHTML(bookingId)}')">Delete Booking</button><button class="pill booking-edit-save" type="submit">Save Booking</button></div><p class="timestamp">Pending and not booked are the same state. Remove bookings that are cancelled and no longer needed.</p></form></div>`;
+  content.innerHTML=`<div class="trip-onepage booking-edit-onepage"><button class="accommodation-back" type="button" onclick="requestBookingEditClose('${escapeTripHTML(bookingId)}')">‹ Booking details</button><p class="kicker">Trip Studio · Booking</p><h2>Edit ${escapeTripHTML(booking.title)}</h2><form id="bookingEditForm" class="booking-edit-form" novalidate onsubmit="return saveBookingEdit(event,'${escapeTripHTML(bookingId)}')"><div class="booking-edit-grid">${bookingEditFields(booking)}</div><div class="booking-edit-actions"><button class="pill" type="button" onclick="requestBookingEditClose('${escapeTripHTML(bookingId)}')">Cancel</button><button class="pill booking-delete-btn" type="button" onclick="deleteBookingRecord('${escapeTripHTML(bookingId)}')">Delete Booking</button><button class="pill booking-edit-save" type="submit">Save Booking</button></div><p class="timestamp">Pending and not booked are the same state. Remove bookings that are cancelled and no longer needed.</p></form></div>`;
   modal.classList.add('show');
   const form=document.getElementById('bookingEditForm');
   bookingEditSession={bookingId:bookingId,initialSnapshot:bookingEditFormSnapshot(form)};
@@ -557,7 +466,6 @@ function openBookingEdit(bookingId){
     if(!show)otherField.value='';
   }
   if(viaSelect){viaSelect.addEventListener('change',syncBookingViaOther);syncBookingViaOther();}
-  refreshBookingSyncNotice(bookingId);
   bookingEditSession.initialSnapshot=bookingEditFormSnapshot(form);
   const sheet=document.querySelector('#tripModal .trip-sheet');if(sheet)sheet.scrollTop=0;
 }
@@ -574,32 +482,32 @@ async function deleteBookingRecord(bookingId){
   const booking=getBookingById(bookingId);if(!booking||!window.BOOKING_AUTHORITY||typeof BOOKING_AUTHORITY.remove!=='function')return false;
   if(!window.confirm('Delete this booking from the current trip?'))return false;
   const liveTarget=typeof PRODUCTION_BOOKINGS!=='undefined'&&PRODUCTION_BOOKINGS&&PRODUCTION_BOOKINGS.byId?PRODUCTION_BOOKINGS.byId:null;
-  let stage=null,localCommitted=false;
   try{
-    // Durable cloud deletion intent MUST exist before the local tombstone commits.
-    // No network request occurs until after the local deletion succeeds.
     if(window.BOOKING_SYNC&&BOOKING_SYNC.enabled()){
-      stage=BOOKING_SYNC.stageDelete(booking); // storage errors abort deletion safely
+      const remote=await BOOKING_SYNC.remove(booking);
+      if(!remote||!remote.ok)throw new Error('remote-delete-failed');
     }
     const result=BOOKING_AUTHORITY.remove(bookingId,liveTarget);
     if(!result||!result.ok)throw new Error((result&&result.reason)||'delete-failed');
-    localCommitted=true;
-    if(stage){
-      try{await BOOKING_SYNC.commitStagedDelete(stage);}catch(syncError){console.warn('Booking deletion saved locally; cloud sync pending',syncError);}
-    }
     clearBookingEditSession();activeBookingDetail=null;closeTripModal();renderTripMenuFromConfig();return true;
-  }catch(error){
-    if(stage&&!localCommitted){try{BOOKING_SYNC.cancelStagedDelete(stage);}catch(rollbackError){console.error('Pending deletion journal rollback failed',rollbackError);}}
-    console.error('Booking delete failed',error);
-    alert('Could not delete this booking. Please check your connection and try again.');return false;
-  }
+  }catch(error){console.error('Booking delete failed',error);alert('Could not delete this booking. Please check your connection and try again.');return false;}
 }
 window.deleteBookingRecord=deleteBookingRecord;
-/* commitBookingSave — generic Engine local-first save orchestration.
-   The local Booking Authority is the immediate durable/UI commit boundary. Remote sync is
-   best-effort after that boundary: a slow or unavailable network must not hold the editor
-   open or turn an already-saved local mutation into a user-visible failure.
-   Returns {ok:true, committed:true, degraded, booking} after local commit. */
+/* commitBookingSave — generic Engine save orchestration (no provider/itinerary-specific
+   branching). Distinguishes PRE-COMMIT failure (nothing has been durably written anywhere;
+   the caller must report failure and keep the prior value) from POST-COMMIT failure (an
+   authoritative write already landed — either via deps.localSave() succeeding directly, or
+   because deps.syncPush() resolved ok, which for this Engine's BOOKING_SYNC.push() means its
+   own internal applyRemote() already performed that write — and a failure past that point is
+   a downstream/best-effort hiccup, never a save failure).
+   deps: {
+     syncEnabled: boolean,
+     syncPush: async (record) => {ok, booking} | throws,
+     localSave: (record) => {ok, booking, reason?} | throws,
+     validate?: (record) => boolean | throws   // optional pre-commit gate
+   }
+   Returns {ok:true, committed:true, degraded, booking} once anything has been durably saved,
+   or {ok:false, committed:false, reason} only when nothing has been written anywhere. */
 async function commitBookingSave(record,deps){
   deps=deps||{};
   if(typeof deps.validate==='function'){
@@ -608,89 +516,48 @@ async function commitBookingSave(record,deps){
     catch(validationError){return {ok:false,committed:false,reason:(validationError&&validationError.message)||'validation-failed'};}
     if(valid===false)return {ok:false,committed:false,reason:'validation-failed'};
   }
-  let localResult;
-  try{localResult=deps.localSave(record);}
-  catch(localError){return {ok:false,committed:false,reason:(localError&&localError.message)||'save-failed'};}
-  if(!localResult||!localResult.ok)return {ok:false,committed:false,reason:(localResult&&localResult.reason)||'save-failed'};
-  let booking=localResult.booking||record;
-  if(!deps.syncEnabled)return {ok:true,committed:true,degraded:false,booking:booking};
-  // Local commit is authoritative for the Save UI. Remote transport must never keep
-  // the editor open: queue it after commit and let BOOKING_SYNC reconcile the server
-  // result back through Booking Authority when it resolves.
-  Promise.resolve().then(function(){return deps.syncPush(booking);}).then(function(remoteResult){
-    if(remoteResult&&remoteResult.booking)booking=remoteResult.booking;
-  }).catch(function(syncError){
-    console.error('Booking save: remote sync pending',syncError);
-  });
-  return {ok:true,committed:true,degraded:true,booking:booking};
+  let payload=record,committed=false;
+  if(deps.syncEnabled){
+    let remote;
+    try{remote=await deps.syncPush(payload);}
+    catch(syncError){return {ok:false,committed:false,reason:(syncError&&syncError.message)||'remote-save-failed'};}
+    if(!remote||!remote.ok)return {ok:false,committed:false,reason:'remote-save-failed'};
+    payload=remote.booking||payload;
+    committed=true;
+  }
+  let localResult=null,localError=null;
+  try{localResult=deps.localSave(payload);}
+  catch(error){localError=error;}
+  if(localResult&&localResult.ok)return {ok:true,committed:true,degraded:false,booking:localResult.booking||payload};
+  if(committed)return {ok:true,committed:true,degraded:true,booking:payload};
+  return {ok:false,committed:false,reason:(localError&&localError.message)||(localResult&&localResult.reason)||'save-failed'};
 }
 window.commitBookingSave=commitBookingSave;
-// Booking sync feedback: cloud success is shown only after latest server acknowledgement.
-function bookingSyncNotice(bookingId){
-  if(!window.BOOKING_SYNC||!BOOKING_SYNC.recordStatus)return '';
-  const info=BOOKING_SYNC.recordStatus(bookingId);
-  const labels={"local-only":"Saved locally · Cloud sync not enabled",pending:"Saved locally · Sync pending",syncing:"Saved locally · Syncing…",failed:"Sync failed · Saved locally",synced:"Synced to cloud ✓"};
-  return '<span class="booking-sync-notice" role="status">'+(labels[info.state]||labels.pending)+'</span>'+(info.state==='failed'?'<button type="button" class="pill" onclick="retryBookingSync('+JSON.stringify(String(bookingId)).replace(/"/g,'&quot;')+')">Retry sync</button>':'');
-}
-window.retryBookingSync=async function(bookingId){
-  if(!window.BOOKING_SYNC||!BOOKING_SYNC.retry)return;
-  try{await BOOKING_SYNC.retry(bookingId);}catch(error){console.error('Booking sync retry failed',error);}
-  refreshBookingSyncNotice(bookingId);
-};
-function refreshBookingSyncNotice(bookingId){
-  const target=document.getElementById('bookingSyncNotice');if(target)target.innerHTML=bookingSyncNotice(bookingId);
-}
-document.addEventListener('travelengine:bookingsyncstatus',function(event){if(event.detail&&event.detail.bookingId)refreshBookingSyncNotice(event.detail.bookingId);});
-
-// Engine-level mutation guard: DOM disabled state is presentation only. The booking ID lock
-// is the authoritative concurrency boundary, so direct/programmatic duplicate submits cannot
-// start a second commit while the first mutation is unresolved.
-const BOOKING_SAVE_IN_FLIGHT=new Set();
-window.BOOKING_SAVE_IN_FLIGHT=BOOKING_SAVE_IN_FLIGHT;
 async function saveBookingEdit(event,bookingId){
   event.preventDefault();
   if(!(window.BOOKING_PERMISSIONS&&BOOKING_PERMISSIONS.canEdit())){alert(window.BOOKING_PERMISSIONS?BOOKING_PERMISSIONS.denialMessage():'Booking editing is not available.');return false;}
   const form=event.currentTarget;const current=getBookingById(bookingId);if(!current||!window.BOOKING_AUTHORITY){alert('Booking editor is not ready. Please close and reopen this booking.');return false;}
   const saveButton=form.querySelector('.booking-edit-save');
-  if(BOOKING_SAVE_IN_FLIGHT.has(bookingId))return false;
   if(saveButton&&saveButton.disabled)return false;
-  BOOKING_SAVE_IN_FLIGHT.add(bookingId);
   const formData=new FormData(form);const next=Object.assign({},current);
   formData.forEach(function(value,key){next[key]=String(value).trim();});
-  if(Array.isArray(current.plannedVisits)&&current.plannedVisits.length){
-    next.plannedVisits=current.plannedVisits.map(function(row,index){
-      const copy=Object.assign({},row);
-      ['day','date','time','label','duration'].forEach(function(field){const key=`plannedVisit_${index}_${field}`;if(formData.has(key))copy[field]=String(formData.get(key)||'').trim();delete next[key];});
-      const rawDay=String(copy.day||'').replace(/\D/g,'');if(rawDay)copy.dayId='day'+rawDay;
-      return copy;
-    });
-    next.plannedDays=[...new Set(next.plannedVisits.map(v=>String(v.day||'').trim()).filter(Boolean))].join(' · ');
-  }
   {const rawStatus=String(next.status||'pending').toLowerCase();next.status=rawStatus==='confirmed'?'confirmed':(rawStatus==='planned'?'planned':'pending');}
   const viaChoice=next.bookingVia||'';
   const viaOther=next.bookingViaOther||'';
   const viaValue=viaChoice==='Other'?viaOther:viaChoice;
   next.bookingWay=viaValue;next.platform=viaValue;next.bookingViaOther=viaChoice==='Other'?viaOther:'';
   delete next.bookingVia;
-  if(Object.prototype.hasOwnProperty.call(next,'importantInfo')){next.notes=next.importantInfo;next.cancellation='';next.checkInInstructions='';next.lunchStatus='';delete next.importantInfo;}
+  if(Object.prototype.hasOwnProperty.call(next,'importantInfo')){next.notes=next.importantInfo;next.cancellation='';delete next.importantInfo;}
   ['nights','guests','adults','children'].forEach(function(key){if(Object.prototype.hasOwnProperty.call(next,key)){const value=Number(next[key]);next[key]=Number.isFinite(value)?value:0;}});
   if(next.dayId&&!/^day\d+$/.test(next.dayId))next.dayId='day'+String(next.dayId).replace(/\D/g,'');
   next.updatedBy=(window.getFriend&&window.getFriend())||'admin';next.updatedAt=new Date().toISOString();
   const liveTarget=typeof PRODUCTION_BOOKINGS!=='undefined'&&PRODUCTION_BOOKINGS&&PRODUCTION_BOOKINGS.byId?PRODUCTION_BOOKINGS.byId:null;
   if(saveButton){saveButton.disabled=true;saveButton.textContent='Saving…';}
-  let outcome;
-  try{
-    outcome=await commitBookingSave(next,{
-      syncEnabled:!!(window.BOOKING_SYNC&&BOOKING_SYNC.enabled()),
-      syncPush:function(payload){return BOOKING_SYNC.push(payload);},
-      localSave:function(payload){return BOOKING_AUTHORITY.save(bookingId,payload,liveTarget);}
-    });
-  }catch(commitError){
-    console.error('Booking save: unexpected commit exception',commitError);
-    outcome={ok:false,committed:false,reason:(commitError&&commitError.message)||'save-failed'};
-  }finally{
-    BOOKING_SAVE_IN_FLIGHT.delete(bookingId);
-  }
+  const outcome=await commitBookingSave(next,{
+    syncEnabled:!!(window.BOOKING_SYNC&&BOOKING_SYNC.enabled()),
+    syncPush:function(payload){return BOOKING_SYNC.push(payload);},
+    localSave:function(payload){return BOOKING_AUTHORITY.save(bookingId,payload,liveTarget);}
+  });
   if(!outcome.ok){
     if(saveButton){saveButton.disabled=false;saveButton.textContent='Save Booking';}
     console.error('Booking save failed',outcome.reason);
@@ -698,12 +565,7 @@ async function saveBookingEdit(event,bookingId){
     return false;
   }
   clearBookingEditSession();
-  if(current.placeId&&window.GUIDE_AUTHORITY){
-    const placePatch={phone:String(next.phone||'').trim(),website:String(next.website||'').trim()};
-    if(current.type==='accommodation')placePatch.address=String(next.address||'').trim();
-    GUIDE_AUTHORITY.save(current.placeId,placePatch);
-  }
-  if(saveButton)saveButton.textContent=outcome.degraded?'Saved locally · Sync pending':'Saved locally ✓';
+  if(saveButton)saveButton.textContent=outcome.degraded?'Saved · sync pending':'Saved ✓';
   try{document.dispatchEvent(new CustomEvent('travelengine:bookingchange',{detail:{bookingId:bookingId,booking:outcome.booking,syncPending:outcome.degraded}}));}
   catch(dispatchError){console.error('Booking save: post-commit change event failed (value remains saved)',dispatchError);}
   setTimeout(function(){
@@ -733,7 +595,7 @@ function openDeepLinkedBooking(){
   if(!bookingId)return;
   const booking=getBookingById(bookingId);
   if(!booking)return;
-  setTimeout(function(){returnToBookingDetail(bookingId,booking);document.body.classList.add('booking-host-ready');},0);
+  setTimeout(function(){returnToBookingDetail(bookingId,booking);},0);
 }
 document.addEventListener('DOMContentLoaded',openDeepLinkedBooking);
 
@@ -772,9 +634,9 @@ function tripHubEntries(){
   const enabled=(name,fallback)=>Object.prototype.hasOwnProperty.call(modules,name)?modules[name]!==false:fallback;
   const entries=[];
   if(cards.flights)entries.push({id:'flights',action:"openTripCard('flights')"});
-  if(enabled('stay',!!getAccommodationBookings().length)&&getAccommodationBookings().length){const stays=getAccommodationBookings();entries.push({id:'stay',action:stays.length===1?`openAccommodationDetail('${stays[0].id}')`:"openTripCard('stay')"});}
-  if(getBookingsByCategory('restaurants').length){const rows=getBookingsByCategory('restaurants');entries.push({id:'restaurants',action:rows.length===1?`openGenericBookingDetail('${rows[0].id}')`:"openBookingCategoryCard('Restaurants')"});}
-  if(getBookingsByCategory('spa').length){const rows=getBookingsByCategory('spa');entries.push({id:'spa',action:rows.length===1?`openGenericBookingDetail('${rows[0].id}')`:"openBookingCategoryCard('Spa')"});}
+  if(enabled('stay',!!getAccommodationBookings().length)&&getAccommodationBookings().length)entries.push({id:'stay',action:"openTripCard('stay')"});
+  if(getBookingsByCategory('restaurants').length)entries.push({id:'restaurants',action:"openBookingCategoryCard('Restaurants')"});
+  if(getBookingsByCategory('spa').length)entries.push({id:'spa',action:"openBookingCategoryCard('Spa')"});
   const groups=Array.isArray(TRIP_CONFIG.tripMenuGroups)?TRIP_CONFIG.tripMenuGroups:[];
   const groupedModules=new Set();
   groups.forEach(group=>{
@@ -816,18 +678,26 @@ function openTripCard(key) {
   if (key === 'checklist') setTimeout(loadChecklist, 0);
 }
 
-function crossLinkReturnTarget(){
-  const raw=new URLSearchParams(window.location.search).get('returnTo');
-  if(!raw)return '';
-  return (window.NAVIGATION&&typeof NAVIGATION.permittedReturnTarget==='function')
-    ? NAVIGATION.permittedReturnTarget(raw,'home')
-    : raw;
-}
 function closeTripModal() {
   if(isBookingEditActive() && !confirmDiscardBookingEdit()) return false;
   clearBookingEditSession();
-  if(typeof window.dismissAllContentOverlays==='function')return window.dismissAllContentOverlays();
-  document.getElementById('tripModal')?.classList.remove('show');
+  const modal = document.getElementById('tripModal');
+  if (modal) modal.classList.remove('show');
+  document.body.classList.remove('guide-booking-stack-open');
+  const returnToGuide=window.TRIP_MODAL_RETURN_TO_GUIDE===true;
+  window.TRIP_MODAL_RETURN_TO_GUIDE=false;
+  const guideModal=document.getElementById('guideModal');
+  if(guideModal&&!returnToGuide){
+    guideModal.classList.remove('show');
+    window.GUIDE_MODAL_ORIGIN=null;
+    if(typeof window.restoreGuideTimelineOrigin==='function') window.restoreGuideTimelineOrigin();
+  }
+  closeMiniMenus();
+  document.body.classList.remove('admin-overlay-open');
+  if(returnToGuide){
+    const sheet=document.querySelector('#guideModal .guide-sheet');
+    if(sheet) requestAnimationFrame(function(){sheet.focus?.({preventScroll:true});});
+  }
   return true;
 }
 
@@ -855,8 +725,13 @@ function bookingEntityIcon(booking,category){
   if(booking&&booking.emoji)return String(booking.emoji);
   const type=String(booking&&booking.type||'').toLowerCase();
   const title=String(booking&&booking.title||'').toLowerCase();
-  if(type==='restaurant')return title.includes('omakase')?'🍣':title.includes('little bear')?'🧸':title.includes('pizza')?'🍕':title.includes('lune')?'🇫🇷':'🍽️';
-  if(type==='spa')return title.includes('suga')||title.includes('head')?'🫧':title.includes('mộc hương')||title.includes('moc huong')||title.includes('wellness')?'🌿':title.includes('hạ spa')||title.includes('ha spa')?'💆‍♀️':'💆';
+  if(type==='restaurant')return title.includes('omakase')?'🍣':title.includes('pizza')?'🍕':'🍽️';
+  if(type==='spa'){
+    if(/head|hair/.test(title))return '🫧';
+    if(/foot/.test(title))return '🦶';
+    if(/wellness/.test(title))return '🌿';
+    return '💆';
+  }
   if(type==='transport')return title.includes('airport')?'✈️':'🚐';
   if(type==='activity'||type==='experience')return title.includes('cooking')?'👩‍🍳':'🎟️';
   return bookingCategoryIcon(category);
@@ -878,9 +753,6 @@ function buildBookingCategoryListHTML(category){
   }).join('')+'</div>';
 }
 function openBookingCategoryCard(category){
-  const direct=getBookingsByCategory(category);
-  if(direct.length===1){closeMiniMenus();openGenericBookingDetail(direct[0].id);return;}
-  if(!direct.length){closeMiniMenus();return;}
   closeMiniMenus();
   const content=document.getElementById('tripModalContent'),modal=document.getElementById('tripModal');
   if(!content||!modal)return;
@@ -904,7 +776,7 @@ function openTripModuleGroup(groupId){
  closeMiniMenus();
  const content=document.getElementById('tripModalContent'),modal=document.getElementById('tripModal'); if(!content||!modal)return;
  content.innerHTML=`<div class="trip-onepage trip-module-group"><p class="kicker">Trip</p><h2>${escapeTripHTML(group.icon||'📋')} ${escapeTripHTML(group.title||'Trip info')}</h2>${buildTripModuleGroupHTML(group)}${tripHubNavigationHTML('group:'+group.id)}</div>`;
- modal.classList.add('show'); window.bringContentOverlayToFront?.(modal); const sheet=document.querySelector('#tripModal .trip-sheet'); if(sheet)sheet.scrollTop=0;
+ modal.classList.add('show'); const sheet=document.querySelector('#tripModal .trip-sheet'); if(sheet)sheet.scrollTop=0;
 }
 
 /* Engine 25.2.9 — trip-data-driven menu. Prevents NZ-only Rental Car/route labels
@@ -917,9 +789,9 @@ function renderTripMenuFromConfig(){
  const rows=[];
  const push=(action,icon,title,sub,href)=>rows.push(`<a href="${href||'#'}"${action?` onclick="${action};return false;"`:''}><span><span class="menu-title">${icon} ${title}</span>${sub?`<span class="menu-sub">${sub}</span>`:''}</span><span>›</span></a>`);
  if(cards.flights)push("openTripCard('flights')",'✈️','Flights','Flight details');
- {const stays=getAccommodationBookings();if(enabled('stay',!!stays.length)&&stays.length)push(stays.length===1?`openAccommodationDetail('${stays[0].id}')`:"openTripCard('stay')",'🏨','Stay','Accommodation');}
- {const rows=getBookingsByCategory('restaurants');if(rows.length)push(rows.length===1?`openGenericBookingDetail('${rows[0].id}')`:"openBookingCategoryCard('Restaurants')",'🍽️','Restaurants','Restaurant bookings');}
- {const rows=getBookingsByCategory('spa');if(rows.length)push(rows.length===1?`openGenericBookingDetail('${rows[0].id}')`:"openBookingCategoryCard('Spa')",'💆','Spa','Spa bookings');}
+ if(enabled('stay',!!getAccommodationBookings().length))push("openTripCard('stay')",'🏨','Stay','Accommodation');
+ if(getBookingsByCategory('restaurants').length)push("openBookingCategoryCard('Restaurants')",'🍽️','Restaurants','Restaurant bookings');
+ if(getBookingsByCategory('spa').length)push("openBookingCategoryCard('Spa')",'💆','Spa','Spa bookings');
  const groupedModules=new Set();
  const groups=Array.isArray(TRIP_CONFIG.tripMenuGroups)?TRIP_CONFIG.tripMenuGroups:[];
  groups.forEach(group=>{
@@ -928,8 +800,8 @@ function renderTripMenuFromConfig(){
    const hasTransport=modules.includes('transport')&&enabled('transport',!!getTransportBookings().length)&&getTransportBookings().length;
    if(hasActivity||hasTransport){push(`openTripModuleGroup('${group.id}')`,group.icon||'📋',group.title||'Trip info',group.sub||'');modules.forEach(m=>groupedModules.add(m));}
  });
- if(!groupedModules.has('activities')&&enabled('activities',!!getActivityBookings().length)&&getActivityBookings().length)push("openTripCard('activities')",'🎟️','Activities','Activity bookings');
- if(!groupedModules.has('transport')&&enabled('transport',!!getTransportBookings().length)&&getTransportBookings().length)push("openTripCard('transport')",'🚐','Transport','Booked transport');
+ if(!groupedModules.has('activities')&&enabled('activities',!!getActivityBookings().length))push("openTripCard('activities')",'🎟️','Activities','Activity bookings');
+ if(!groupedModules.has('transport')&&enabled('transport',!!getTransportBookings().length))push("openTripCard('transport')",'🚐','Transport','Booked transport');
  if(enabled('rentalCar',!!cards.vehicle)&&cards.vehicle)push("openTripCard('vehicle')",'🚙','Rental Car','Vehicle details');
  host.innerHTML=rows.join('');
 }

@@ -166,15 +166,6 @@
     if(cfg&&storage){storage.remove(cfg.cacheKey);storage.remove(cfg.metadataKey);}
     activeSnapshot=null;
   }
-  function normalizeLegacyItineraryForHydration(value){
-    const out=value==null?value:JSON.parse(JSON.stringify(value));
-    if(!out||typeof out!=='object'||Array.isArray(out))return out;
-    Object.keys(out).forEach(function(dayKey){
-      const day=out[dayKey];if(!day||!Array.isArray(day.items))return;
-      day.items=day.items.map(function(item){const next=item==null?item:JSON.parse(JSON.stringify(item));if(next&&next.type==='custom'&&!String(next.placeId||'').trim()&&next.nonPlace!==true)next.nonPlace=true;return next;});
-    });
-    return out;
-  }
   function hydrateStaticData(targets){
     const wrapper=activeSnapshot||readCachedSnapshot();
     if(!wrapper)return {ok:false,reason:'no-snapshot',applied:[]};
@@ -192,17 +183,17 @@
       emit(EVENTS.error,{error:entry,state:snapshot()});
       return {ok:false,reason:'incomplete-payload',missing:integrity.missing,applied:[]};
     }
-    /* RC29.78 authority boundary: cloud publication owns Timeline only.
-       Guide, Booking, Documents, Expenses and Moments sync independently. */
     const map=[
+      ['PLACES',['places','PLACES']],['CATEGORIES',['categories','CATEGORIES']],
+      ['GUIDE_ORDER',['guideOrder','GUIDE_ORDER']],['DAY_LINKS',['dayLinks','DAY_LINKS']],
+      ['FRIENDS',['friends','FRIENDS']],['BOOKINGS_DATA',['bookingsData','bookings','BOOKINGS_DATA']],
+      ['TRIP_DATA',['tripData','TRIP_DATA']],['TRIP_ORDER',['tripOrder','TRIP_ORDER']],
       ['ITINERARY_DATA',['itineraryData','itinerary','ITINERARY_DATA']]
     ];
     const applied=[];
     map.forEach(function(entry){
-      const target=targets&&targets[entry[0]];
-      let next=select(data,entry[1]);
+      const target=targets&&targets[entry[0]],next=select(data,entry[1]);
       if(next===undefined)return;
-      if(entry[0]==='ITINERARY_DATA') next=(root.ITINERARY_AUTHORITY&&typeof root.ITINERARY_AUTHORITY.normalizeItineraryData==='function')?root.ITINERARY_AUTHORITY.normalizeItineraryData(next):normalizeLegacyItineraryForHydration(next);
       const changed=Array.isArray(target)?replaceArray(target,next):replaceObject(target,next);
       if(changed)applied.push(entry[0]);
     });

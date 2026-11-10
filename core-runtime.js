@@ -35,14 +35,13 @@
 
     /* First RC15.1 run is deliberately a migration: legacy snapshots have no
        master signature, so they cannot safely override the current master. */
-    // Manual itinerary overrides are user-owned; never delete on a deploy.
-    // ITINERARY_AUTHORITY rebases them against the new master.
+    root.STORAGE.local.remove(overridesKey);
 
     const draft=root.STORAGE.local.readJSON(draftKey,null);
     if(draft&&draft.changes&&typeof draft.changes==='object'){
       const nextChanges={};
       Object.keys(draft.changes).forEach(function(key){
-        nextChanges[key]=draft.changes[key];
+        if(!/^itineraryDay\d+$/.test(key))nextChanges[key]=draft.changes[key];
       });
       draft.changes=nextChanges;
       draft.updatedAt=new Date().toISOString();
@@ -139,10 +138,7 @@ function closeCrossModuleOverlays(target){
     if(typeof window.isBookingEditActive==='function' && window.isBookingEditActive()) return false;
     tripModal.classList.remove('show');
   }
-  if(target!=='guide' && guideModal?.classList.contains('show')){
-    if(typeof window.isGuideEditActive==='function' && window.isGuideEditActive()) return false;
-    guideModal.classList.remove('show');
-  }
+  if(target!=='guide' && guideModal?.classList.contains('show')) guideModal.classList.remove('show');
   return true;
 }
 function toggleTripMenu(){
@@ -221,7 +217,6 @@ document.addEventListener('click', function(e){
   if(!modal || e.target !== modal) return;
   if(modal.id==='tripModal' && typeof window.isBookingEditActive==='function' && window.isBookingEditActive()) return;
   if(modal.id==='tripModal' && typeof closeTripModal==='function') closeTripModal();
-  else if(modal.id==='guideModal' && typeof window.isGuideEditActive==='function' && window.isGuideEditActive()) return;
   else if(modal.id==='guideModal' && typeof closeGuideModal==='function') closeGuideModal();
   else if(modal.id==='mamaModal' && typeof closeFriendModal==='function') closeFriendModal();
   else modal.classList.remove('show');
@@ -231,7 +226,6 @@ document.addEventListener('keydown', function(e){
     const tripModal=document.getElementById('tripModal');
     const guideModal=document.getElementById('guideModal');
     if(tripModal?.classList.contains('show') && typeof window.isBookingEditActive==='function' && window.isBookingEditActive()) return;
-    if(guideModal?.classList.contains('show') && typeof window.isGuideEditActive==='function' && window.isGuideEditActive()) return;
     if(tripModal?.classList.contains('show') && typeof closeTripModal==='function') closeTripModal();
     else if(guideModal?.classList.contains('show') && typeof closeGuideModal==='function') closeGuideModal();
     else { document.querySelectorAll('.moments-modal,.unexpected-modal,.tools-modal').forEach(m=>m.classList.remove('show')); if(typeof closeFriendModal==='function')closeFriendModal(); }

@@ -53,79 +53,6 @@
   function clone(value){ return value==null?value:JSON.parse(JSON.stringify(value)); }
 
   function emptyStore(){ return {masterRevision:getMasterRevision(),dayChanges:{}}; }
-  function normalizeItems(items){
-    return (Array.isArray(items)?items:[]).map(function(item){
-      const next=clone(item);
-      if(next&&next.type==='custom'&&!String(next.placeId||'').trim()&&next.nonPlace!==true) next.nonPlace=true;
-      return next;
-    });
-  }
-  function normalizeItineraryData(data){
-    const out=clone(data||{});
-    Object.keys(out).forEach(function(day){if(out[day]&&Array.isArray(out[day].items))out[day].items=normalizeItems(out[day].items);});
-    return out;
-  }
-
-
-  /* RC29.131: Timeline edits are user intent, not disposable snapshots.
-     New saves carry the master baseline that the user edited. On a later deploy we
-     replay only the fields the user actually changed, including explicit empty values,
-     and preserve add/delete/order operations by stable item id. */
-  const USER_EDITABLE_FIELDS=['time','title','details','route'];
-  function same(a,b){return JSON.stringify(a)===JSON.stringify(b);}
-  function rebaseDay(savedItems,baseItems,currentItems){
-    const saved=normalizeItems(savedItems),base=normalizeItems(baseItems),current=normalizeItems(currentItems);
-    const baseBy=new Map(base.filter(x=>x&&x.id).map(x=>[String(x.id),x]));
-    const savedBy=new Map(saved.filter(x=>x&&x.id).map(x=>[String(x.id),x]));
-    const currentBy=new Map(current.filter(x=>x&&x.id).map(x=>[String(x.id),x]));
-    const deleted=new Set(base.filter(x=>x&&x.id&&!savedBy.has(String(x.id))).map(x=>String(x.id)));
-    const out=[];
-    saved.forEach(function(si){
-      if(!si||!si.id){out.push(clone(si));return;}
-      const id=String(si.id),bi=baseBy.get(id),ci=currentBy.get(id);
-      if(!bi){out.push(clone(si));return;} // user-added item
-      if(!ci){out.push(clone(si));return;} // manual edit wins even if deploy removed the card
-      const merged=clone(ci);
-      USER_EDITABLE_FIELDS.forEach(function(field){
-        const sHas=Object.prototype.hasOwnProperty.call(si,field),bHas=Object.prototype.hasOwnProperty.call(bi,field);
-        if(sHas!==bHas || (sHas&&!same(si[field],bi[field]))){
-          if(sHas)merged[field]=clone(si[field]); else delete merged[field];
-        }
-      });
-      out.push(merged);
-    });
-    /* Insert genuinely new master items without disturbing the user's saved order. */
-    current.forEach(function(ci,idx){
-      if(!ci||!ci.id)return;const id=String(ci.id);
-      if(baseBy.has(id)||savedBy.has(id)||deleted.has(id)||out.some(x=>x&&String(x.id)===id))return;
-      let at=out.length,placed=false;
-      for(let n=idx+1;n<current.length;n++){const next=current[n];if(next&&next.id){const found=out.findIndex(x=>x&&String(x.id)===String(next.id));if(found>=0){at=found;placed=true;break;}}}
-      if(!placed)for(let p=idx-1;p>=0;p--){const prev=current[p];if(prev&&prev.id){const found=out.findIndex(x=>x&&String(x.id)===String(prev.id));if(found>=0){at=found+1;break;}}}
-      out.splice(at,0,clone(ci));
-    });
-    return normalizeItems(out);
-  }
-  function legacyRebaseDay(savedItems,currentItems){
-    /* One-time bridge for pre-RC29.131 stores, which did not save a baseline.
-       Preserve the four fields Studio could actually edit plus user add/delete/order.
-       Relationship metadata still comes from current master via hydrateRelationships(). */
-    const saved=normalizeItems(savedItems),current=normalizeItems(currentItems);
-    const currentBy=new Map(current.filter(x=>x&&x.id).map(x=>[String(x.id),x]));
-    const out=[];
-    saved.forEach(function(si){
-      if(!si||!si.id){out.push(clone(si));return;}const ci=currentBy.get(String(si.id));
-      if(!ci){out.push(clone(si));return;}
-      const merged=Object.assign({},clone(ci),clone(si));out.push(merged);
-    });
-    current.forEach(function(ci,idx){
-      if(!ci||!ci.id||out.some(x=>x&&String(x.id)===String(ci.id)))return;
-      let at=out.length,placed=false;
-      for(let n=idx+1;n<current.length;n++){const next=current[n];if(next&&next.id){const found=out.findIndex(x=>x&&String(x.id)===String(next.id));if(found>=0){at=found;placed=true;break;}}}
-      if(!placed)for(let p=idx-1;p>=0;p--){const prev=current[p];if(prev&&prev.id){const found=out.findIndex(x=>x&&String(x.id)===String(prev.id));if(found>=0){at=found+1;break;}}}
-      out.splice(at,0,clone(ci));
-    });
-    return normalizeItems(out);
-  }
 
   /* Accepts any previously-saved shape and returns a store that is guaranteed
      to be {masterRevision, dayChanges:{day:{items:[...]}}} and bound to the
@@ -144,32 +71,18 @@
     if(!raw||typeof raw!=='object'||Array.isArray(raw)) return emptyStore();
     const hasRevisionShape=typeof raw.masterRevision==='string'&&raw.dayChanges&&typeof raw.dayChanges==='object'&&!Array.isArray(raw.dayChanges);
     if(!hasRevisionShape){
-      // Legacy flat saves are user edits, not disposable cache. Preserve every
-      // day and migrate without losing blanked notes, custom cards or deletions.
-      const dayChanges={};
-      Object.keys(raw).forEach(function(day){
-        if(!/^\d+$/.test(day)||!Array.isArray(raw[day]))return;
-        const masterItems=(((root.ITINERARY_DATA||{})[String(day)]||{}).items)||[];
-        dayChanges[String(day)]={items:legacyRebaseDay(raw[day],masterItems),baseItems:normalizeItems(masterItems)};
-      });
-      return {masterRevision:current,dayChanges:dayChanges};
+      // Legacy flat shape (or anything unrecognised) — revision unknown, discard.
+      return emptyStore();
     }
     if(raw.masterRevision!==current){
-      const rebased={masterRevision:current,dayChanges:{}};
-      Object.keys(raw.dayChanges||{}).forEach(function(day){
-        const entry=raw.dayChanges[day];if(!entry||!Array.isArray(entry.items))return;
-        const masterItems=(((root.ITINERARY_DATA||{})[String(day)]||{}).items)||[];
-        const items=Array.isArray(entry.baseItems)
-          ? rebaseDay(entry.items,entry.baseItems,masterItems)
-          : legacyRebaseDay(entry.items,masterItems);
-        rebased.dayChanges[String(day)]={items:items,baseItems:normalizeItems(masterItems)};
-      });
-      return rebased;
+      // Saved under a previous master — invalidate rather than let it mask
+      // whatever the current master says.
+      return emptyStore();
     }
     const cleanChanges={};
     Object.keys(raw.dayChanges).forEach(function(day){
       const entry=raw.dayChanges[day];
-      if(entry&&Array.isArray(entry.items)) cleanChanges[String(day)]={items:normalizeItems(entry.items),baseItems:normalizeItems(Array.isArray(entry.baseItems)?entry.baseItems:((((root.ITINERARY_DATA||{})[String(day)]||{}).items)||[]))};
+      if(entry&&Array.isArray(entry.items)) cleanChanges[String(day)]={items:clone(entry.items)};
     });
     return {masterRevision:current,dayChanges:cleanChanges};
   }
@@ -206,14 +119,12 @@
       if(!key.startsWith('itineraryDay')) return;
       const change=changes[key];
       if(change&&Array.isArray(change.items)){
-        store.dayChanges[String(change.day)]={items:normalizeItems(change.items),baseItems:normalizeItems(((((root.ITINERARY_DATA||{})[String(change.day)]||{}).items)||[]))};
+        store.dayChanges[String(change.day)]={items:clone(change.items)};
       }
     });
     store.masterRevision=getMasterRevision();
     const backing=localStore();
-    if(!backing || backing.writeJSON(storageKey(),store)!==true){
-      throw new Error('Timeline local save failed; draft has been retained.');
-    }
+    if(backing) backing.writeJSON(storageKey(),store);
     return store;
   }
 
@@ -233,8 +144,8 @@
     const draft=typeof root.getAdminDraft==='function'?root.getAdminDraft():null;
     const pending=draft&&draft.changes?draft.changes['itineraryDay'+dayKey]:null;
     if(!pending||!Array.isArray(pending.items)) return null;
-    // A manually saved pending edit remains authoritative across deploy revisions.
-    return normalizeItems(pending.items);
+    if(pending.masterRevision!==getMasterRevision()) return null;
+    return clone(pending.items);
   }
 
   /* Removes only the itinerary-related entries of the persisted admin draft
@@ -252,7 +163,8 @@
       if(!key.startsWith('itineraryDay')) return;
       const change=raw.changes[key];
       if(change&&Array.isArray(change.items)&&change.masterRevision!==current){
-        // Preserve user-owned draft edits even after a deploy.
+        delete raw.changes[key];
+        changed=true;
       }
     });
     if(changed) backing.writeJSON(draftKey(),raw);
@@ -260,30 +172,12 @@
 
   /* Single resolver used by every itinerary consumer:
      pending (validated) -> saved override (validated) -> master. */
-  /* Timeline edits own presentation/order content, not cross-surface relationship
-     metadata. When an override was saved before Guide/Booking relationship metadata was
-     added to the current master, hydrate those relationship fields from the current
-     master by stable item id. This prevents an otherwise-valid saved timeline override
-     from masking Guide/Booking actions introduced by a newer relationship model. */
-  const RELATIONSHIP_FIELDS=['placeId','bookingId','guideIds','alternativeGuideIds','guideGroups','parkingGuideId','currencyGuide','showShoppingDirectory'];
-  function hydrateRelationships(items,masterItems){
-    const masters=new Map((masterItems||[]).filter(item=>item&&item.id).map(item=>[String(item.id),item]));
-    return (items||[]).map(function(item){
-      const copy=clone(item),master=copy&&copy.id?masters.get(String(copy.id)):null;
-      if(!master)return copy;
-      RELATIONSHIP_FIELDS.forEach(function(field){
-        if(Object.prototype.hasOwnProperty.call(master,field)) copy[field]=clone(master[field]);
-        else delete copy[field];
-      });
-      return copy;
-    });
-  }
   function resolveDayItems(dayKey,masterItems){
     const pending=getPendingDayItems(dayKey);
-    if(pending) return hydrateRelationships(pending,masterItems);
+    if(pending) return pending;
     const saved=getDayOverrideItems(dayKey);
-    if(saved) return hydrateRelationships(saved,masterItems);
-    return normalizeItems(masterItems||[]);
+    if(saved) return saved;
+    return clone(masterItems||[]);
   }
 
   /* Used by sync-runtime.js to decide whether a cached/fetched Supabase
@@ -303,7 +197,6 @@
     commitDayChanges,
     clearDayOverride,
     pruneStaleDraftItineraryChanges,
-    isCompatibleSnapshotPayload,
-    normalizeItems,normalizeItineraryData
+    isCompatibleSnapshotPayload
   });
 })(globalThis);

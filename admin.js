@@ -289,7 +289,7 @@
         <div id="tripStudioDanger" class="trip-studio-group trip-studio-danger" hidden>
           <p class="trip-studio-label">DATA CONTROL</p>
           <button id="resetTripDataButton" class="reset-trip-data-btn" type="button">
-            <span><strong>Clear Trip Records</strong><small>Delete Documents, Moments and Expenses only. Keep itinerary, bookings, Guide and trip settings.</small></span><span aria-hidden="true">↺</span>
+            <span><strong>Reset Trip Data</strong><small>Restore the original trip and remove all saved progress.</small></span><span aria-hidden="true">↺</span>
           </button>
           <button id="exitTripStudioButton" class="exit-trip-studio-btn" type="button">
             <span><strong>Leave Studio Mode</strong><small>Return to traveller mode. The Studio PIN will be required next time.</small></span><span aria-hidden="true">Leave</span>
@@ -305,7 +305,7 @@
       bar.id='adminSaveBar';
       bar.className='admin-save-bar';
       bar.hidden=true;
-      bar.innerHTML='<div><strong>Unsaved changes</strong><small>Save or discard before leaving Admin Mode.</small></div><div class="admin-save-actions"><button type="button" class="admin-discard-btn" onclick="discardAdminChanges()">Discard</button><button type="button" class="admin-save-btn" onclick="saveAdminChanges()">Save</button></div>';
+      bar.innerHTML='<div><strong>Unsaved changes</strong><small>Save or discard before leaving Admin Mode.</small></div><div class="admin-save-actions"><button type="button" class="admin-discard-btn" onclick="discardAdminChanges()">Discard</button><button type="button" class="admin-save-btn" onclick="saveAdminChanges()">Save Changes</button></div>';
       document.body.appendChild(bar);
     }
   }
@@ -362,22 +362,13 @@
   window.saveAdminChanges=function(){
     if(!state.mode || !state.dirty) return true;
     const draft=ensureDraft();
-    const detail={draft:JSON.parse(JSON.stringify(draft)),timelineCommitted:false};
-    try{
-      document.dispatchEvent(new CustomEvent('travelengine:adminsave',{detail}));
-      const hasTimeline=Object.keys(draft.changes||{}).some(key=>key.startsWith('itineraryDay'));
-      if(hasTimeline&&!detail.timelineCommitted)throw new Error('Timeline save was not acknowledged.');
-      const cleared=Object.assign({},draft,{changes:{},updatedAt:new Date().toISOString()});
-      if(STORAGE.local.writeJSON(DRAFT_KEY,cleared)!==true)throw new Error('Could not clear saved draft safely.');
-      state.dirty=false;
-      updateUI();
-      return true;
-    }catch(error){
-      state.dirty=true;
-      updateUI();
-      window.alert('Save failed — edits are still pending. '+(error&&error.message||''));
-      return false;
-    }
+    document.dispatchEvent(new CustomEvent('travelengine:adminsave',{detail:{draft:JSON.parse(JSON.stringify(draft))}}));
+    draft.changes={};
+    draft.updatedAt=new Date().toISOString();
+    STORAGE.local.writeJSON(DRAFT_KEY,draft);
+    state.dirty=false;
+    updateUI();
+    return true;
   };
 
   window.discardAdminChanges=function(){
